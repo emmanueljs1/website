@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
     "postinstall": "npm run build",
     "start": "npm run serve",
     "serve": "node dist/app.js",

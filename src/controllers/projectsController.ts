@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import template from '../template';
-import * as Projects from '../components/Projects'; 
+import template from "../template";
+import * as Projects from "../components/Projects";
 
 /**
  * GET /
- * Home page.
+ * Projects page.
  */
 export let index = (_: Request, res: Response) => {
   res.send(template({

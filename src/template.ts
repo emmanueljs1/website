@@ -12,7 +12,7 @@ export default function template(fields: {body: string, title: string}) {
         <a href="about">About</a>
         <a href="projects">Projects</a>
       </div>
-      
+
       <body>
         <div id="root">
           ${fields.body}
@@ -20,4 +20,4 @@ export default function template(fields: {body: string, title: string}) {
       </body>
     </html>
   `;
-};
+}

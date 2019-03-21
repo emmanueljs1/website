@@ -4,9 +4,9 @@ import express from "express";
 import logger from "morgan";
 import path from "path";
 
-import * as homeController from "./controllers/homeController";
 import * as aboutController from "./controllers/aboutController";
 import * as errorController from "./controllers/errorController";
+import * as homeController from "./controllers/homeController";
 import * as projectController from "./controllers/projectsController";
 
 const app = express();
@@ -26,7 +26,7 @@ app.use(errorHandler());
 app.get("/about", aboutController.index);
 app.get("/projects", projectController.index);
 app.get("/", homeController.index);
-app.get('*', errorController.index);
+app.get("*", errorController.index);
 
 // listen
 app.listen(app.get("port"), () => {

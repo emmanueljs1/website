@@ -1,5 +1,5 @@
-import ReactDOM from 'react-dom/server';
-import React from 'react';
+import ReactDOM from "react-dom/server";
+import React from "react";
 
 class Error extends React.Component {
   render() {
@@ -13,4 +13,4 @@ class Error extends React.Component {
 
 export function renderToString() {
   return ReactDOM.renderToString(<Error />);
-};
+}

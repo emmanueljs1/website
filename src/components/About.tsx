@@ -1,5 +1,5 @@
-import ReactDOM from 'react-dom/server';
-import React from 'react';
+import ReactDOM from "react-dom/server";
+import React from "react";
 
 class About extends React.Component {
   render() {
@@ -17,4 +17,4 @@ class About extends React.Component {
 
 export function renderToString() {
   return ReactDOM.renderToString(<About />);
-};
+}

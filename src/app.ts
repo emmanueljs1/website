@@ -5,6 +5,9 @@ import logger from "morgan";
 import path from "path";
 
 import * as homeController from "./controllers/homeController";
+import * as aboutController from "./controllers/aboutController";
+import * as errorController from "./controllers/errorController";
+import * as projectController from "./controllers/projectsController";
 
 const app = express();
 
@@ -20,7 +23,10 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use(errorHandler());
 
 // routes
-app.use("/", homeController.index);
+app.get("/about", aboutController.index);
+app.get("/projects", projectController.index);
+app.get("/", homeController.index);
+app.get('*', errorController.index);
 
 // listen
 app.listen(app.get("port"), () => {

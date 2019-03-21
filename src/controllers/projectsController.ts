@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import template from '../template';
-import * as Home from '../components/Home'; 
+import * as Projects from '../components/Projects'; 
 
 /**
  * GET /
@@ -8,7 +8,7 @@ import * as Home from '../components/Home';
  */
 export let index = (_: Request, res: Response) => {
   res.send(template({
-    body: Home.renderToString(),
+    body: Projects.renderToString(),
     title: "Emmanuel Suarez"
   }));
 };

@@ -1,16 +1,16 @@
 import ReactDOM from 'react-dom/server';
 import React from 'react';
 
-class Home extends React.Component {
+class Error extends React.Component {
   render() {
     return (
       <div>
-        Hello
+        Page not found.
       </div>
     );
   }
 }
 
 export function renderToString() {
-  return ReactDOM.renderToString(<Home />);
+  return ReactDOM.renderToString(<Error />);
 };

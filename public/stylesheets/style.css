@@ -1,43 +1,38 @@
+@font-face { font-family: PressStart; src: url('../PressStart2P.ttf'); }
+@font-face { font-family: PressStart; font-weight: bold; src: url('../PressStart2P.ttf');}
+
 body {
-  font: 18px "Lucida Grande", Helvetica, Arial, sans-serif;
-  margin-left: 160px;
+  font: 18px PressStart;
+  color: #595959;
   padding: 5px;
-}
-
-h1 {
-  padding: 0px;
-  margin: 0px;  
-}
-
-p {
-  padding: 0px;
-  margin: 0px;
+  background-image: url("../images/background.png");
+  background-size: cover;
 }
 
 a {
-  color: #00B7FF;
-}
-
-.sidenav {
-  height: 100%;
-  width: 160px;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: #111;
-  overflow-x: hidden;
-  padding-top: 20px;
-}
-
-.sidenav a {
-  padding: 6px 8px 6px 16px;
   text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
+  color: #595959;
 }
 
-.sidenav a:hover {
-  color: #f1f1f1;
+h1 {
+  margin-top: 50px;
+}
+
+.house {
+  margin-top: 160px;
+  margin-left: 50px;
+}
+
+.puerto-rico {
+  width: 40px;
+  height: 20px;
+  display: inline-block;
+}
+
+.center-text {
+  text-align: center;
+}
+
+.iniline-block {
+  display: inline-block;
 }

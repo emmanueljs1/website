@@ -33,6 +33,12 @@ a:hover {
 
 .house {
   content: url("../images/house.png");
+  margin-left: 50px;
+}
+
+.house-es {
+  content: url("../images/house.png");
+  margin-left: 70px;
 }
 
 .puerto-rico {

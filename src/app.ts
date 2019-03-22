@@ -21,7 +21,8 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use(errorHandler());
 
 // routes
-app.get("/", homeController.index);
+app.get("/", homeController.index(false));
+app.get("/es", homeController.index(true));
 app.get("*", errorController.index);
 
 // listen

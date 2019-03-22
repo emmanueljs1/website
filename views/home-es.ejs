@@ -1,6 +1,6 @@
 <html>
-  <!-- I see you prefer to appreciate websites in their raw text form. 
-    You might enjoy heading over to emmanuelsuarez.com/rawtext.html -->
+  <!-- Veo que prefieres apreciar a los websites en su forma cruda. 
+    Tal vez quieras visitar mi otra página: emmanuelsuarez.com/rawtext.html -->
   <head>
       <title><%= title %></title>
       <link rel="stylesheet" href="stylesheets/style.css" />
@@ -12,13 +12,13 @@
       <div class="center-text">
         <h1 class=<%= isMobile ? "mobile-h1" : "desktop-h1" %>>Emmanuel Su&aacute;rez</h1>
         <div>
-          Born and raised in Puerto Rico
+          Hecho en Puerto Rico
           <% if (!isMobile) { %>
             <img class="puerto-rico" src="images/puerto-rico.png">
           <% } %>
         </div>
-        <h4>Senior at the University of Pennsylvania</h4>
-        <h4>Incoming Software Engineer at Strava</h4>
+        <h4>Estudiante en la Universidad de Pennsylvania</h4>
+        <h4>Futuro ingeniero de software en Strava</h4>
       </div>
       <div class="center-text">
           <a class="inline-block" href="https://www.linkedin.com/in/emsuac">
@@ -52,8 +52,8 @@
       </div>
       <% if (!isMobile) { %>
         <div class="house-container">
-          <div class="house"></div>
-          <h4 class><a href="/es">Click For Spanish</a></h4>
+          <div class="house-es"></div>
+          <h4 class><a href="/">Presione para ingl&eacute;s</a></h4>
         </div>
       <% } %>
   </body>

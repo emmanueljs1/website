@@ -2,10 +2,13 @@
   "name": "website",
   "version": "0.0.0",
   "private": true,
-  "main": "src/index.js",
+  "main": "dist/app.js",
   "scripts": {
+    "build": "tsc",
     "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
-    "start": "ts-node src/app.ts",
+    "postinstall": "npm run build",
+    "start": "npm run serve",
+    "serve": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -14,14 +17,13 @@
     "express-react-views": "^0.11.0",
     "mobile-detect": "^1.4.3",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4",
-    "ts-node": "^8.0.3",
+    "react-dom": "^16.8.4"
+  },
+  "devDependencies": {
+    "tslint": "^5.14.0",
     "@types/express": "^4.16.1",
     "@types/node": "^11.11.4",
     "@types/react": "^16.8.8",
     "typescript": "^3.3.4000"
-  },
-  "devDependencies": {
-    "tslint": "^5.14.0"
   }
 }

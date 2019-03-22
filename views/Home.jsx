@@ -1,8 +1,6 @@
 import React from 'react';
 
-interface HomeProps {title: string, isMobile: boolean, isSpanish: boolean}
-
-class Home extends React.Component<HomeProps, {}> {
+class Home extends React.Component {
   render() {
     const isMobile = this.props.isMobile;
     const isSpanish = this.props.isSpanish;

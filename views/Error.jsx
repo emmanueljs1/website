@@ -1,8 +1,6 @@
 import React from "react";
 
-interface ErrorProps { title: string }
-
-class Error extends React.Component<ErrorProps, {}> {
+class Error extends React.Component {
   render() {
     return (
       <html>

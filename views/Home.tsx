@@ -12,7 +12,7 @@ class Home extends React.Component<HomeProps, {}> {
         <head>
           <title>{this.props.title}</title>
           <link rel="stylesheet" href="stylesheets/style.css"/>
-          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y"/>
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y" crossOrigin="anonymous"/>
           <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
         </head>
         <body>

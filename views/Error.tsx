@@ -1,6 +1,8 @@
 import React from "react";
 
-class Error extends React.Component {
+interface ErrorProps { title: string }
+
+class Error extends React.Component<ErrorProps, {}> {
   render() {
     return (
       <html>
@@ -10,7 +12,7 @@ class Error extends React.Component {
         </head>
 
         <body>
-          <div class="center-text">
+          <div className="center-text">
             <h1>Error: Page not found</h1>
           </div>
         </body>

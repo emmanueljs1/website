@@ -12,8 +12,8 @@ const app = express();
 // express setup
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
-app.set("view engine", "jsx");
-app.engine("jsx", require("express-react-views").createEngine());
+app.set("view engine", "tsx");
+app.engine("tsx", require("express-react-views").createEngine());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

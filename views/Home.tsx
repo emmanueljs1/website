@@ -1,6 +1,8 @@
 import React from 'react';
 
-class Home extends React.Component {
+interface HomeProps {title: string, isMobile: boolean, isSpanish: boolean}
+
+class Home extends React.Component<HomeProps, {}> {
   render() {
     const isMobile = this.props.isMobile;
     const isSpanish = this.props.isSpanish;
@@ -10,7 +12,7 @@ class Home extends React.Component {
         <head>
           <title>{this.props.title}</title>
           <link rel="stylesheet" href="stylesheets/style.css"/>
-          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y" crossorigin="anonymous"/>
+          <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y"/>
           <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
         </head>
         <body>

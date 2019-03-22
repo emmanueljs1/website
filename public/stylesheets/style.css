@@ -9,6 +9,10 @@ body {
   background-size: cover;
 }
 
+html, body {
+  height: 100%;
+}
+
 a {
   text-decoration: none;
   color: #595959;
@@ -53,4 +57,10 @@ a:hover {
 
 .iniline-block {
   display: inline-block;
+}
+
+.row-center {
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
 }

@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc",
     "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
-    "postinstall": "npm run build",
     "start": "npm run serve",
     "serve": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"

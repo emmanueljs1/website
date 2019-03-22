@@ -9,7 +9,7 @@ export function index(isSpanish: boolean) {
     const MobileDetect = require("mobile-detect");
     const md = new MobileDetect(req.headers["user-agent"]);
 
-    res.render("home", {
+    res.render("Home", {
       title: "Emmanuel Suarez",
       isSpanish: isSpanish,
       isMobile: md.mobile() !== null

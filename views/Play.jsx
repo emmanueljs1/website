@@ -2,6 +2,8 @@ import React from "react";
 
 class Play extends React.Component {
   render() {
+    const isMobile = this.props.isMobile;
+
     return (
       <html>
         <head>
@@ -12,9 +14,19 @@ class Play extends React.Component {
         </head>
         <body>
           <script src="javascripts/play.js"></script>
-          <div className="center-text">
-            <h1 className="desktop-h1">Coming soon...</h1>
-          </div>
+            {
+              !isMobile ?
+                <div>
+                  <div className="house-container-play">
+                    <div className="house-img house-margin"></div>
+                  </div>
+                  <canvas id="canvas"></canvas>
+                </div>
+              : 
+                <div className="center-text">
+                  <h1 className="mobile-h1">Try this out on a desktop!</h1>
+                </div>
+            }
         </body>
       </html>
     );

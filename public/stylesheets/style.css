@@ -4,8 +4,7 @@
 body {
   font: 18px PressStart;
   color: #595959;
-  padding: 0px;
-  margin: 0;
+  margin: 10px;
 }
 
 html {
@@ -43,14 +42,22 @@ a:hover {
   bottom: 20px;
 }
 
-.house {
-  content: url("../images/house.png");
+.house-container-play {
   margin-left: 50px;
+  position: absolute;
+  bottom: 80px;
 }
 
-.house-es {
+.house-img {
   content: url("../images/house.png");
-  margin-left: 70px;
+}
+
+.house-margin {
+  margin-left: 20px;
+}
+
+.house-margin-es {
+  margin-left: 50px;
 }
 
 .puerto-rico {
@@ -71,4 +78,6 @@ a:hover {
   flex-direction: row;
   display: flex;
   justify-content: center;
+  padding: 0px;
+  margin: 0px;
 }

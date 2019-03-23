@@ -4,6 +4,10 @@ class Home extends React.Component {
   render() {
     const isMobile = this.props.isMobile;
     const isSpanish = this.props.isSpanish;
+    const puertoRicoStr = isSpanish ? "Hecho en Puerto Rico" : "Born and raised in Puerto Rico";
+    const puertoRicoBadge = !isMobile ? <a href="/es">&nbsp;<img className="puerto-rico" src="images/puerto-rico.png"></img></a> : null;
+    const schoolStr = isSpanish ? "Estudiante en la Universidad de Pennsylvania" : "Senior at the University of Pennsylvania";
+    const jobStr = isSpanish ? "Futuro ingeniero de software en Strava" : "Incoming Software Engineer at Strava";
 
     return (
       <html>
@@ -17,12 +21,9 @@ class Home extends React.Component {
           <div>
           <div className="center-text">
             <h1 className={isMobile ? "mobile-h1" : "desktop-h1"}>Emmanuel Su&aacute;rez</h1>
-            <div className="row-center">
-              { isSpanish ? "Hecho en Puerto Rico" : "Born and raised in Puerto Rico" }
-              { !isMobile ? <div>&nbsp;<img className="puerto-rico" src="images/puerto-rico.png"></img></div> : null }
-            </div>
-            <h4>{ isSpanish ? "Estudiante en la Universidad de Pennsylvania" : "Senior at the University of Pennsylvania" }</h4>
-            <h4>{ isSpanish ? "Futuro ingeniero de software en Strava" : "Incoming Software Engineer at Strava" }</h4>
+            <h4>{puertoRicoStr}{puertoRicoBadge}</h4>
+            <h4>{schoolStr}</h4>
+            <h4>{jobStr}</h4>
           </div>
           <div className="row-center">
               <a href="https://www.linkedin.com/in/emsuac">
@@ -41,8 +42,8 @@ class Home extends React.Component {
           {
             !isMobile ?
               <div className="house-container">
-                <div className={isSpanish ? "house-es" : "house"}></div>
-                <h4><a href={isSpanish ? "/" : "/es"}>{isSpanish ? "Presione para inglés" : "Click For Spanish"}</a></h4>
+                <div className={isSpanish ? "house-img house-margin-es" : "house-img house-margin"}></div>
+                <h4><a href="/play">{isSpanish ? "Presione para jugar" : "Click To Play"}</a></h4>
               </div>
             : null
           }

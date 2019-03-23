@@ -4,19 +4,26 @@
 body {
   font: 18px PressStart;
   color: #595959;
-  margin: 10px;
 }
 
-html {
+.background {
   background-image: url("../images/background.png");
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: #7fad71;
+}
+
+.background-play {
+  background-image: url("../images/background-play.png");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 html, body {
   height: 100%;
+  width: 100%;
   overflow: hidden;
+  padding: 0px;
+  margin: 0px;
 }
 
 a {
@@ -36,28 +43,8 @@ a:hover {
   margin-top: 70px;
 }
 
-.house-container {
-  margin-left: 50px;
-  position: absolute;
-  bottom: 20px;
-}
-
-.house-container-play {
-  margin-left: 50px;
-  position: absolute;
-  bottom: 80px;
-}
-
-.house-img {
-  content: url("../images/house.png");
-}
-
-.house-margin {
-  margin-left: 20px;
-}
-
-.house-margin-es {
-  margin-left: 50px;
+.click-to-play {
+  margin-top: 100px;
 }
 
 .puerto-rico {
@@ -80,4 +67,15 @@ a:hover {
   justify-content: center;
   padding: 0px;
   margin: 0px;
+}
+
+canvas {
+  margin: 0 auto;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
 }

@@ -17,8 +17,8 @@ class Home extends React.Component {
           <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y" crossOrigin="anonymous"/>
           <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
         </head>
-        <body>
-          <div>
+        <body className="background">
+          <script src="javascripts/home.js"></script>
           <div className="center-text">
             <h1 className={isMobile ? "mobile-h1" : "desktop-h1"}>Emmanuel Su&aacute;rez</h1>
             <h4>{puertoRicoStr}{puertoRicoBadge}</h4>
@@ -41,13 +41,13 @@ class Home extends React.Component {
           </div>
           {
             !isMobile ?
-              <div className="house-container">
-                <div className={isSpanish ? "house-img house-margin-es" : "house-img house-margin"}></div>
-                <h4><a href="/play">{isSpanish ? "Presione para jugar" : "Click To Play"}</a></h4>
+              <div className="row-center">
+                <h4 className="click-to-play">
+                  <a id="click-to-play" href="/play">{isSpanish ? "Presione para jugar" : "Click To Play"}</a>
+                </h4>
               </div>
             : null
           }
-          </div>
         </body>
       </html>
     );

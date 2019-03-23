@@ -11,7 +11,7 @@ class Error extends React.Component {
 
         <body>
           <div className="center-text">
-            <h1>Error: Page not found</h1>
+            <h1 className="desktop-h1">Error: Page not found</h1>
           </div>
         </body>
       </html>

@@ -3,6 +3,7 @@ import path from "path";
 
 import * as errorController from "./controllers/errorController";
 import * as homeController from "./controllers/homeController";
+import * as playController from "./controllers/playController";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 // routes
 app.get("/", homeController.index(false));
 app.get("/es", homeController.index(true));
+app.get("/play", playController.index);
 app.get("*", errorController.index);
 
 // listen

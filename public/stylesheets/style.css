@@ -6,6 +6,12 @@ body {
   color: #595959;
 }
 
+.body-play {
+  font: 18px PressStart;
+  color: #595959;
+  background-color: #71baaa;
+}
+
 .background {
   background-image: url("../images/background.png");
   background-size: cover;
@@ -14,8 +20,7 @@ body {
 
 .background-play {
   background-image: url("../images/background-play.png");
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-repeat: repeat-x;
 }
 
 html, body {

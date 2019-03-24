@@ -1,9 +1,9 @@
-function isHover(e) {
-  return (e.parentElement.querySelector(':hover') === e);
+function isHover(e: HTMLElement) {
+  return (e.parentElement.querySelector(":hover") === e);
 }
 
 function changeColor() {
-  var clickToPlay = document.getElementById("click-to-play");
+  const clickToPlay = document.getElementById("click-to-play");
   if (!isHover(clickToPlay)) {
     if (clickToPlay.style.color == "white") {
       clickToPlay.style.color = "#595959";

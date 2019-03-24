@@ -4,8 +4,8 @@
   "private": true,
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc",
-    "tslint": "tslint -c tslint.json -p tsconfig.json --fix",
+    "build": "tsc -p src/tsconfig.json && tsc -p typescripts/tsconfig.json",
+    "tslint": "tslint -c tslint.json -p src/tsconfig.json --fix && tslint -c tslint.json -p typescripts/tsconfig.json --fix",
     "start": "npm run serve",
     "serve": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"

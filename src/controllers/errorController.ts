@@ -5,7 +5,7 @@ import { Request, Response } from "express";
  * Error page.
  */
 export let index = (_: Request, res: Response) => {
-  res.render("Error", {
+  res.render("error", {
     title: "Emmanuel Suarez"
   });
 };

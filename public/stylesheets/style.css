@@ -43,6 +43,18 @@ a:hover {
   margin-top: 70px;
 }
 
+.padding-0 {
+  padding: 0px;
+}
+
+.margin-top-20 {
+  margin-top: 20px;
+}
+
+.margin-5 {
+  margin: 5px;
+}
+
 .click-to-play {
   margin-top: 100px;
 }

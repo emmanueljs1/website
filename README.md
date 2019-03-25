@@ -15,6 +15,6 @@ Not first time:
 ```
 
 #### Note:
-Latest version of website has not been deployed yet, [this is the last deploy](https://github.com/emmanueljs1/website/tree/4e7bbcc458dd5638a9edbfa669d86f88ef411879)
+Latest version of website has not been deployed yet, [this is the last deploy](https://github.com/emmanueljs1/website/tree/deploy)
 
 ###### Made using Express + Typescript because why not

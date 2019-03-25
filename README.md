@@ -14,7 +14,4 @@ Not first time:
 > npm start
 ```
 
-#### Note:
-Latest version of website has not been deployed yet, [this is the last deploy](https://github.com/emmanueljs1/website/tree/deploy)
-
 ###### Made using Express + Typescript because why not

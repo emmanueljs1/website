@@ -7,3 +7,4 @@ tmp
 *.swp
 *.out
 public/javascripts/**/*
+elm-stuff/

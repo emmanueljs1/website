@@ -4,7 +4,12 @@
   "private": true,
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc -p src/tsconfig.json && tsc -p typescripts/tsconfig.json",
+    "build-ts": "tsc -p src/tsconfig.json && tsc -p typescripts/tsconfig.json",
+    "build-elm-dev": "elm make elm/src/Game.elm --output public/javascripts/game.js",
+    "build-elm": "elm make elm/src/Game.elm --optimize --output public/javascripts/game.js",
+    "build-dev":  "npm run build-ts && npm run build-elm-dev",
+    "build": "npm run build-ts && npm run build-elm",
+    "clean": "rm -rf dist && rm -rf public/javascripts",
     "tslint": "tslint -c tslint.json -p src/tsconfig.json --fix && tslint -c tslint.json -p typescripts/tsconfig.json --fix",
     "start": "npm run serve",
     "serve": "node dist/app.js",
@@ -16,9 +21,10 @@
     "mobile-detect": "^1.4.3"
   },
   "devDependencies": {
-    "tslint": "^5.14.0",
     "@types/express": "^4.16.1",
     "@types/node": "^11.11.4",
+    "elm": "^0.19.0-bugfix6",
+    "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
   }
 }

@@ -6,12 +6,6 @@ body {
   color: #595959;
 }
 
-.body-play {
-  font: 18px PressStart;
-  color: #595959;
-  background-color: #71baaa;
-}
-
 .background {
   background-image: url("../images/background.png");
   background-size: cover;
@@ -86,13 +80,11 @@ a:hover {
   margin: 0px;
 }
 
-canvas {
-  margin: 0 auto;
-  display: flex;
+.instructions {
+  margin: 0;
   height: 100%;
   width: 100%;
   position: absolute;
-  left: 0;
-  top: 0;
   z-index: -1;
+  background-color: #71baaa;
 }

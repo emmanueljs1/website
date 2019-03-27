@@ -5,30 +5,48 @@
       <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y" crossorigin="anonymous"/>
       <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
     </head>
-    <body <% if (isMobile) { %> class="background" <% } else { %> class="body-play"<% } %>>
-      <script src="javascripts/play.js"></script>
-        <% if (!isMobile) { %>
-          <div class="center-text margin-top-20">
-            <h2>
-              Instructions
-            </h2>
-            <div class="row-center">
-              <h4 class="inline-block margin-5">W - Move up</h4>
-              &nbsp;&nbsp;
-              <h4 class="inline-block margin-5">A - Move left</h4>
-            </div>
-            <div class="row-center">
-                <h4 class="inline-block margin-5">S - Move down</h4>
-                &nbsp;&nbsp;
-                <h4 class="inline-block margin-5">D - Move right</h4>
-            </div>
-            <h4 class="margin-5">SPACE - Attack</h4>
-            <canvas id="play-canvas" class="canvas background-play"></canvas>
-          </div>
+    <body <% if (isMobile) { %> class="background" <% } %>>
+      <% if (!isMobile) { %>
+      <script src="javascripts/game.js"></script>
+      <div class="instructions center-text margin-top-20 background-play">
+        <h2>
+          Instructions
+        </h2>
+        <div class="row-center">
+          <h4 class="inline-block margin-5">W - Move up</h4>
+          &nbsp;&nbsp;
+          <h4 class="inline-block margin-5">A - Move left</h4>
+        </div>
+        <div class="row-center">
+            <h4 class="inline-block margin-5">S - Move down</h4>
+            &nbsp;&nbsp;
+            <h4 class="inline-block margin-5">D - Move right</h4>
+        </div>
+        <h4 class="margin-5">SPACE - Attack</h4>
+      </div>
+      <div id="game-div" class="game-div"></div>
+      <script>
+        Elm.Game.init({
+            node: document.getElementById('game-div')
+        });
+
+        // Prevent scrolling with arrow and space keys
+        window.addEventListener('keydown', function (e) {
+            if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+                e.preventDefault();
+            }
+        }, false);
+
+        // TODO: delegate events to elm div?
+        var elm = document.getElementById('elm');
+
+        // Capture focus
+        window.focus();
+      </script>
       <% } else { %>
-          <div class="center-text">
-            <h1 class="mobile-h1">Try this out on a desktop!</h1>
-          </div>
+      <div class="center-text">
+        <h1 class="mobile-h1">Try this out on a desktop!</h1>
+      </div>
       <% } %>
     </body>
   </html>

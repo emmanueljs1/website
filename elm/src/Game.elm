@@ -1,29 +1,47 @@
 module Game exposing (main)
 
 import Browser
+import Browser.Dom  exposing (getViewport)
 import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Svg exposing (svg, image)
+import Svg.Attributes exposing (xlinkHref, x, y)
 
 main =
   Browser.sandbox { init = 0, update = update, view = view }
 
-type Msg = Increment | Decrement
+type Msg = MoveLeft | MoveRight | MoveUp | MoveDown
 
 update msg model =
   case msg of
-    Increment ->
-      model + 1
+    MoveLeft ->
+      model
 
-    Decrement ->
-      model - 1
+    MoveRight ->
+      model
+
+    MoveUp ->
+      model
+
+    MoveDown ->
+      model
 
 view model =
   div
     [ style "margin" "0 auto"
     , style "display" "flex"
+    , style "height" "100%"
+    , style "width" "100%"
     ]
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ text (String.fromInt model) ]
-    , button [ onClick Increment ] [ text "+" ]
+    [
+      svg
+      [ style "height" "100%"
+      , style "width" "100%"
+      ]
+      [
+        image
+        [ xlinkHref "../images/sprite.png", x "50", y "200" ]
+        []
+      ]
     ]

@@ -1,5 +1,13 @@
 node_modules
 .DS_Store
+.merlin
+.bsb.lock
+.vscode
+.history
+npm-debug.log
+/lib
+ml/*.bs.js
+.DS_Store
 dist/**/*
 logs
 tmp
@@ -7,4 +15,3 @@ tmp
 *.swp
 *.out
 public/javascripts/**/*
-elm-stuff/

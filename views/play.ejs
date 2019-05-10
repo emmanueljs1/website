@@ -26,22 +26,9 @@
       </div>
       <div id="game-div" class="game-div"></div>
       <script>
-        Elm.Game.init({
-            node: document.getElementById('game-div')
-        });
-
-        // Prevent scrolling with arrow and space keys
-        window.addEventListener('keydown', function (e) {
-            if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-                e.preventDefault();
-            }
-        }, false);
-
-        // TODO: delegate events to elm div?
-        var elm = document.getElementById('elm');
-
-        // Capture focus
-        window.focus();
+        window.onload = function () {
+            App.main(document.getElementById("game-div"));
+        };
       </script>
       <% } else { %>
       <div class="center-text">

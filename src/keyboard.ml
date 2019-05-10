@@ -2,6 +2,7 @@
 
 module Json = Tea.Json
 module Result = Tea.Result
+module Sub = Tea.Sub
 
 type key_event = 
   { key_code : int
@@ -54,7 +55,7 @@ let registerGlobal name key tagger =
       let _ = eventHandler_Unregister elem name cache in
       ()
   in
-  Tea_sub.registration key enableCall
+  Sub.registration key enableCall
 
 let downs ?(key="") tagger =
   registerGlobal "keydown" key tagger

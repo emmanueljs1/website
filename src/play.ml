@@ -5,9 +5,11 @@ module Sub = Tea.Sub
 module Cmd = Tea.Cmd
 module AnimationFrame = Tea.AnimationFrame
 
-let lower_x_bound = 0
+external w_height: int = "innerHeight" [@@bs.val][@@bs.scope "window"]
+external w_width: int = "innerWidth" [@@bs.val][@@bs.scope "window"]
 
-let lower_y_bound = 200
+let x_min = 0
+let y_min = 250
 
 type character =
   { x: int
@@ -19,9 +21,15 @@ type character =
   ; sprite: string
   }
 
-let init_player () = 
+let within_bounds (c: character) (x_lo: int) (y_lo: int) (x_hi: int) (y_hi: int) : bool =
+  c.x >= x_lo &&
+  c.y >= y_lo &&
+  c.x + c.width <= x_hi &&
+  c.y + c.height <= y_hi
+
+let init_player () =
   { x = 50
-  ; y = lower_y_bound
+  ; y = y_min
   ; width = 32
   ; height = 44
   ; vx = 0
@@ -32,9 +40,16 @@ let init_player () =
 type model = 
   { playing: bool
   ; player: character
+  ; width: int
+  ; height: int
   }
 
-let init () = { playing = true; player = init_player () }
+let init () = 
+  { playing = true
+  ; player = init_player ()
+  ; width = w_width
+  ; height = w_height
+  }
 
 type direction = 
   | Up
@@ -46,7 +61,6 @@ type msg =
   | Tick of AnimationFrame.t
   | KeyDown of Keyboard.key_event
   | KeyUp of Keyboard.key_event
-  | Noop
   [@@bs.deriving {accessors}]
 
 let dir_of_key (key: Keyboard.key) : direction option =
@@ -60,6 +74,31 @@ let dir_of_key (key: Keyboard.key) : direction option =
   | D ->
     Some Right
   | _ -> None
+
+let timer_update (model: model) : model =
+  if model.playing then
+    let player =
+      if w_height = model.height && w_width = model.width then
+        model.player
+      else
+        (* window was resized *)
+        if within_bounds model.player x_min y_min w_width w_height then
+          model.player
+        else
+          init_player ()
+    in
+
+    let model' = { model with width = w_width; height = w_height } in
+    let x' = player.x + player.vx in
+    let y' = player.y + player.vy in
+    let player' = { player with x = x'; y = y' } in
+
+    if within_bounds player' x_min y_min w_width w_height then
+      { model' with player = player' }
+    else 
+      model'
+  else
+      model
 
 let update (model: model) (msg: msg) : model * msg Cmd.t =
   let player = model.player in
@@ -85,12 +124,7 @@ let update (model: model) (msg: msg) : model * msg Cmd.t =
         end
       | None -> model
       end
-    | Tick _ ->
-      let newX = player.x + player.vx in
-      let newY = player.y + player.vy in
-      let newPlayer = { player with x = newX; y =  newY } in
-      { model with player = newPlayer }
-    | _ -> model
+    | Tick _ -> timer_update model
   in
   model', Cmd.none
 

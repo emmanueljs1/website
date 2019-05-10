@@ -2,7 +2,7 @@
   "name": "buckle",
   "version": "0.1.0",
   "sources": {
-    "dir": "ml",
+    "dir": "src",
     "subdirs": true
   },
   "package-specs": {

@@ -1,17 +1,21 @@
 const path = require('path');
 
 module.exports = {
-    entry: './ml/game.bs.js',
+    entry: {
+        play: './src/play.bs.js',
+        home: './src/home.bs.js'
+    },
     output: {
-        filename: 'game.js',
-        path: path.resolve(__dirname, 'public/javascripts'),
+        filename: '[name].js',
+        path: path.resolve(__dirname, 'app/public/javascripts'),
         libraryTarget: 'var',
         library: 'App'
     },
+
     mode: "development",
 
     devServer: {
-        contentBase: path.join(__dirname, "dist"),
+        contentBase: path.join(__dirname, "app/dist"),
         compress: true,
         port: 9000
     }

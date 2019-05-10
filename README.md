@@ -1,29 +1,31 @@
 # Website
 
-Made for fun / because I had already bought the domain name
-
 Hosted on www.emmanuelsuarez.com
 
 ## Overview
 <i>src/</i>
+
+OCaml source code for each view, compiled to Javascript into <i>app/public/javascripts</i> using Bucklescript.
+
+<i>app/</i>
   
-Express backend in Typescript
+Express application in Typescript
 
-<i>ml/</i>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>app.ts</i>
 
-OCaml source code to model game state and logic in /play route, compiled to Javascript using Bucklescript.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Main application logic
 
-<i>typescripts/</i>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>controllers/</i>
 
-Typescript code for each view, compiled to Javascript
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Controllers for application routes
 
-<i>views/</i>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>views/</i>
 
-EJS template files for generating HTML with Express
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EJS template files for generating HTML with Express
 
-<i>public/</i>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>public/</i>
 
-Public assets
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Public assets
 
 ### Dependencies
 - NPM
@@ -37,4 +39,3 @@ Not first time:
 ```
 > npm start
 ```
-

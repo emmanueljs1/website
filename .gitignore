@@ -6,12 +6,12 @@ node_modules
 .history
 npm-debug.log
 /lib
-ml/*.bs.js
+src/*.bs.js
 .DS_Store
-dist/**/*
+app/dist/**/*
 logs
 tmp
 *.log
 *.swp
 *.out
-public/javascripts/**/*
+app/public/javascripts/**/*

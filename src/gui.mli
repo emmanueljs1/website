@@ -27,8 +27,8 @@ type event_controller =
 val mk_event_controller : string -> event_controller
 
 type canvas = { 
-  (* Draw an image with filename at (x, y) *)
-  draw_image: string -> int -> int -> unit;
+  (* Draw an image with filename at (x, y) with an optional width and height *)
+  draw_image: string -> int -> int -> (int * int) option -> unit;
   (* Fill a rectange at (x, y) with width and height *)
   fill_rect: int -> int -> int -> int -> unit;
   (* Draw a rectange at (x, y) with width and height *)
@@ -38,8 +38,9 @@ type canvas = {
   (* Draw a circle at (x, y) with radius r *)
   draw_circle: int -> int -> int -> unit;
   (* Draw an arc at (x, y) with radius r, start angle theta1 and end angle
-   * theta2. theta = 0 correspondes to 3 o' clock position of arc's circle. *)
-  draw_arc: int -> int -> int -> int -> int -> unit;
+   * theta2. theta = 0 correspondes to 3 o' clock position of arc's circle.
+   * Angle should be in radians *)
+  draw_arc: int -> int -> int -> float -> float -> unit;
   (* Set draw color of canvas *)
   set_color: string -> unit;
   (* Get draw color of canvas *)

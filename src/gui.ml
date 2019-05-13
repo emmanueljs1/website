@@ -1,24 +1,9 @@
-type document
-external doc: document = "document" [@@bs.val]
+open Html
 
-external getElementById: document -> string -> Dom.element = "getElementById" [@@bs.send]
-external tagName: Dom.element -> string = "tagName" [@@bs.get]
-external setTabIndex: Dom.element -> int -> unit = "tabIndex" [@@bs.set]
+let context (canvas: HTMLCanvas.canvasElement) : HTMLCanvas.canvasRenderingContext2D =
+  HTMLCanvas.getContext canvas "2d"
 
-external addEventListener: Dom.element -> string -> (Dom.event -> unit) -> bool -> unit = "addEventListener" [@@bs.send]
-external eventType: Dom.event -> string = "type" [@@bs.get]
-external eventKey: Dom.event -> string = "key" [@@bs.get]
-
-type canvasRenderingContext2D
-type canvasElement
-external elementToCanvasElement : Dom.element -> canvasElement = "%identity"
-external getContext: canvasElement -> string -> canvasRenderingContext2D = "getContext" [@@bs.send]
-external clearRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "clearRect" [@@bs.send]
-external canvasWidth: canvasElement -> int = "width" [@@bs.get]
-external canvasHeight: canvasElement -> int = "height" [@@bs.get]
-
-let context (canvas: canvasElement) : canvasRenderingContext2D =
-  getContext canvas "2d"
+let document = HTMLDocument.doc
 
 type key =
   | W
@@ -63,28 +48,30 @@ type event_controller =
   }
 
 let mk_event_controller (id: string) : event_controller =
-  let el = getElementById doc id in
+  let el = HTMLElement.getElementById document id in
   { add_event_listener = (fun listener ->
       let listener' (e: Dom.event) : unit =
-        match eventType e with
+        match HTMLEvent.eventType e with
         | "click" -> listener Click
-        | "keydown" -> listener (KeyDown (key_of_string (eventKey e)))
-        | "keyup" -> listener (KeyUp (key_of_string (eventKey e)))
+        | "keydown" ->
+          listener (KeyDown (key_of_string (HTMLEvent.eventKey e)))
+        | "keyup" ->
+          listener (KeyUp (key_of_string (HTMLEvent.eventKey e)))
         | _ -> ()
       in
-      addEventListener el "click" listener' false;
-      addEventListener el "keydown" listener' false;
-      addEventListener el "keyup" listener' false
+      HTMLEvent.addEventListener el "click" listener' false;                   
+      HTMLEvent.addEventListener el "keydown" listener' false;
+      HTMLEvent.addEventListener el "keyup" listener' false
     )
   }
 
 type canvas = 
-  { draw_image: string -> int -> int -> unit
+  { draw_image: string -> int -> int -> (int * int) option -> unit
   ; fill_rect: int -> int -> int -> int -> unit
   ; draw_rect: int -> int -> int -> int -> unit
   ; draw_line: int -> int -> int -> int -> unit
   ; draw_circle: int -> int -> int -> unit
-  ; draw_arc: int -> int -> int -> int -> int -> unit
+  ; draw_arc: int -> int -> int -> float -> float -> unit
   ; set_color: string -> unit
   ; get_color: unit -> string
   ; set_line_width: int -> unit
@@ -93,26 +80,50 @@ type canvas =
   }
 
 let mk_canvas (id: string) : canvas * event_controller =
-  let el = getElementById doc id in
-  if tagName el <> "CANVAS" then
+  let el = HTMLElement.getElementById document id in
+  if HTMLElement.tagName el <> "CANVAS" then
     invalid_arg "not a canvas element"
   else
-    setTabIndex el 0;
-    let canvas = elementToCanvasElement el in
+    HTMLElement.setTabIndex el 0;
+    let canvas = HTMLCanvas.fromElement el in
     let ctx = context canvas in
 
-    { draw_image = (fun _ _ _ -> failwith "unimplemented")
-    ; fill_rect = (fun _ _ _ _ -> failwith "unimplemented")
-    ; draw_rect = (fun _ _ _ _ -> failwith "unimplemented")
-    ; draw_line = (fun _ _ _ _ -> failwith "unimplemented")
-    ; draw_circle = (fun _ _ _ -> failwith "unimplemented")
-    ; draw_arc = (fun _ _ _ _ _ -> failwith "unimplemented")
-    ; set_color = (fun _ -> failwith "unimplemented")
-    ; get_color = (fun () -> failwith "unimplemented")
-    ; set_line_width = (fun _ -> failwith "unimplemented")
-    ; get_line_width = (fun () -> failwith "unimplemented")
+    { draw_image = (fun img x y size_opt ->
+        let (width, height) =
+          match size_opt with
+          | Some size -> size
+          | None -> -1, -1
+        in
+        if width < 0 || height < 0 then
+          HTMLCanvas.drawImage ctx img x y
+        else
+        HTMLCanvas.drawImageWidthHeight ctx img x y width height
+      )
+    ; fill_rect = (fun x y w h -> HTMLCanvas.fillRect ctx x y w h)
+    ; draw_rect = (fun x y w h -> HTMLCanvas.strokeRect ctx x y w h)
+    ; draw_line = (fun x1 y1 x2 y2 ->
+        HTMLCanvas.moveTo ctx x1 y1;
+        HTMLCanvas.lineTo ctx x2 y2;
+        HTMLCanvas.stroke ctx
+      )
+    ; draw_circle = (fun x y r ->
+        HTMLCanvas.beginPath ctx;
+        HTMLCanvas.arc ctx x y r 0.0 (2.0 *. acos (-1.0));
+        HTMLCanvas.stroke ctx
+      )
+    ; draw_arc = (fun x y r theta1 theta2 ->
+        HTMLCanvas.beginPath ctx;
+        HTMLCanvas.arc ctx x y r theta1 theta2;
+        HTMLCanvas.stroke ctx
+      )
+    ; set_color = (fun c -> HTMLCanvas.setStrokeStyle ctx c)
+    ; get_color = (fun () -> HTMLCanvas.strokeStyle ctx)
+    ; set_line_width = (fun w -> HTMLCanvas.setLineWidth ctx w)
+    ; get_line_width = (fun () -> HTMLCanvas.lineWidth ctx)
     ; clear = (fun () ->
-        clearRect ctx 0 0 (canvasWidth canvas) (canvasHeight canvas)
+        let width = HTMLCanvas.width canvas in
+        let height = HTMLCanvas.height canvas in
+        HTMLCanvas.clearRect ctx 0 0 width height
       )
     },
     mk_event_controller id

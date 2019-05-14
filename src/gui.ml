@@ -39,7 +39,10 @@ let key_of_string (s: string) : key =
   | _ -> Other
 
 type event =
-  | Click
+  | Click of int * int
+  | MouseDown of int * int
+  | MouseUp of int * int
+  | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
 
@@ -52,16 +55,38 @@ let mk_event_controller (id: string) : event_controller =
   { add_event_listener = (fun listener ->
       let listener' (e: Dom.event) : unit =
         match HTMLEvent.eventType e with
-        | "click" -> listener Click
+        | "click" ->
+          let rect = HTMLElement.getBoundingClientRect el in
+          let x = HTMLEvent.clientX e - HTMLRect.left rect in
+          let y = HTMLEvent.clientY e - HTMLRect.top rect in
+          Click (x, y) |> listener
+        | "mousedown" ->
+          let rect = HTMLElement.getBoundingClientRect el in
+          let x = HTMLEvent.clientX e - HTMLRect.left rect in
+          let y = HTMLEvent.clientY e - HTMLRect.top rect in
+          MouseDown (x, y) |> listener
+        | "mouseup" ->
+          let rect = HTMLElement.getBoundingClientRect el in
+          let x = HTMLEvent.clientX e - HTMLRect.left rect in
+          let y = HTMLEvent.clientY e - HTMLRect.top rect in
+          MouseUp (x, y) |> listener
+        | "mousemove" ->
+          let rect = HTMLElement.getBoundingClientRect el in
+          let x = HTMLEvent.clientX e - HTMLRect.left rect in
+          let y = HTMLEvent.clientY e - HTMLRect.top rect in
+          MouseMove (x, y) |> listener
         | "keydown" ->
-          listener (KeyDown (key_of_string (HTMLEvent.eventKey e)))
+          KeyDown (key_of_string (HTMLEvent.eventKey e)) |> listener
         | "keyup" ->
-          listener (KeyUp (key_of_string (HTMLEvent.eventKey e)))
+          KeyUp (key_of_string (HTMLEvent.eventKey e)) |> listener
         | _ -> ()
       in
       HTMLEvent.addEventListener el "click" listener' false;                   
       HTMLEvent.addEventListener el "keydown" listener' false;
-      HTMLEvent.addEventListener el "keyup" listener' false
+      HTMLEvent.addEventListener el "keyup" listener' false;
+      HTMLEvent.addEventListener el "mousedown" listener' false;
+      HTMLEvent.addEventListener el "mouseup" listener' false;
+      HTMLEvent.addEventListener el "mousemove" listener' false;
     )
   }
 
@@ -102,6 +127,7 @@ let mk_canvas (id: string) : canvas * event_controller =
     ; fill_rect = (fun x y w h -> HTMLCanvas.fillRect ctx x y w h)
     ; draw_rect = (fun x y w h -> HTMLCanvas.strokeRect ctx x y w h)
     ; draw_line = (fun x1 y1 x2 y2 ->
+        HTMLCanvas.beginPath ctx;
         HTMLCanvas.moveTo ctx x1 y1;
         HTMLCanvas.lineTo ctx x2 y2;
         HTMLCanvas.stroke ctx

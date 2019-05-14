@@ -3,11 +3,18 @@ module HTMLDocument = struct
   external doc: document = "document" [@@bs.val]
 end
 
+module HTMLRect = struct
+  type rect
+  external left: rect -> int = "left" [@@bs.get]
+  external top: rect -> int = "top" [@@bs.get]
+end
+
 module HTMLElement = struct
   type element = Dom.element
   external getElementById: HTMLDocument.document -> string -> element = "getElementById" [@@bs.send]
   external tagName: element -> string = "tagName" [@@bs.get]
   external setTabIndex: element -> int -> unit = "tabIndex" [@@bs.set]
+  external getBoundingClientRect: element -> HTMLRect.rect = "getBoundingClientRect" [@@bs.send]
 end
 
 module HTMLEvent = struct
@@ -15,6 +22,8 @@ module HTMLEvent = struct
   external addEventListener: HTMLElement.element -> string -> (event -> unit) -> bool -> unit = "addEventListener" [@@bs.send]
   external eventType: event -> string = "type" [@@bs.get]
   external eventKey: event -> string = "key" [@@bs.get]
+  external clientX: event -> int = "clientX" [@@bs.get]
+  external clientY: event -> int = "clientY" [@@bs.get]
 end
 
 module HTMLCanvas = struct

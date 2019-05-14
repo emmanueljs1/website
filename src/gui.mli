@@ -16,6 +16,9 @@ type key =
 
 type event =
   | Click
+  | MouseDown of int * int
+  | MouseUp of int * int
+  | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
 

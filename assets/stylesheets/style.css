@@ -88,3 +88,10 @@ a:hover {
   z-index: -1;
   background-color: #619a50;
 }
+
+.game-div {
+  height: 100%;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+}

@@ -7,7 +7,7 @@ module.exports = {
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'app/public/javascripts'),
+        path: path.resolve(__dirname, 'dist/javascripts'),
         libraryTarget: 'var',
         library: 'App'
     },

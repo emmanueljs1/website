@@ -26,6 +26,22 @@ module HTMLEvent = struct
   external clientY: event -> int = "clientY" [@@bs.get]
 end
 
+module HTMLImage = struct
+  type imageElement
+  external newImage : unit -> imageElement = "Image" [@@bs.new]
+  external setWidth : imageElement -> int -> unit = "width" [@@bs.set]
+  external getWidth : imageElement -> int = "width" [@@bs.get]
+  external setHeight : imageElement -> int -> unit = "height" [@@bs.set]
+  external getHeight : imageElement -> int = "height" [@@bs.get]
+  external setSource : imageElement -> string -> unit = "src" [@@bs.set]
+  external setOnload : imageElement -> (unit -> unit) -> unit = "onload" [@@bs.set]
+
+  let setSize (img: imageElement) (size: int * int) : unit =
+    let (w, h) = size in
+    setWidth img w;
+    setHeight img h
+end
+
 module HTMLCanvas = struct
   type canvasRenderingContext2D
   type canvasElement
@@ -38,13 +54,13 @@ module HTMLCanvas = struct
   external lineWidth: canvasRenderingContext2D -> int = "lineWidth" [@@bs.get]
   external setLineWidth: canvasRenderingContext2D -> int -> unit = "lineWidth" [@@bs.set]
   external clearRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "clearRect" [@@bs.send]
-  external drawImage: canvasRenderingContext2D -> string -> int -> int -> unit = "drawImage" [@@bs.send]
-  external drawImageWidthHeight: canvasRenderingContext2D -> string -> int -> int -> int -> int -> unit = "drawImage" [@@bs.send]
+  external drawImage: canvasRenderingContext2D -> HTMLImage.imageElement -> int -> int -> int -> int -> int -> int -> int -> int -> unit = "drawImage" [@@bs.send]
   external fillRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "fillRect" [@@bs.send]
   external strokeRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "strokeRect" [@@bs.send]
   external moveTo: canvasRenderingContext2D -> int -> int -> unit = "moveTo" [@@bs.send]
   external lineTo: canvasRenderingContext2D -> int -> int -> unit = "lineTo" [@@bs.send]
   external arc: canvasRenderingContext2D -> int -> int -> int -> float -> float -> unit = "arc" [@@bs.send]
   external beginPath: canvasRenderingContext2D -> unit = "beginPath" [@@bs.send]
+  external closePath: canvasRenderingContext2D -> unit = "closePath" [@@bs.send]
   external stroke: canvasRenderingContext2D -> unit = "stroke" [@@bs.send]
 end

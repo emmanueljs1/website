@@ -1,9 +1,4 @@
-open Tea.App
-open Tea.Html
-module Svg = Tea.Svg
-module Sub = Tea.Sub
-module Cmd = Tea.Cmd
-module AnimationFrame = Tea.AnimationFrame
+open Program
 
 external w_height: int = "innerHeight" [@@bs.val][@@bs.scope "window"]
 external w_width: int = "innerWidth" [@@bs.val][@@bs.scope "window"]
@@ -28,13 +23,13 @@ let within_bounds (c: character) (x_lo: int) (y_lo: int) (x_hi: int) (y_hi: int)
   c.y + c.height <= y_hi
 
 let init_player () =
-  { x = 50
-  ; y = y_min
-  ; width = 32
-  ; height = 44
+  { x = 0
+  ; y = 0
+  ; width = 8
+  ; height = 10
   ; vx = 0
   ; vy = 0
-  ; sprite = "../images/sprite.png" 
+  ; sprite = "images/sprite.png"
   }
 
 type model = 
@@ -57,13 +52,7 @@ type direction =
   | Down
   | Right
 
-type msg =
-  | Tick of AnimationFrame.t
-  | KeyDown of Keyboard.key_event
-  | KeyUp of Keyboard.key_event
-  [@@bs.deriving {accessors}]
-
-let dir_of_key (key: Keyboard.key) : direction option =
+let dir_of_key (key: Gui.key) : direction option =
   match key with
   | W ->
     Some Up
@@ -100,12 +89,12 @@ let timer_update (model: model) : model =
   else
       model
 
-let update (model: model) (msg: msg) : model * msg Cmd.t =
+let update (model: model) (msg: Gui.event) : model =
   let player = model.player in
   let model' =
     match msg with
-    | KeyDown event ->
-      begin match event.key_code |> Keyboard.key_of_keycode |> dir_of_key with
+    | KeyDown key ->
+      begin match dir_of_key key with
       | Some dir ->
         begin match dir with
         | Up -> { model with player = { player with vy = -3 } }
@@ -115,8 +104,8 @@ let update (model: model) (msg: msg) : model * msg Cmd.t =
         end
       | None -> model
       end
-    | KeyUp event ->
-      begin match event.key_code |> Keyboard.key_of_keycode |> dir_of_key with
+    | KeyUp key ->
+      begin match dir_of_key key with
       | Some dir ->
         begin match dir with
         | Up | Down -> { model with player = { player with vy = 0 } }
@@ -124,46 +113,15 @@ let update (model: model) (msg: msg) : model * msg Cmd.t =
         end
       | None -> model
       end
-    | Tick _ -> timer_update model
+    | _ -> model
   in
-  model', Cmd.none
+  model'
 
-let view (model: model) : msg Vdom.t =
-  div
-    [ style "margin" "0 auto"
-    ; style "display" "flex"
-    ; style "height" "100%"
-    ; style "width" "100%"
-    ]
-    [
-      if model.playing then
-        Svg.svg
-        [ style "height" "100%"
-        ; style "width" "100%"
-        ]
-        [ Svg.svgimage
-          [ Svg.Attributes.xlinkHref model.player.sprite
-          ; Svg.Attributes.x (string_of_int model.player.x)
-          ; Svg.Attributes.y (string_of_int model.player.y)
-          ; Svg.Attributes.width (string_of_int model.player.width)
-          ; Svg.Attributes.height (string_of_int model.player.height)
-          ]
-          []
-        ]
-      else
-        div [] []
-    ]
+let view (canvas: Gui.canvas) (model: model) : unit =
+  let player = model.player in
+  let sprite = model.player.sprite in
+  canvas.draw_image sprite player.x player.y (Some (player.width, player.height))
 
-let subscriptions (model: model) : msg Sub.t =
-  [ Keyboard.downs keyDown
-  ; Keyboard.ups keyUp
-  ; if model.playing then AnimationFrame.every tick else Sub.none
-  ] |> Sub.batch
-
-let main =
-  standardProgram
-    { init = (fun () -> (init (), Cmd.none))
-    ; update = update
-    ; view = view
-    ; subscriptions = subscriptions
-    }
+let main (id: string) : unit =
+  let program = { init = init; update = update; view = view } in
+  run_program id program

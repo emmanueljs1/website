@@ -25,12 +25,12 @@ type key =
 
 let key_of_string (s: string) : key =
   match s with
-  | "W" -> W
-  | "A" -> A
-  | "S" -> S
-  | "D" -> D
-  | "Q" -> Q
-  | "E" -> E
+  | "w" -> W
+  | "a" -> A
+  | "s" -> S
+  | "d" -> D
+  | "q" -> Q
+  | "e" -> E
   | "Enter" -> Enter
   | " " -> Space
   | "Shift" -> Shift

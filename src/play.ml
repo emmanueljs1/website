@@ -52,7 +52,7 @@ type direction =
   | Down
   | Right
 
-let dir_of_key (key: Gui.key) : direction option =
+let dir_of_key (key: key) : direction option =
   match key with
   | W ->
     Some Up
@@ -89,7 +89,7 @@ let timer_update (model: model) : model =
   else
       model
 
-let update (model: model) (msg: Gui.event) : model =
+let update (model: model) (msg: msg) : model =
   let player = model.player in
   let model' =
     match msg with
@@ -113,15 +113,20 @@ let update (model: model) (msg: Gui.event) : model =
         end
       | None -> model
       end
+    | Tick ->
+      let x' = model.player.x + model.player.vx in
+      let y' = model.player.y + model.player.vy in
+      let player' = { model.player with x = x'; y = y' } in
+      { model with player = player' }
     | _ -> model
   in
   model'
 
-let view (canvas: Gui.canvas) (model: model) : unit =
+let repaint (canvas: canvas) (model: model) : unit =
   let player = model.player in
   let sprite = model.player.sprite in
   canvas.draw_image sprite player.x player.y (Some (player.width, player.height))
 
 let main (id: string) : unit =
-  let program = { init = init; update = update; view = view } in
+  let program = { init = init; update = update; repaint = repaint } in
   run_program id program

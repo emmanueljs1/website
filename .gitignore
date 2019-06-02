@@ -14,4 +14,4 @@ tmp
 *.log
 *.swp
 *.out
-dist/
+app/public/javascripts/**/*

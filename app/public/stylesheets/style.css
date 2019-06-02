@@ -90,8 +90,6 @@ a:hover {
 }
 
 .game-div {
-  height: 100%;
   width: 100%;
-  margin: 0 auto;
-  display: flex;
+  height: 100%;
 }

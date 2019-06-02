@@ -4,11 +4,20 @@
   "private": true,
   "main": "app/dist/app.js",
   "scripts": {
-    "clean": "bsb -clean && rm -rf dist",
+    "build-ts": "tsc -p app/tsconfig.json",
+    "clean": "bsb -clean && rm -rf app/dist && rm -rf app/public/javascripts",
+    "build": "npm run build-ts && npm run build-bs",
+    "tslint": "tslint -c tslint.json -p app/tsconfig.json --fix",
+    "start": "npm run serve",
+    "serve": "node app/dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean:all": "bsb -clean-world",
     "build:bsb": "bsb -make-world -theme basic-reason",
     "build:js": "webpack",
     "build-bs": "run-s build:bsb build:js",
-    "build": "scp -r assets/ dist/ && scp -r html/ dist/ && npm run build-bs"
+    "watch:bsb": "bsb -make-world -w -theme basic-reason",
+    "watch:js": "webpack-dev-server",
+    "watch": "run-p watch:bsb watch:js"
   },
   "dependencies": {
     "ejs": "^2.6.1",

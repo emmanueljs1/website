@@ -29,7 +29,7 @@ let init_player () =
   ; height = 10
   ; vx = 0
   ; vy = 0
-  ; sprite = "images/sprite.png"
+  ; sprite = "../images/sprite.png"
   }
 
 type model = 

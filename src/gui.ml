@@ -1,4 +1,5 @@
 open Html
+module ImgMap = Map.Make(String)
 
 let context (canvas: HTMLCanvas.canvasElement) : HTMLCanvas.canvasRenderingContext2D =
   HTMLCanvas.getContext canvas "2d"
@@ -20,6 +21,7 @@ type key =
   | ArrowDown
   | ArrowRight
   | Other
+  [@@bs.deriving {accessors}]
 
 let key_of_string (s: string) : key =
   match s with
@@ -45,6 +47,7 @@ type event =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  [@@bs.deriving {accessors}]
 
 type event_controller =
   { add_event_listener: (event -> unit) -> unit
@@ -112,17 +115,43 @@ let mk_canvas (id: string) : canvas * event_controller =
     HTMLElement.setTabIndex el 0;
     let canvas = HTMLCanvas.fromElement el in
     let ctx = context canvas in
+    
+    let loaded_image_sources = ref ImgMap.empty in
 
-    { draw_image = (fun img x y size_opt ->
-        let (width, height) =
-          match size_opt with
-          | Some size -> size
-          | None -> -1, -1
-        in
-        if width < 0 || height < 0 then
-          HTMLCanvas.drawImage ctx img x y
+    { draw_image = (fun imgsrc x y size_opt ->
+        if ImgMap.mem imgsrc !loaded_image_sources then
+          let img = ImgMap.find imgsrc !loaded_image_sources in
+          let img_w = HTMLImage.getWidth img in
+          let img_h = HTMLImage.getHeight img in
+          let (w, h) =
+            match size_opt with
+            | None -> img_w, img_h
+            | Some (w, h) ->
+              let ratio = (float_of_int w) /. (float_of_int h) in
+              let width = (float_of_int h) *. ratio |> int_of_float in
+              let height = (float_of_int w) /. ratio |> int_of_float in
+              width, height
+          in
+          HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
         else
-        HTMLCanvas.drawImageWidthHeight ctx img x y width height
+          let img = HTMLImage.newImage () in
+          HTMLImage.setSource img imgsrc;
+          HTMLImage.setOnload img (fun () ->
+            loaded_image_sources := ImgMap.add imgsrc img !loaded_image_sources;
+            let img_w = HTMLImage.getWidth img in
+            let img_h = HTMLImage.getHeight img in
+            let (w, h) =
+              match size_opt with
+              | None -> img_w, img_h
+              | Some (w, h) ->
+                let ratio = (float_of_int w) /. (float_of_int h) in
+                let width = (float_of_int h) *. ratio |> int_of_float in
+                let height = (float_of_int w) /. ratio |> int_of_float in
+                width, height
+            in
+            HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
+          );
+          HTMLCanvas.closePath ctx
       )
     ; fill_rect = (fun x y w h -> HTMLCanvas.fillRect ctx x y w h)
     ; draw_rect = (fun x y w h -> HTMLCanvas.strokeRect ctx x y w h)
@@ -130,16 +159,19 @@ let mk_canvas (id: string) : canvas * event_controller =
         HTMLCanvas.beginPath ctx;
         HTMLCanvas.moveTo ctx x1 y1;
         HTMLCanvas.lineTo ctx x2 y2;
+        HTMLCanvas.closePath ctx;
         HTMLCanvas.stroke ctx
       )
     ; draw_circle = (fun x y r ->
         HTMLCanvas.beginPath ctx;
         HTMLCanvas.arc ctx x y r 0.0 (2.0 *. acos (-1.0));
+        HTMLCanvas.closePath ctx;
         HTMLCanvas.stroke ctx
       )
     ; draw_arc = (fun x y r theta1 theta2 ->
         HTMLCanvas.beginPath ctx;
         HTMLCanvas.arc ctx x y r theta1 theta2;
+        HTMLCanvas.closePath ctx;
         HTMLCanvas.stroke ctx
       )
     ; set_color = (fun c -> HTMLCanvas.setStrokeStyle ctx c)

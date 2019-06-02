@@ -13,14 +13,16 @@ type key =
   | ArrowDown
   | ArrowRight
   | Other
+  [@@bs.deriving {accessors}]
 
 type event =
-  | Click
+  | Click of int * int
   | MouseDown of int * int
   | MouseUp of int * int
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  [@@bs.deriving {accessors}]
 
 type event_controller =
   { add_event_listener: (event -> unit) -> unit

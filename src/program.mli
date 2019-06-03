@@ -22,7 +22,7 @@ type msg =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
-  | Tick
+  | AnimationFrame of int
   [@@bs.deriving {accessors}]
 
 type canvas = { 
@@ -48,10 +48,12 @@ type canvas = {
   set_line_width: int -> unit;
   (* Get draw line width of canvas *)
   get_line_width: unit -> int;
+  (* Get width and height of canvas *)
+  get_size: unit -> (int * int)
 }
 
 type 'model program =
-  { init: unit -> 'model
+  { init: int -> int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
   }

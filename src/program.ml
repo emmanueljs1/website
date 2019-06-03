@@ -39,7 +39,7 @@ type msg =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
-  | Tick
+  | AnimationFrame of int
   [@@bs.deriving {accessors}]
 
 type canvas = { 
@@ -53,18 +53,20 @@ type canvas = {
   get_color: unit -> string;
   set_line_width: int -> unit;
   get_line_width: unit -> int;
+  get_size: unit -> (int * int)
 }
 
 type 'model program =
-  { init: unit -> 'model
+  { init: int -> int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
   }
 
 let run_program (id: string) (program: 'model program) : unit =
   let msgs = ref [] in
-  let model = ref (program.init ()) in
   let (canvas, ec) = Gui.mk_canvas id in
+  let (w, h) = canvas.get_size () in
+  let model = ref (program.init w h) in
   let canvas' =
     { draw_image = canvas.draw_image
     ; fill_rect = canvas.fill_rect
@@ -76,6 +78,7 @@ let run_program (id: string) (program: 'model program) : unit =
     ; get_color = canvas.get_color
     ; set_line_width = canvas.set_line_width
     ; get_line_width = canvas.get_line_width
+    ; get_size = canvas.get_size
     }
   in
 
@@ -89,13 +92,21 @@ let run_program (id: string) (program: 'model program) : unit =
     | KeyUp key -> msgs := (KeyUp (key_of_gui_key key)) :: !msgs
   );
 
-  let loop () : unit =
+  let last_timestamp = ref None in
+
+  let rec loop (timestamp: int) : unit =
     model := List.fold_right (fun x acc -> program.update acc x) !msgs !model;
-    model := program.update !model Tick;
+    let delta =
+      match !last_timestamp with
+      | None -> 0
+      | Some timestamp' -> timestamp - timestamp'
+    in
+    model := program.update !model (AnimationFrame delta);
     canvas.clear ();
     program.repaint canvas' !model;
-    msgs := []
+    msgs := [];
+    last_timestamp := Some timestamp;
+    Gui.request_animation_frame loop
   in
 
-  (* TODO: possibily use requestAnimationFrame *)
-  Gui.set_interval loop (1000 / 60)
+  Gui.request_animation_frame loop

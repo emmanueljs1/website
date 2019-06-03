@@ -1,10 +1,7 @@
 open Program
 
-external w_height: int = "innerHeight" [@@bs.val][@@bs.scope "window"]
-external w_width: int = "innerWidth" [@@bs.val][@@bs.scope "window"]
-
 let x_min = 0
-let y_min = 250
+let y_min = 0
 
 type character =
   { x: int
@@ -22,7 +19,7 @@ let within_bounds (c: character) (x_lo: int) (y_lo: int) (x_hi: int) (y_hi: int)
   c.x + c.width <= x_hi &&
   c.y + c.height <= y_hi
 
-let init_player () =
+let init_player () : character =
   { x = 0
   ; y = 0
   ; width = 8
@@ -39,11 +36,11 @@ type model =
   ; height: int
   }
 
-let init () = 
+let init (width: int) (height: int) : model =
   { playing = true
   ; player = init_player ()
-  ; width = w_width
-  ; height = w_height
+  ; width = width
+  ; height = height
   }
 
 type direction = 
@@ -66,26 +63,16 @@ let dir_of_key (key: key) : direction option =
 
 let timer_update (model: model) : model =
   if model.playing then
-    let player =
-      if w_height = model.height && w_width = model.width then
-        model.player
-      else
-        (* window was resized *)
-        if within_bounds model.player x_min y_min w_width w_height then
-          model.player
-        else
-          init_player ()
-    in
+    let player = model.player in
 
-    let model' = { model with width = w_width; height = w_height } in
     let x' = player.x + player.vx in
     let y' = player.y + player.vy in
     let player' = { player with x = x'; y = y' } in
 
-    if within_bounds player' x_min y_min w_width w_height then
-      { model' with player = player' }
-    else 
-      model'
+    if within_bounds player' x_min y_min model.width model.height then
+      { model with player = player' }
+    else
+      model
   else
       model
 
@@ -113,11 +100,7 @@ let update (model: model) (msg: msg) : model =
         end
       | None -> model
       end
-    | Tick ->
-      let x' = model.player.x + model.player.vx in
-      let y' = model.player.y + model.player.vy in
-      let player' = { model.player with x = x'; y = y' } in
-      { model with player = player' }
+    | AnimationFrame _ -> timer_update model
     | _ -> model
   in
   model'

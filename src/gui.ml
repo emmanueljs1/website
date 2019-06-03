@@ -51,12 +51,14 @@ type event =
   [@@bs.deriving {accessors}]
 
 type event_controller =
-  { add_event_listener: (event -> unit) -> unit
+  { get_focus: unit -> unit
+  ; add_event_listener: (event -> unit) -> unit
   }
 
 let mk_event_controller (id: string) : event_controller =
   let el = HTMLElement.getElementById document id in
-  { add_event_listener = (fun listener ->
+  { get_focus = (fun () -> HTMLElement.focus el)
+  ; add_event_listener = (fun listener ->
       let listener' (e: Dom.event) : unit =
         match HTMLEvent.eventType e with
         | "click" ->
@@ -133,11 +135,7 @@ let mk_canvas (id: string) : canvas * event_controller =
           let (w, h) =
             match size_opt with
             | None -> img_w, img_h
-            | Some (w, h) ->
-              let ratio = (float_of_int w) /. (float_of_int h) in
-              let width = (float_of_int h) *. ratio |> int_of_float in
-              let height = (float_of_int w) /. ratio |> int_of_float in
-              width, height
+            | Some size -> size
           in
           HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
         else
@@ -150,11 +148,7 @@ let mk_canvas (id: string) : canvas * event_controller =
             let (w, h) =
               match size_opt with
               | None -> img_w, img_h
-              | Some (w, h) ->
-                let ratio = (float_of_int w) /. (float_of_int h) in
-                let width = (float_of_int h) *. ratio |> int_of_float in
-                let height = (float_of_int w) /. ratio |> int_of_float in
-                width, height
+              | Some size -> size
             in
             HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
           );

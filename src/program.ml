@@ -97,6 +97,8 @@ let run_program (id: string) (program: 'model program) : unit =
   let last_timestamp = ref None in
 
   let rec loop (timestamp: int) : unit =
+    ec.get_focus ();
+
     model := List.fold_right (fun x acc -> program.update acc x) !msgs !model;
     let delta =
       match !last_timestamp with

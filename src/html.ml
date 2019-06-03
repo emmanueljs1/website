@@ -25,6 +25,7 @@ module HTMLElement = struct
   external getBoundingClientRect: element -> HTMLRect.rect = "getBoundingClientRect" [@@bs.send]
   external width: element -> int = "width" [@@bs.get]
   external height: element -> int = "height" [@@bs.get]
+  external focus: element -> unit = "focus" [@@bs.send]
 end
 
 module HTMLEvent = struct

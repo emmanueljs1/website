@@ -26,7 +26,8 @@ type event =
   [@@bs.deriving {accessors}]
 
 type event_controller =
-  { add_event_listener: (event -> unit) -> unit
+  { get_focus: unit -> unit
+  ; add_event_listener: (event -> unit) -> unit
   }
 
 (* Create an event controller linked to a element with the given id *)

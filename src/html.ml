@@ -3,6 +3,14 @@ module HTMLDocument = struct
   external doc: document = "document" [@@bs.val]
 end
 
+module HTMLWindow = struct
+  type window
+  external window: window = "window" [@@bs.val]
+  external height: window -> int = "innerHeight" [@@bs.get]
+  external width: window -> int = "innerWidth" [@@bs.get]
+  external requestAnimationFrame: window -> (int -> unit) -> unit = "requestAnimationFrame" [@@bs.send]
+end
+
 module HTMLRect = struct
   type rect
   external left: rect -> int = "left" [@@bs.get]

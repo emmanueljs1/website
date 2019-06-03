@@ -104,6 +104,7 @@ type canvas =
   ; get_color: unit -> string
   ; set_line_width: int -> unit
   ; get_line_width: unit -> int
+  ; get_size: unit -> (int * int)
   ; clear: unit -> unit
   }
 
@@ -178,6 +179,7 @@ let mk_canvas (id: string) : canvas * event_controller =
     ; get_color = (fun () -> HTMLCanvas.strokeStyle ctx)
     ; set_line_width = (fun w -> HTMLCanvas.setLineWidth ctx w)
     ; get_line_width = (fun () -> HTMLCanvas.lineWidth ctx)
+    ; get_size = (fun () -> (HTMLCanvas.width canvas, HTMLCanvas.height canvas))
     ; clear = (fun () ->
         let width = HTMLCanvas.width canvas in
         let height = HTMLCanvas.height canvas in
@@ -188,3 +190,7 @@ let mk_canvas (id: string) : canvas * event_controller =
 
 let set_interval (tick: unit -> unit) (delta: int) : unit =
   ignore (Js.Global.setInterval tick delta)
+
+let request_animation_frame (callback: int -> unit) : unit =
+  let window = HTMLWindow.window in
+  HTMLWindow.requestAnimationFrame window callback

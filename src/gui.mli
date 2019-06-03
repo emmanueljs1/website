@@ -54,6 +54,8 @@ type canvas = {
   set_line_width: int -> unit;
   (* Get draw line width of canvas *)
   get_line_width: unit -> int;
+  (* Get width and height of canvas *)
+  get_size: unit -> (int * int);
   (* Clear canvas *)
   clear: unit -> unit
   }
@@ -64,3 +66,8 @@ val mk_canvas : string -> canvas * event_controller
 (* Repeatedly executes a callback with a specified interval (in milliseconds) 
  * between calls *)
 val set_interval : (unit -> unit) -> int -> unit
+
+(* Tells the browser that you wish to perform an animation and requests that 
+ * the browser call a specified function to update an animation before the next 
+ * repaint *)
+val request_animation_frame : (int -> unit) -> unit

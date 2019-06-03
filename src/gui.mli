@@ -22,6 +22,7 @@ type event =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  | Resize of int * int
   [@@bs.deriving {accessors}]
 
 type event_controller =

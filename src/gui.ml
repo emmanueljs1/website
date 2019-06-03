@@ -47,6 +47,7 @@ type event =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  | Resize of int * int
   [@@bs.deriving {accessors}]
 
 type event_controller =
@@ -82,6 +83,10 @@ let mk_event_controller (id: string) : event_controller =
           KeyDown (key_of_string (HTMLEvent.eventKey e)) |> listener
         | "keyup" ->
           KeyUp (key_of_string (HTMLEvent.eventKey e)) |> listener
+        | "resize" ->
+          let width = HTMLElement.width el in
+          let height = HTMLElement.height el in
+          Resize (width, height) |> listener
         | _ -> ()
       in
       HTMLEvent.addEventListener el "click" listener' false;                   
@@ -90,6 +95,7 @@ let mk_event_controller (id: string) : event_controller =
       HTMLEvent.addEventListener el "mousedown" listener' false;
       HTMLEvent.addEventListener el "mouseup" listener' false;
       HTMLEvent.addEventListener el "mousemove" listener' false;
+      HTMLEvent.addEventListener el "resize" listener' false;
     )
   }
 
@@ -179,10 +185,10 @@ let mk_canvas (id: string) : canvas * event_controller =
     ; get_color = (fun () -> HTMLCanvas.strokeStyle ctx)
     ; set_line_width = (fun w -> HTMLCanvas.setLineWidth ctx w)
     ; get_line_width = (fun () -> HTMLCanvas.lineWidth ctx)
-    ; get_size = (fun () -> (HTMLCanvas.width canvas, HTMLCanvas.height canvas))
+    ; get_size = (fun () -> HTMLElement.width el, HTMLElement.height el)
     ; clear = (fun () ->
-        let width = HTMLCanvas.width canvas in
-        let height = HTMLCanvas.height canvas in
+        let width = HTMLElement.width el in
+        let height = HTMLElement.height el in
         HTMLCanvas.clearRect ctx 0 0 width height
       )
     },

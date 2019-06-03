@@ -39,6 +39,7 @@ type msg =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  | Resize of int * int
   | AnimationFrame of int
   [@@bs.deriving {accessors}]
 
@@ -90,6 +91,7 @@ let run_program (id: string) (program: 'model program) : unit =
     | MouseMove (x, y) -> msgs := (MouseMove (x, y)) :: !msgs
     | KeyDown key -> msgs := (KeyDown (key_of_gui_key key)) :: !msgs
     | KeyUp key -> msgs := (KeyUp (key_of_gui_key key)) :: !msgs
+    | Resize (w, h) -> msgs := (Resize (w, h)) :: !msgs
   );
 
   let last_timestamp = ref None in

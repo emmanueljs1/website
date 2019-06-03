@@ -22,6 +22,7 @@ type msg =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  | Resize of int * int
   | AnimationFrame of int
   [@@bs.deriving {accessors}]
 

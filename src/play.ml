@@ -100,6 +100,11 @@ let update (model: model) (msg: msg) : model =
         end
       | None -> model
       end
+    | Resize (w, h) ->
+      let x' = max (min model.player.x w) x_min in
+      let y' = max (min model.player.y h) y_min in
+      let player' = { model.player with x = x'; y = y' } in
+      { model with width = w; height = h; player = player' }
     | AnimationFrame _ -> timer_update model
     | _ -> model
   in

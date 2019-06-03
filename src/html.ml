@@ -23,6 +23,8 @@ module HTMLElement = struct
   external tagName: element -> string = "tagName" [@@bs.get]
   external setTabIndex: element -> int -> unit = "tabIndex" [@@bs.set]
   external getBoundingClientRect: element -> HTMLRect.rect = "getBoundingClientRect" [@@bs.send]
+  external width: element -> int = "width" [@@bs.get]
+  external height: element -> int = "height" [@@bs.get]
 end
 
 module HTMLEvent = struct
@@ -54,8 +56,6 @@ module HTMLCanvas = struct
   type canvasRenderingContext2D
   type canvasElement
   external fromElement : HTMLElement.element -> canvasElement = "%identity"
-  external width: canvasElement -> int = "width" [@@bs.get]
-  external height: canvasElement -> int = "height" [@@bs.get]
   external getContext: canvasElement -> string -> canvasRenderingContext2D = "getContext" [@@bs.send]
   external strokeStyle: canvasRenderingContext2D -> string = "strokeStyle" [@@bs.get]
   external setStrokeStyle: canvasRenderingContext2D -> string -> unit = "strokeStyle" [@@bs.set]

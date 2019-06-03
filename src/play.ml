@@ -1,7 +1,7 @@
 open Program
 
 let x_min = 0
-let y_min = 0
+let y_min = 50
 
 type character =
   { x: int
@@ -20,8 +20,8 @@ let within_bounds (c: character) (x_lo: int) (y_lo: int) (x_hi: int) (y_hi: int)
   c.y + c.height <= y_hi
 
 let init_player () : character =
-  { x = 0
-  ; y = 0
+  { x = x_min
+  ; y = y_min
   ; width = 8
   ; height = 10
   ; vx = 0
@@ -84,10 +84,10 @@ let update (model: model) (msg: msg) : model =
       begin match dir_of_key key with
       | Some dir ->
         begin match dir with
-        | Up -> { model with player = { player with vy = -3 } }
-        | Left -> { model with player = { player with vx = -3 } }
-        | Down -> { model with player = { player with vy = 3 } }
-        | Right -> { model with player = { player with vx = 3 } }
+        | Up -> { model with player = { player with vy = -1 } }
+        | Left -> { model with player = { player with vx = -1 } }
+        | Down -> { model with player = { player with vy = 1 } }
+        | Right -> { model with player = { player with vx = 1 } }
         end
       | None -> model
       end

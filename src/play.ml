@@ -22,8 +22,8 @@ let within_bounds (c: character) (x_lo: int) (y_lo: int) (x_hi: int) (y_hi: int)
 let init_player () : character =
   { x = x_min
   ; y = y_min
-  ; width = 8
-  ; height = 10
+  ; width = 16
+  ; height = 28
   ; vx = 0
   ; vy = 0
   ; sprite = "../images/sprite.png"

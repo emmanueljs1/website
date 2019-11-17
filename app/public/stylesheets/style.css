@@ -34,10 +34,6 @@ a:hover {
   color: white;
 }
 
-.light-gray-bg-color {
-  background-color: #D3D3D3;
-}
-
 .mobile-h1 {
   margin-top: 400px;
 }
@@ -85,19 +81,15 @@ a:hover {
 }
 
 .instructions {
-  margin: 0 auto;
-  margin-top: 5px;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: -1;
+  background-color: #619a50;
 }
 
 .game-div {
-  width: 1000px;
-  height: 500px;
-  border: solid #595959 1px;
-  margin: 0 auto;
-  display: flex;
-  background-image: url("../images/background-play.png");
-  background-repeat-y: no-repeat;
-  background-color: #619a50;
-  background-position: 0 -70px;
-  outline: none;
+  width: 100%;
+  height: 100%;
 }

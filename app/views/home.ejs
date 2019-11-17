@@ -56,11 +56,11 @@
     <% if (!isMobile) { %>
       <div class="row-center">
         <h4 class="click-to-play">
-          <a id="click-to-play" href="/play">
+          <a id="click-to-play" href= <% if (isSpanish) { %> "/" <% } else { %> "/es" <% } %>>
             <% if (isSpanish) { %>
-              Presione para jugar
+              Presione para inglés
             <% } else { %>
-              Click To Play
+              Click for Spanish
             <% } %>
           </a>
         </h4>

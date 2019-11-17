@@ -54,7 +54,7 @@ type canvas = {
 }
 
 type 'model program =
-  { init: int -> int -> 'model
+  { init: width:int -> height:int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
   }

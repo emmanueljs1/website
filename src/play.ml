@@ -36,7 +36,7 @@ type model =
   ; height: int
   }
 
-let init (width: int) (height: int) : model =
+let init ~width ~height : model =
   { playing = true
   ; player = init_player ()
   ; width = width

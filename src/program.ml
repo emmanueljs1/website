@@ -58,7 +58,7 @@ type canvas = {
 }
 
 type 'model program =
-  { init: int -> int -> 'model
+  { init: width:int -> height:int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
   }
@@ -67,7 +67,7 @@ let run_program (id: string) (program: 'model program) : unit =
   let msgs = ref [] in
   let (canvas, ec) = Gui.mk_canvas id in
   let (w, h) = canvas.get_size () in
-  let model = ref (program.init w h) in
+  let model = ref (program.init ~width:w ~height:h) in
   let canvas' =
     { draw_image = canvas.draw_image
     ; fill_rect = canvas.fill_rect

@@ -72,4 +72,6 @@ module HTMLCanvas = struct
   external beginPath: canvasRenderingContext2D -> unit = "beginPath" [@@bs.send]
   external closePath: canvasRenderingContext2D -> unit = "closePath" [@@bs.send]
   external stroke: canvasRenderingContext2D -> unit = "stroke" [@@bs.send]
+  external imageSmoothingEnabled: canvasRenderingContext2D -> bool = "imageSmoothingEnabled" [@@bs.get]
+  external setImageSmoothingEnabled: canvasRenderingContext2D -> bool -> unit = "imageSmoothingEnabled" [@@bs.set]
 end

@@ -124,7 +124,8 @@ let mk_canvas (id: string) : canvas * event_controller =
     HTMLElement.setTabIndex el 0;
     let canvas = HTMLCanvas.fromElement el in
     let ctx = context canvas in
-    
+    HTMLCanvas.setImageSmoothingEnabled ctx false;
+
     let loaded_image_sources = ref ImgMap.empty in
 
     { draw_image = (fun imgsrc x y size_opt ->

@@ -2,14 +2,28 @@ open Character
 open Direction
 open Program
 
+module CharacterSet =
+  Set.Make(struct type t = character let compare = compare end)
+
 let x_min = 0
 let y_min = 60
 
-let init_player () : character = init_character x_min y_min 32 56 "wizzard"
+let init_player () : character =
+  let player_width = 48 in
+  let player_height = 84 in
+  init_character x_min y_min player_width player_height "wizzard_m"
+
+let init_enemy (x_max: int) (y_max: int) : character =
+  let enemy_width = 48 in
+  let enemey_height = 48 in
+  let x = Js.Math.random_int x_min (x_max - enemy_width) in
+  let y = Js.Math.random_int y_min (y_max - enemey_height) in
+  init_character x y enemy_width enemey_height "skelet"
 
 type model = 
   { playing: bool
   ; player: character
+  ; enemies: CharacterSet.t
   ; width: int
   ; height: int
   ; tick: int
@@ -18,6 +32,7 @@ type model =
 let init ~width ~height : model =
   { playing = true
   ; player = init_player ()
+  ; enemies = CharacterSet.add (init_enemy width height) CharacterSet.empty
   ; width = width
   ; height = height
   ; tick = 0
@@ -83,7 +98,12 @@ let repaint (canvas: canvas) (model: model) : unit =
   let player = model.player in
   let player_size = character_size player in
   let sprite = character_sprite model.player model.tick in
-  canvas.draw_image sprite player.x player.y (Some player_size)
+  canvas.draw_image sprite player.x player.y (Some player_size);
+  CharacterSet.iter (fun enemy ->
+    let enemy_size = character_size enemy in
+    let sprite = character_sprite enemy model.tick in
+    canvas.draw_image sprite enemy.x enemy.y (Some enemy_size)
+  ) model.enemies
 
 let main (id: string) : unit =
   let program = { init = init; update = update; repaint = repaint } in

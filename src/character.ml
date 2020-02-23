@@ -44,7 +44,7 @@ let character_sprite (c: character) (tick: int): string =
   let sprite_action = str_of_action c.action in
   let sprite_base = c.sprite_base in
   let pos = min (tick / 5) 3 in
-  Printf.sprintf "../images/%s_m_%s_anim_f%d.png" sprite_base sprite_action pos
+  Printf.sprintf "../images/%s_%s_anim_f%d.png" sprite_base sprite_action pos
 
 let init_character (init_x: int) (init_y: int) (width: int) (height: int) (sprite_base: string) : character =
   { x = init_x

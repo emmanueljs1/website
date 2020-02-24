@@ -1,9 +1,8 @@
-open Direction
-
 type action =
-  | Idle
-  | Run of direction
+  | Idle of bool (* is_right*)
+  | Run of bool (* is_right *)
   | Hit
+  | Attacked
 
 type character =
   { x: int

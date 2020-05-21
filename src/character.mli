@@ -1,26 +1,11 @@
-type action =
-  | Idle of bool (* is_right*)
-  | Run of bool (* is_right *)
-  | Hit
-  | Attacked
+open Collideable
+open Sprite
+open Util
 
 type character =
-  { x: int
-  ; y: int
-  ; width: int
-  ; height: int
-  ; vx: int
-  ; vy: int
-  ; action: action
-  ; sprite_base: string
+  { collideable: collideable
+  ; sprite: sprite
   }
 
-val character_size: character -> int * int
-
-val move_character: character -> int -> int -> int -> int -> character
-
-val act_character: character -> character
-
-val character_sprite: character -> int -> string
-
-val init_character: int -> int -> int -> int -> string -> character
+val init_character: point -> size -> point -> point -> string -> character
+val react_character: character -> character

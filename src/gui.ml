@@ -116,6 +116,7 @@ type canvas =
   ; clear: unit -> unit
   }
 
+(* TODO: optional list of assets to preload *)
 let mk_canvas (id: string) : canvas * event_controller =
   let el = HTMLElement.getElementById document id in
   if HTMLElement.tagName el <> "CANVAS" then

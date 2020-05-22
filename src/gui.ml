@@ -103,6 +103,7 @@ let mk_event_controller (id: string) : event_controller =
 
 type canvas = 
   { draw_image: string -> int -> int -> (int * int) option -> unit
+  ; draw_text: string -> string -> int -> int -> unit
   ; fill_rect: int -> int -> int -> int -> unit
   ; draw_rect: int -> int -> int -> int -> unit
   ; draw_line: int -> int -> int -> int -> unit
@@ -155,6 +156,10 @@ let mk_canvas (id: string) : canvas * event_controller =
             HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
           );
           HTMLCanvas.closePath ctx
+      )
+    ; draw_text = (fun str font x y ->
+        Printf.sprintf "18px %s" font |> HTMLCanvas.setFont ctx;
+        HTMLCanvas.fillText ctx str x y
       )
     ; fill_rect = (fun x y w h -> HTMLCanvas.fillRect ctx x y w h)
     ; draw_rect = (fun x y w h -> HTMLCanvas.strokeRect ctx x y w h)

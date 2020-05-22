@@ -43,18 +43,26 @@ type msg =
   | AnimationFrame of int
   [@@bs.deriving {accessors}]
 
-type canvas = { 
-  draw_image: string -> int -> int -> (int * int) option -> unit;
-  fill_rect: int -> int -> int -> int -> unit;
-  draw_rect: int -> int -> int -> int -> unit;
-  draw_line: int -> int -> int -> int -> unit;
-  draw_circle: int -> int -> int -> unit;
-  draw_arc: int -> int -> int -> float -> float -> unit;
-  set_color: string -> unit;
-  get_color: unit -> string;
-  set_line_width: int -> unit;
-  get_line_width: unit -> int;
-  get_size: unit -> (int * int)
+type font =
+  | PressStart
+
+let str_of_font (font: font) : string =
+  match font with
+  | PressStart -> "PressStart"
+
+type canvas =
+  { draw_image: string -> int -> int -> (int * int) option -> unit
+  ; draw_text: string -> font -> int -> int -> unit
+  ; fill_rect: int -> int -> int -> int -> unit
+  ; draw_rect: int -> int -> int -> int -> unit
+  ; draw_line: int -> int -> int -> int -> unit
+  ; draw_circle: int -> int -> int -> unit
+  ; draw_arc: int -> int -> int -> float -> float -> unit
+  ; set_color: string -> unit
+  ; get_color: unit -> string
+  ; set_line_width: int -> unit
+  ; get_line_width: unit -> int
+  ; get_size: unit -> (int * int)
 }
 
 type 'model program =
@@ -70,6 +78,9 @@ let run_program (id: string) (program: 'model program) : unit =
   let model = ref (program.init ~width:w ~height:h) in
   let canvas' =
     { draw_image = canvas.draw_image
+    ; draw_text = (fun str font x y ->
+        canvas.draw_text str (str_of_font font) x y
+      )
     ; fill_rect = canvas.fill_rect
     ; draw_rect = canvas.draw_rect
     ; draw_line = canvas.draw_line

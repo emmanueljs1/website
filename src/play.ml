@@ -7,11 +7,12 @@ open Util
 
 let x_min = 0
 let y_min = 60
+let dist_delta = 5
 
 type model = 
   { playing: bool
   ; player: character
-  ; npcs: character list
+  ; npcs: (character * string) list
   ; size: size
   ; tick: int
   }
@@ -23,13 +24,13 @@ let init_player (width: int) (height: int) : character =
   let init_pos = { x = width / 2 - size.width; y = height / 2 - size.height} in
   init_character init_pos size lower_bound upper_bound "wizzard_m"
 
-let init_npcs (width: int) (height: int) : character list =
+let init_npcs (width: int) (height: int) : (character * string) list =
   let lower_bound = { x = x_min; y = y_min } in
   let upper_bound = { x = width; y = height } in
   let k_size = { width = 64; height = 84 } in
   let init_knight_pos = { x = width / 2 - k_size.width; y = y_min } in
   let knight = init_character init_knight_pos k_size lower_bound upper_bound "knight_f" in
-  [knight]
+  [ knight, "Hello!" ]
 
 let init ~width ~height : model =
   { playing = true
@@ -54,17 +55,33 @@ let dir_of_key (key: key) : direction option =
 let timer_update (model: model) : model =
   if model.playing then
     let tick' = (model.tick + 1) mod 25 in
-    let collideables = List.map (fun npc -> npc.collideable) model.npcs in
+    let collideables = List.map (fun (npc, _) -> npc.collideable) model.npcs in
     let player' = react_character model.player collideables in
 
-    let npcs' = List.map (fun npc ->
+    let _ =
+      match player'.interacting with
+      | None -> ()
+      | Some c ->
+        if are_adjacent player'.collideable c.collideable dist_delta then
+          c.interacting <- Some player'
+        else (
+          player'.interacting <- None;
+          c.interacting <- None
+        )
+    in
+
+    let npcs' = List.map (fun (npc, s) ->
       match npc.interacting with
-      | Some (c) ->
-        if c.collideable.pos.x < npc.collideable.pos.x then
-          { npc with sprite = { npc.sprite with action = Idle false } }
-        else
-          { npc with sprite = { npc.sprite with action = Idle true } }
-      | None -> npc
+      | Some c ->
+        let npc' =
+          if c.collideable.pos.x < npc.collideable.pos.x then
+            { npc with sprite = { npc.sprite with action = Idle false } }
+          else
+            { npc with sprite = { npc.sprite with action = Idle true } }
+        in
+        c.interacting <- Some npc';
+        npc', s
+      | None -> npc, s
     ) model.npcs
     in
 
@@ -90,16 +107,18 @@ let update (model: model) (msg: msg) : model =
       | None ->
           begin match key with
           | Enter ->
-            begin try
-              let adjacent_npc =
-                List.find (fun npc ->
-                  are_adjacent player.collideable npc.collideable 3
-                ) model.npcs
-              in
-              player.interacting <- Some adjacent_npc;
-              adjacent_npc.interacting <- Some player;
-              model
-              with Not_found -> model end
+            let _ =
+              try
+                let (adjacent_npc, _) =
+                  List.find (fun (npc, _) ->
+                    are_adjacent player.collideable npc.collideable dist_delta
+                  ) model.npcs
+                in
+                player.interacting <- Some adjacent_npc;
+                adjacent_npc.interacting <- Some player
+              with Not_found -> ()
+            in
+            model
           | _ -> model
           end
       end
@@ -128,7 +147,17 @@ let update (model: model) (msg: msg) : model =
   model'
 
 let repaint (canvas: canvas) (model: model) : unit =
-  List.iter (fun npc -> draw_character npc canvas model.tick) model.npcs;
+  List.iter (fun (npc, text) ->
+    let _ =
+      match npc.interacting with
+      | None -> ()
+      | Some _ ->
+        let (x, y) = (npc.collideable.pos.x, npc.collideable.pos.y) in
+        canvas.draw_text text PressStart x (y - 18)
+    in
+
+    draw_character npc canvas model.tick
+  ) model.npcs;
   draw_character model.player canvas model.tick
 
 let main (id: string) : unit =

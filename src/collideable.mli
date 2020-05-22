@@ -9,9 +9,8 @@ type collideable =
   ; upper_bound: point
   }
 
-module CollideableSet : Set.S with type elt = collideable
-
 val init_collideable : point -> size -> point -> point -> collideable
 val are_colliding : collideable -> collideable -> bool
-val move_collideable: collideable -> collideable
+val are_adjacent : collideable -> collideable -> int -> bool
+val move_collideable: collideable -> collideable list-> collideable
 val speed_collideable: collideable -> int -> int -> collideable

@@ -1,11 +1,14 @@
 open Collideable
+open Program
 open Sprite
 open Util
 
 type character =
   { collideable: collideable
   ; sprite: sprite
+  ; mutable interacting: character option
   }
 
 val init_character: point -> size -> point -> point -> string -> character
-val react_character: character -> character
+val draw_character: character -> canvas -> int -> unit
+val react_character: character -> collideable list -> character

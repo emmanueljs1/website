@@ -11,20 +11,30 @@ let y_min = 60
 type model = 
   { playing: bool
   ; player: character
+  ; npcs: character list
   ; size: size
   ; tick: int
   }
 
 let init_player (width: int) (height: int) : character =
-  let init_pos = { x = x_min; y = y_min } in
-  let player_size = { width = 48; height = 84 } in
-  let lower_bound = init_pos in
+  let lower_bound = { x = x_min; y = y_min } in
   let upper_bound = { x = width; y = height } in
-  init_character init_pos player_size lower_bound upper_bound "wizzard_m"
+  let size = { width = 48; height = 84 } in
+  let init_pos = { x = width / 2 - size.width; y = height / 2 - size.height} in
+  init_character init_pos size lower_bound upper_bound "wizzard_m"
+
+let init_npcs (width: int) (height: int) : character list =
+  let lower_bound = { x = x_min; y = y_min } in
+  let upper_bound = { x = width; y = height } in
+  let k_size = { width = 64; height = 84 } in
+  let init_knight_pos = { x = width / 2 - k_size.width; y = y_min } in
+  let knight = init_character init_knight_pos k_size lower_bound upper_bound "knight_f" in
+  [knight]
 
 let init ~width ~height : model =
   { playing = true
   ; player = init_player width height
+  ; npcs = init_npcs width height
   ; size = { width = width; height = height }
   ; tick = 0
   }
@@ -44,8 +54,21 @@ let dir_of_key (key: key) : direction option =
 let timer_update (model: model) : model =
   if model.playing then
     let tick' = (model.tick + 1) mod 25 in
-    let player' = react_character model.player in
-    { model with player = player'; tick = tick' }
+    let collideables = List.map (fun npc -> npc.collideable) model.npcs in
+    let player' = react_character model.player collideables in
+
+    let npcs' = List.map (fun npc ->
+      match npc.interacting with
+      | Some (c) ->
+        if c.collideable.pos.x < npc.collideable.pos.x then
+          { npc with sprite = { npc.sprite with action = Idle false } }
+        else
+          { npc with sprite = { npc.sprite with action = Idle true } }
+      | None -> npc
+    ) model.npcs
+    in
+
+    { model with player = player'; npcs = npcs'; tick = tick' }
   else
       model
 
@@ -64,7 +87,21 @@ let update (model: model) (msg: msg) : model =
           | Right -> { player.collideable with vx = 3 }
         in
         { model with player = { player with collideable = p_collideable' } }
-      | None -> model
+      | None ->
+          begin match key with
+          | Enter ->
+            begin try
+              let adjacent_npc =
+                List.find (fun npc ->
+                  are_adjacent player.collideable npc.collideable 3
+                ) model.npcs
+              in
+              player.interacting <- Some adjacent_npc;
+              adjacent_npc.interacting <- Some player;
+              model
+              with Not_found -> model end
+          | _ -> model
+          end
       end
     | KeyUp key ->
       begin match dir_of_key key with
@@ -91,11 +128,8 @@ let update (model: model) (msg: msg) : model =
   model'
 
 let repaint (canvas: canvas) (model: model) : unit =
-  let player = model.player in
-  let sprite_img = sprite_img model.player.sprite model.tick in
-  let size = (player.collideable.size.width, player.collideable.size.height) in
-  let (x, y) = (player.collideable.pos.x, player.collideable.pos.y) in
-  canvas.draw_image sprite_img x y (Some size)
+  List.iter (fun npc -> draw_character npc canvas model.tick) model.npcs;
+  draw_character model.player canvas model.tick
 
 let main (id: string) : unit =
   let program = { init = init; update = update; repaint = repaint } in

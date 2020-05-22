@@ -8,21 +8,10 @@
     <body <% if (isMobile) { %> class="background" <% } %>>
       <% if (!isMobile) { %>
       <script src="javascripts/play.js"></script>
-      <div class="instructions center-text margin-top-20 background-play">
-        <h2>
-          Instructions
-        </h2>
-        <div class="row-center">
-          <h4 class="inline-block margin-5">W - Move up</h4>
-          &nbsp;&nbsp;
-          <h4 class="inline-block margin-5">A - Move left</h4>
-        </div>
-        <div class="row-center">
-          <h4 class="inline-block margin-5">S - Move down</h4>
-          &nbsp;&nbsp;
-          <h4 class="inline-block margin-5">D - Move right</h4>
-        </div>
-        <h4 class="margin-5">SPACE - Attack</h4>
+      <div class="header background-play">
+        <h1 class="center-text margin-top-60">
+          Emmanuel Su&aacute;rez
+        </h1>
       </div>
       <div class="row-center">
         <canvas id="game-div" class="game-div" width="1024px" height="512px"></canvas>

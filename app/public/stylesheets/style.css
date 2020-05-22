@@ -46,8 +46,8 @@ a:hover {
   padding: 0px;
 }
 
-.margin-top-20 {
-  margin-top: 20px;
+.margin-top-60 {
+  margin-top: 60px;
 }
 
 .margin-5 {
@@ -80,7 +80,7 @@ a:hover {
   margin: 0px;
 }
 
-.instructions {
+.header {
   margin: 0;
   height: 100%;
   width: 100%;
@@ -91,4 +91,5 @@ a:hover {
 
 .game-div {
   margin-top: 160px;
+  /* outline: none; */
 }

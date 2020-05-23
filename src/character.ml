@@ -7,14 +7,12 @@ open Util
 type character =
   { collideable: collideable
   ; sprite: sprite
-  ; mutable interacting: character option
   }
 
 let init_character (init_pos: point) (size: size) (lower_bound: point)
   (upper_bound: point) (sprite_base: string) : character =
   { collideable = init_collideable init_pos size lower_bound upper_bound
   ; sprite = init_sprite (Idle true) sprite_base
-  ; interacting = None
   }
 
 let draw_character (c: character) (canvas: canvas) (tick: int): unit =
@@ -35,5 +33,4 @@ let react_character (c: character) (collideables: collideable list) : character 
   in
   { collideable = move_collideable c.collideable collideables
   ; sprite = { c.sprite with action = action' }
-  ; interacting = c.interacting
   }

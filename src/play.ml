@@ -8,11 +8,13 @@ open Util
 let x_min = 0
 let y_min = 60
 let dist_delta = 5
+let (font, font_size, font_color) = PressStart, 18, Hex "595959"
 
 type model = 
   { playing: bool
   ; player: character
   ; npcs: (character * string) list
+  ; interacting: character option
   ; size: size
   ; tick: int
   }
@@ -36,6 +38,7 @@ let init ~width ~height : model =
   { playing = true
   ; player = init_player width height
   ; npcs = init_npcs width height
+  ; interacting = None
   ; size = { width = width; height = height }
   ; tick = 0
   }
@@ -58,34 +61,38 @@ let timer_update (model: model) : model =
     let collideables = List.map (fun (npc, _) -> npc.collideable) model.npcs in
     let player' = react_character model.player collideables in
 
-    let _ =
-      match player'.interacting with
-      | None -> ()
+    let interacting' =
+      match model.interacting with
+      | None -> None
       | Some c ->
         if are_adjacent player'.collideable c.collideable dist_delta then
-          c.interacting <- Some player'
-        else (
-          player'.interacting <- None;
-          c.interacting <- None
-        )
+          model.interacting
+        else
+          None
     in
 
-    let npcs' = List.map (fun (npc, s) ->
-      match npc.interacting with
-      | Some c ->
-        let npc' =
-          if c.collideable.pos.x < npc.collideable.pos.x then
-            { npc with sprite = { npc.sprite with action = Idle false } }
-          else
-            { npc with sprite = { npc.sprite with action = Idle true } }
-        in
-        c.interacting <- Some npc';
-        npc', s
-      | None -> npc, s
-    ) model.npcs
+    let (npcs', interacting'') =
+      List.fold_right (fun (npc, s) (acc, interacting) ->
+        match interacting with
+        | Some c when c = npc->
+            let npc' =
+              if player'.collideable.pos.x < npc.collideable.pos.x then
+                { npc with sprite = { npc.sprite with action = Idle false } }
+              else
+                { npc with sprite = { npc.sprite with action = Idle true } }
+            in
+            (npc', s) :: acc, Some npc'
+        | _ -> (npc, s) :: acc, interacting
+      ) model.npcs ([], interacting')
     in
 
-    { model with player = player'; npcs = npcs'; tick = tick' }
+    { playing = true
+    ; player = player'
+    ; npcs = npcs'
+    ; interacting = interacting''
+    ; size = model.size
+    ; tick = tick'
+    }
   else
       model
 
@@ -107,18 +114,17 @@ let update (model: model) (msg: msg) : model =
       | None ->
           begin match key with
           | Enter ->
-            let _ =
+            let interacting' =
               try
                 let (adjacent_npc, _) =
                   List.find (fun (npc, _) ->
                     are_adjacent player.collideable npc.collideable dist_delta
                   ) model.npcs
                 in
-                player.interacting <- Some adjacent_npc;
-                adjacent_npc.interacting <- Some player
-              with Not_found -> ()
+                Some adjacent_npc
+              with Not_found -> None
             in
-            model
+            { model with interacting = interacting' }
           | _ -> model
           end
       end
@@ -149,11 +155,17 @@ let update (model: model) (msg: msg) : model =
 let repaint (canvas: canvas) (model: model) : unit =
   List.iter (fun (npc, text) ->
     let _ =
-      match npc.interacting with
-      | None -> ()
-      | Some _ ->
-        let (x, y) = (npc.collideable.pos.x, npc.collideable.pos.y) in
-        canvas.draw_text text PressStart x (y - 18)
+      match model.interacting with
+      | Some c when c = npc ->
+        let (c_x, c_y) = (npc.collideable.pos.x, npc.collideable.pos.y) in
+        let text_width = canvas.text_width text font font_size in
+        let x = c_x + npc.collideable.size.width / 2 - text_width / 2 in
+        let y = c_y - font_size - dist_delta * 2 in
+        canvas.set_color White;
+        canvas.fill_rect (x - dist_delta) (y - dist_delta) (text_width + dist_delta) (font_size + dist_delta);
+        canvas.set_color font_color;
+        canvas.draw_text text font font_size x y
+      | _ -> ()
     in
 
     draw_character npc canvas model.tick

@@ -6,7 +6,6 @@ open Util
 type character =
   { collideable: collideable
   ; sprite: sprite
-  ; mutable interacting: character option
   }
 
 val init_character: point -> size -> point -> point -> string -> character

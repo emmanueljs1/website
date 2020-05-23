@@ -103,7 +103,8 @@ let mk_event_controller (id: string) : event_controller =
 
 type canvas = 
   { draw_image: string -> int -> int -> (int * int) option -> unit
-  ; draw_text: string -> string -> int -> int -> unit
+  ; draw_text: string -> string -> int -> int -> int -> unit
+  ; text_width: string -> string -> int -> int
   ; fill_rect: int -> int -> int -> int -> unit
   ; draw_rect: int -> int -> int -> int -> unit
   ; draw_line: int -> int -> int -> int -> unit
@@ -127,6 +128,7 @@ let mk_canvas (id: string) : canvas * event_controller =
     let canvas = HTMLCanvas.fromElement el in
     let ctx = context canvas in
     HTMLCanvas.setImageSmoothingEnabled ctx false;
+    HTMLCanvas.setTextBaseline ctx "top";
 
     let loaded_image_sources = ref ImgMap.empty in
 
@@ -157,9 +159,14 @@ let mk_canvas (id: string) : canvas * event_controller =
           );
           HTMLCanvas.closePath ctx
       )
-    ; draw_text = (fun str font x y ->
-        Printf.sprintf "18px %s" font |> HTMLCanvas.setFont ctx;
-        HTMLCanvas.fillText ctx str x y
+    ; draw_text = (fun text font font_size x y ->
+        Printf.sprintf "%ipx %s" font_size font |> HTMLCanvas.setFont ctx;
+        HTMLCanvas.fillText ctx text x y
+      )
+    ; text_width = (fun text font font_size ->
+        Printf.sprintf "%ipx %s" font_size font |> HTMLCanvas.setFont ctx;
+        let text_metrics = HTMLCanvas.measureText ctx text in
+        TextMetrics.width text_metrics
       )
     ; fill_rect = (fun x y w h -> HTMLCanvas.fillRect ctx x y w h)
     ; draw_rect = (fun x y w h -> HTMLCanvas.strokeRect ctx x y w h)
@@ -182,7 +189,10 @@ let mk_canvas (id: string) : canvas * event_controller =
         HTMLCanvas.closePath ctx;
         HTMLCanvas.stroke ctx
       )
-    ; set_color = (fun c -> HTMLCanvas.setStrokeStyle ctx c)
+    ; set_color = (fun c ->
+        HTMLCanvas.setStrokeStyle ctx c;
+        HTMLCanvas.setFillStyle ctx c
+      )
     ; get_color = (fun () -> HTMLCanvas.strokeStyle ctx)
     ; set_line_width = (fun w -> HTMLCanvas.setLineWidth ctx w)
     ; get_line_width = (fun () -> HTMLCanvas.lineWidth ctx)

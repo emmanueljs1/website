@@ -36,8 +36,10 @@ val mk_event_controller : string -> event_controller
 type canvas =
   (* Draw an image with filename at (x, y) with an optional width and height *)
   { draw_image: string -> int -> int -> (int * int) option -> unit
-  (* Draw text with font for top left corner at (x, y) *)
-  ; draw_text: string -> string -> int -> int -> unit
+  (* Draw text with font/font size and top left corner at (x, y) *)
+  ; draw_text: string -> string -> int -> int -> int -> unit
+  (* Text width for font/font size *)
+  ; text_width: string -> string -> int -> int
   (* Fill a rectange at (x, y) with width and height *)
   ; fill_rect: int -> int -> int -> int -> unit
   (* Draw a rectange at (x, y) with width and height *)

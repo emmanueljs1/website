@@ -29,11 +29,17 @@ type msg =
 type font =
   | PressStart
 
+type color =
+  | White
+  | Hex of string
+
 type canvas =
   (* Draw an image with filename at (x, y) with an optional width and height *)
   { draw_image: string -> int -> int -> (int * int) option -> unit
-  (* Draw text with top left corner at (x, y) *)
-  ; draw_text: string -> font -> int -> int -> unit
+  (* Draw text with font/font size and top left corner at (x, y) *)
+  ; draw_text: string -> font -> int -> int -> int -> unit
+  (* Text width for font/font size *)
+  ; text_width: string -> font -> int -> int
   (* Fill a rectange at (x, y) with width and height *)
   ; fill_rect: int -> int -> int -> int -> unit
   (* Draw a rectange at (x, y) with width and height *)
@@ -47,9 +53,9 @@ type canvas =
   * Angle should be in radians *)
   ; draw_arc: int -> int -> int -> float -> float -> unit
   (* Set draw color of canvas *)
-  ; set_color: string -> unit
+  ; set_color: color -> unit
   (* Get draw color of canvas *)
-  ; get_color: unit -> string
+  ; get_color: unit -> color
   (* Set draw line width of canvas *)
   ; set_line_width: int -> unit
   (* Get draw line width of canvas *)

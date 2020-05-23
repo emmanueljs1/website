@@ -50,16 +50,36 @@ let str_of_font (font: font) : string =
   match font with
   | PressStart -> "PressStart"
 
+type color =
+  | White
+  | Hex of string
+
+let str_of_color (color: color) : string =
+  match color with
+  | White -> "white"
+  | Hex str -> "#" ^ str
+
+let color_of_str (str: string) : color =
+  match str with
+  | "white" -> White
+  | _ ->
+    try
+      match String.get str 0 with
+      | '#' -> Hex (String.length str |> String.sub str 1)
+      | _ -> failwith "No color for string"
+    with _ -> failwith "No color for string"
+
 type canvas =
   { draw_image: string -> int -> int -> (int * int) option -> unit
-  ; draw_text: string -> font -> int -> int -> unit
+  ; draw_text: string -> font -> int -> int -> int -> unit
+  ; text_width: string -> font -> int -> int
   ; fill_rect: int -> int -> int -> int -> unit
   ; draw_rect: int -> int -> int -> int -> unit
   ; draw_line: int -> int -> int -> int -> unit
   ; draw_circle: int -> int -> int -> unit
   ; draw_arc: int -> int -> int -> float -> float -> unit
-  ; set_color: string -> unit
-  ; get_color: unit -> string
+  ; set_color: color -> unit
+  ; get_color: unit -> color
   ; set_line_width: int -> unit
   ; get_line_width: unit -> int
   ; get_size: unit -> (int * int)
@@ -78,16 +98,23 @@ let run_program (id: string) (program: 'model program) : unit =
   let model = ref (program.init ~width:w ~height:h) in
   let canvas' =
     { draw_image = canvas.draw_image
-    ; draw_text = (fun str font x y ->
-        canvas.draw_text str (str_of_font font) x y
+    ; draw_text = (fun text font font_size x y ->
+        canvas.draw_text text (str_of_font font) font_size x y
+      )
+    ; text_width = (fun text font font_size ->
+        canvas.text_width text (str_of_font font) font_size
       )
     ; fill_rect = canvas.fill_rect
     ; draw_rect = canvas.draw_rect
     ; draw_line = canvas.draw_line
     ; draw_circle = canvas.draw_circle
     ; draw_arc = canvas.draw_arc
-    ; set_color = canvas.set_color
-    ; get_color = canvas.get_color
+    ; set_color = (fun color ->
+        str_of_color color |> canvas.set_color
+      )
+    ; get_color = (fun _ ->
+        canvas.get_color () |> color_of_str
+      )
     ; set_line_width = canvas.set_line_width
     ; get_line_width = canvas.get_line_width
     ; get_size = canvas.get_size

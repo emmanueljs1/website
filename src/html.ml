@@ -53,6 +53,11 @@ module HTMLImage = struct
     setHeight img h
 end
 
+module TextMetrics = struct
+  type t
+  external width: t -> int = "width" [@@bs.get]
+end
+
 module HTMLCanvas = struct
   type canvasRenderingContext2D
   type canvasElement
@@ -64,8 +69,12 @@ module HTMLCanvas = struct
   external setLineWidth: canvasRenderingContext2D -> int -> unit = "lineWidth" [@@bs.set]
   external clearRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "clearRect" [@@bs.send]
   external drawImage: canvasRenderingContext2D -> HTMLImage.imageElement -> int -> int -> int -> int -> int -> int -> int -> int -> unit = "drawImage" [@@bs.send]
+  external fillStyle: canvasRenderingContext2D -> string = "fillStyle" [@@bs.get]
+  external setFillStyle: canvasRenderingContext2D -> string -> unit = "fillStyle" [@@bs.set]
   external fillRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "fillRect" [@@bs.send]
   external fillText: canvasRenderingContext2D -> string -> int -> int -> unit = "fillText" [@@bs.send]
+  external measureText: canvasRenderingContext2D -> string -> TextMetrics.t = "measureText" [@@bs.send]
+  external setTextBaseline: canvasRenderingContext2D -> string -> unit = "textBaseline" [@@bs.set]
   external setFont: canvasRenderingContext2D -> string -> unit = "font" [@@bs.set]
   external strokeRect: canvasRenderingContext2D -> int -> int -> int -> int -> unit = "strokeRect" [@@bs.send]
   external moveTo: canvasRenderingContext2D -> int -> int -> unit = "moveTo" [@@bs.send]

@@ -8,7 +8,7 @@ open Util
 let x_min = 0
 let y_min = 60
 let dist_delta = 5
-let (font, font_size, font_color) = PressStart, 18, Hex "595959"
+let (font, font_size, font_color) = PressStart, 9, Hex "595959"
 
 type model = 
   { playing: bool
@@ -32,7 +32,7 @@ let init_npcs (width: int) (height: int) : (character * string) list =
   let k_size = { width = 64; height = 84 } in
   let init_knight_pos = { x = width / 2 - k_size.width; y = y_min } in
   let knight = init_character init_knight_pos k_size lower_bound upper_bound "knight_f" in
-  [ knight, "Hello!" ]
+  [ knight, "Good morrow, traveler! Have thou heard of Emmanuel Suarez? Legend tells he hails from the far land of Puerto Rico" ]
 
 let init ~width ~height : model =
   { playing = true
@@ -157,12 +157,15 @@ let repaint (canvas: canvas) (model: model) : unit =
     let _ =
       match model.interacting with
       | Some c when c = npc ->
-        let (c_x, c_y) = (npc.collideable.pos.x, npc.collideable.pos.y) in
-        let text_width = canvas.text_width text font font_size in
-        let x = c_x + npc.collideable.size.width / 2 - text_width / 2 in
-        let y = c_y - font_size - dist_delta * 2 in
+        let x = dist_delta * 2 in
+        let y = dist_delta * 2 in
+        let bubble_width = model.size.width in
+        let bubble_height = font_size * 2 + dist_delta * 2 in
+        let bubble_x = x - dist_delta * 2 in
+        let bubble_y = y - dist_delta * 2 in
+        let bubble_r = Some dist_delta in
         canvas.set_color White;
-        canvas.fill_rect (x - dist_delta) (y - dist_delta) (text_width + dist_delta) (font_size + dist_delta);
+        canvas.fill_rect bubble_x bubble_y bubble_width bubble_height bubble_r;
         canvas.set_color font_color;
         canvas.draw_text text font font_size x y
       | _ -> ()

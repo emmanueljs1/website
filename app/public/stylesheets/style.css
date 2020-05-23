@@ -15,6 +15,7 @@ body {
 .background-play {
   background-image: url("../images/background-play.png");
   background-repeat: repeat-x;
+  background-size: 653px 365px;
 }
 
 html, body {
@@ -90,6 +91,6 @@ a:hover {
 }
 
 .game-div {
-  margin-top: 160px;
+  margin-top: 200px;
   /* outline: none; */
 }

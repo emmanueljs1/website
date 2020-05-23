@@ -105,8 +105,8 @@ type canvas =
   { draw_image: string -> int -> int -> (int * int) option -> unit
   ; draw_text: string -> string -> int -> int -> int -> unit
   ; text_width: string -> string -> int -> int
-  ; fill_rect: int -> int -> int -> int -> unit
-  ; draw_rect: int -> int -> int -> int -> unit
+  ; fill_rect: int -> int -> int -> int -> int option -> unit
+  ; draw_rect: int -> int -> int -> int -> int option -> unit
   ; draw_line: int -> int -> int -> int -> unit
   ; draw_circle: int -> int -> int -> unit
   ; draw_arc: int -> int -> int -> float -> float -> unit
@@ -117,6 +117,15 @@ type canvas =
   ; get_size: unit -> (int * int)
   ; clear: unit -> unit
   }
+
+let round_rect (ctx: HTMLCanvas.canvasRenderingContext2D) (x: int) (y: int)
+  (w: int) (h: int) (r: int) : unit =
+  HTMLCanvas.moveTo ctx (x + r) y;
+  HTMLCanvas.arcTo ctx (x + w) y (x + w) (y + h) r;
+  HTMLCanvas.arcTo ctx (x + w) (y + h) x (y + h) r;
+  HTMLCanvas.arcTo ctx x (y + h) x y r;
+  HTMLCanvas.arcTo ctx x y (x + w) y r;
+  HTMLCanvas.closePath ctx
 
 (* TODO: optional list of assets to preload *)
 let mk_canvas (id: string) : canvas * event_controller =
@@ -129,6 +138,7 @@ let mk_canvas (id: string) : canvas * event_controller =
     let ctx = context canvas in
     HTMLCanvas.setImageSmoothingEnabled ctx false;
     HTMLCanvas.setTextBaseline ctx "top";
+    HTMLCanvas.setTextAlign ctx "left";
 
     let loaded_image_sources = ref ImgMap.empty in
 
@@ -168,8 +178,18 @@ let mk_canvas (id: string) : canvas * event_controller =
         let text_metrics = HTMLCanvas.measureText ctx text in
         TextMetrics.width text_metrics
       )
-    ; fill_rect = (fun x y w h -> HTMLCanvas.fillRect ctx x y w h)
-    ; draw_rect = (fun x y w h -> HTMLCanvas.strokeRect ctx x y w h)
+    ; fill_rect = (fun x y w h -> function
+        | None -> HTMLCanvas.fillRect ctx x y w h
+        | Some r ->
+          round_rect ctx x y w h r;
+          HTMLCanvas.fill ctx
+      )
+    ; draw_rect = (fun x y w h -> function
+        | None -> HTMLCanvas.strokeRect ctx x y w h
+        | Some r ->
+          round_rect ctx x y w h r;
+          HTMLCanvas.stroke ctx
+      )
     ; draw_line = (fun x1 y1 x2 y2 ->
         HTMLCanvas.beginPath ctx;
         HTMLCanvas.moveTo ctx x1 y1;

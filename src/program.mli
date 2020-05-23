@@ -29,9 +29,10 @@ type msg =
 type font =
   | PressStart
 
-type color =
-  | White
-  | Hex of string
+  type color =
+    | Black
+    | White
+    | Hex of string
 
 type canvas =
   (* Draw an image with filename at (x, y) with an optional width and height *)
@@ -40,10 +41,12 @@ type canvas =
   ; draw_text: string -> font -> int -> int -> int -> unit
   (* Text width for font/font size *)
   ; text_width: string -> font -> int -> int
-  (* Fill a rectange at (x, y) with width and height *)
-  ; fill_rect: int -> int -> int -> int -> unit
-  (* Draw a rectange at (x, y) with width and height *)
-  ; draw_rect: int -> int -> int -> int -> unit
+  (* Fill a rectange at (x, y) with width and height and optional corner
+  * radius *)
+  ; fill_rect: int -> int -> int -> int -> int option -> unit
+  (* Draw a rectange at (x, y) with width and height and optional corner
+  * radius *)
+  ; draw_rect: int -> int -> int -> int -> int option -> unit
   (* Draw a line from (x1, y1) to (x2, y2) *)
   ; draw_line: int -> int -> int -> int -> unit
   (* Draw a circle at (x, y) with radius r *)

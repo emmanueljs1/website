@@ -40,10 +40,12 @@ type canvas =
   ; draw_text: string -> string -> int -> int -> int -> unit
   (* Text width for font/font size *)
   ; text_width: string -> string -> int -> int
-  (* Fill a rectange at (x, y) with width and height *)
-  ; fill_rect: int -> int -> int -> int -> unit
-  (* Draw a rectange at (x, y) with width and height *)
-  ; draw_rect: int -> int -> int -> int -> unit
+  (* Fill a rectange at (x, y) with width and height and optional corner
+  * radius *)
+  ; fill_rect: int -> int -> int -> int -> int option -> unit
+  (* Draw a rectange at (x, y) with width and height and optional corner
+  * radius *)
+  ; draw_rect: int -> int -> int -> int -> int option -> unit
   (* Draw a line from (x1, y1) to (x2, y2) *)
   ; draw_line: int -> int -> int -> int -> unit
   (* Draw a circle at (x, y) with radius r *)

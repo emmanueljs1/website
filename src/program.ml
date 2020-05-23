@@ -51,16 +51,19 @@ let str_of_font (font: font) : string =
   | PressStart -> "PressStart"
 
 type color =
+  | Black
   | White
   | Hex of string
 
 let str_of_color (color: color) : string =
   match color with
+  | Black -> "black"
   | White -> "white"
   | Hex str -> "#" ^ str
 
 let color_of_str (str: string) : color =
   match str with
+  | "black" -> Black
   | "white" -> White
   | _ ->
     try
@@ -73,8 +76,8 @@ type canvas =
   { draw_image: string -> int -> int -> (int * int) option -> unit
   ; draw_text: string -> font -> int -> int -> int -> unit
   ; text_width: string -> font -> int -> int
-  ; fill_rect: int -> int -> int -> int -> unit
-  ; draw_rect: int -> int -> int -> int -> unit
+  ; fill_rect: int -> int -> int -> int -> int option -> unit
+  ; draw_rect: int -> int -> int -> int -> int option -> unit
   ; draw_line: int -> int -> int -> int -> unit
   ; draw_circle: int -> int -> int -> unit
   ; draw_arc: int -> int -> int -> float -> float -> unit

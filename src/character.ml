@@ -10,9 +10,9 @@ type character =
   }
 
 let init_character (init_pos: point) (size: size) (lower_bound: point)
-  (upper_bound: point) (sprite_base: string) : character =
+  (upper_bound: point) (asset_dir: string) (sprite_base: string) : character =
   { collideable = init_collideable init_pos size lower_bound upper_bound
-  ; sprite = init_sprite (Idle true) sprite_base
+  ; sprite = init_sprite (Idle true) asset_dir sprite_base
   }
 
 let draw_character (c: character) (canvas: canvas) (tick: int): unit =

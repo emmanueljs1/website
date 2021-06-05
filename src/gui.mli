@@ -25,6 +25,7 @@ type event =
   | Resize of int * int
   [@@bs.deriving {accessors}]
 
+
 type event_controller =
   { get_focus: unit -> unit
   ; add_event_listener: (event -> unit) -> unit
@@ -68,8 +69,12 @@ type canvas =
   ; clear: unit -> unit
   }
 
-(* Create a canvas linked to a HTML canvas element with the given id *)
-val mk_canvas : string -> canvas * event_controller
+type asset =
+  | Image of string
+
+(* Create a canvas linked to a HTML canvas element with the given id,
+ * and optionally preload a given list of assets *)
+val mk_canvas : string -> asset list -> canvas * event_controller
 
 (* Repeatedly executes a callback with a specified interval (in milliseconds) 
  * between calls *)

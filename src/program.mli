@@ -71,6 +71,7 @@ type 'model program =
   { init: width:int -> height:int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
+  ; preloads: Gui.asset list
   }
 
 val run_program: string -> 'model program -> unit

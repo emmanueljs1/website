@@ -8,6 +8,6 @@ type character =
   ; sprite: sprite
   }
 
-val init_character: point -> size -> point -> point -> string -> character
+val init_character: point -> size -> point -> point -> string -> string -> character
 val draw_character: character -> canvas -> int -> unit
 val react_character: character -> collideable list -> character

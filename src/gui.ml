@@ -127,8 +127,19 @@ let round_rect (ctx: HTMLCanvas.canvasRenderingContext2D) (x: int) (y: int)
   HTMLCanvas.arcTo ctx x y (x + w) y r;
   HTMLCanvas.closePath ctx
 
-(* TODO: optional list of assets to preload *)
-let mk_canvas (id: string) : canvas * event_controller =
+type asset =
+  | Image of string
+
+let image_sources_of_assets (assets: asset list) : string list =
+  let rec loop (acc: string list) (l: asset list): string list =
+    match l with
+    | [] -> acc
+    | Image source :: tl -> loop (source :: acc) tl
+    | _ :: tl -> loop acc tl
+  in
+  loop [] assets
+
+let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
   let el = HTMLElement.getElementById document id in
   if HTMLElement.tagName el <> "CANVAS" then
     invalid_arg "not a canvas element"
@@ -142,6 +153,21 @@ let mk_canvas (id: string) : canvas * event_controller =
 
     let loaded_image_sources = ref ImgMap.empty in
 
+    let load_image (callback: (HTMLImage.imageElement -> unit) option)
+      (imgsrc: string): unit =
+      let img = HTMLImage.newImage () in
+      HTMLImage.setSource img imgsrc;
+      HTMLImage.setOnload img (fun () ->
+        loaded_image_sources := ImgMap.add imgsrc img !loaded_image_sources;
+
+        match callback with
+        | None -> ()
+        | Some f -> f img
+      )
+    in
+
+    List.iter (load_image None) (image_sources_of_assets assets);
+
     { draw_image = (fun imgsrc x y size_opt ->
         if ImgMap.mem imgsrc !loaded_image_sources then
           let img = ImgMap.find imgsrc !loaded_image_sources in
@@ -152,12 +178,10 @@ let mk_canvas (id: string) : canvas * event_controller =
             | None -> img_w, img_h
             | Some size -> size
           in
-          HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
+          HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h;
+          HTMLCanvas.closePath ctx
         else
-          let img = HTMLImage.newImage () in
-          HTMLImage.setSource img imgsrc;
-          HTMLImage.setOnload img (fun () ->
-            loaded_image_sources := ImgMap.add imgsrc img !loaded_image_sources;
+          load_image (Some (fun img ->
             let img_w = HTMLImage.getWidth img in
             let img_h = HTMLImage.getHeight img in
             let (w, h) =
@@ -165,9 +189,9 @@ let mk_canvas (id: string) : canvas * event_controller =
               | None -> img_w, img_h
               | Some size -> size
             in
-            HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h
-          );
-          HTMLCanvas.closePath ctx
+            HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h;
+            HTMLCanvas.closePath ctx
+          )) imgsrc
       )
     ; draw_text = (fun text font font_size x y ->
         Printf.sprintf "%ipx %s" font_size font |> HTMLCanvas.setFont ctx;

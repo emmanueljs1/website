@@ -10,6 +10,8 @@ let y_min = 60
 let dist_delta = 5
 let (font, font_size, font_color) = PressStart, 9, Hex "595959"
 
+let asset_dir = "../assets"
+
 type model = 
   { playing: bool
   ; player: character
@@ -24,14 +26,16 @@ let init_player (width: int) (height: int) : character =
   let upper_bound = { x = width; y = height } in
   let size = { width = 48; height = 84 } in
   let init_pos = { x = width / 2 - size.width; y = height / 2 - size.height} in
-  init_character init_pos size lower_bound upper_bound "wizzard_m"
+  init_character init_pos size lower_bound upper_bound asset_dir "wizzard_m"
 
 let init_npcs (width: int) (height: int) : (character * string) list =
   let lower_bound = { x = x_min; y = y_min } in
   let upper_bound = { x = width; y = height } in
   let k_size = { width = 64; height = 84 } in
   let init_knight_pos = { x = width / 2 - k_size.width; y = y_min } in
-  let knight = init_character init_knight_pos k_size lower_bound upper_bound "knight_f" in
+  let knight =
+    init_character init_knight_pos k_size lower_bound upper_bound asset_dir "knight_f"
+  in
   [ knight, "Good morrow, traveler! Have thou heard of Emmanuel Suarez? Legend tells he hails from the far land of Puerto Rico" ]
 
 let init ~width ~height : model =
@@ -175,6 +179,14 @@ let repaint (canvas: canvas) (model: model) : unit =
   ) model.npcs;
   draw_character model.player canvas model.tick
 
+let preloads: Gui.asset list = []
+
 let main (id: string) : unit =
-  let program = { init = init; update = update; repaint = repaint } in
+  let program =
+    { init = init
+    ; update = update
+    ; repaint = repaint
+    ; preloads = preloads
+    }
+  in
   run_program id program

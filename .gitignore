@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 .DS_Store
 .merlin
 .bsb.lock
@@ -8,7 +8,7 @@ npm-debug.log
 /lib
 src/*.bs.js
 .DS_Store
-app/dist/**/*
+app/dist/
 logs
 tmp
 *.log

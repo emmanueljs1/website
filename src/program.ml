@@ -89,17 +89,18 @@ type canvas =
 }
 
 type 'model program =
-  { init: width:int -> height:int -> 'model
+  { init: width:int -> height:int -> asset_dir:string -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
-  ; preloads: Gui.asset list
   }
 
-let run_program (id: string) (program: 'model program) : unit =
+let run_program (id: string) (asset_dir: string) (program: 'model program) : unit =
   let msgs = ref [] in
-  let (canvas, ec) = Gui.mk_canvas id program.preloads in
+  (* TODO: determine assets to preload from asset dir *)
+  let preloads = [] in
+  let (canvas, ec) = Gui.mk_canvas id preloads in
   let (w, h) = canvas.get_size () in
-  let model = ref (program.init ~width:w ~height:h) in
+  let model = ref (program.init ~width:w ~height:h ~asset_dir:asset_dir) in
   let canvas' =
     { draw_image = canvas.draw_image
     ; draw_text = (fun text font font_size x y ->

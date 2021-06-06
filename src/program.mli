@@ -68,10 +68,10 @@ type canvas =
   }
 
 type 'model program =
-  { init: width:int -> height:int -> 'model
+  { init: width:int -> height:int -> asset_dir:string -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
-  ; preloads: Gui.asset list
   }
 
-val run_program: string -> 'model program -> unit
+(* Run program from HTML canvas div id and asset directory path *)
+val run_program: string -> string -> 'model program -> unit

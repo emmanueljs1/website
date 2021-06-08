@@ -6,7 +6,7 @@ import path from "path";
  * GET /
  * Error page.
  */
-export function index(publicPath: string) {
+export function index(publicPath: string, isSpanish: boolean) {
   return (req: Request, res: Response) => {
     const MobileDetect = require("mobile-detect");
     const md = new MobileDetect(req.headers["user-agent"]);
@@ -15,6 +15,7 @@ export function index(publicPath: string) {
      res.render("play", {
        title: "Emmanuel Suárez Acevedo",
        isMobile: md.mobile() !== null,
+       isSpanish: isSpanish,
        assetsFilenames: assetsFilenames
      });
   };

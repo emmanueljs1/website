@@ -1,14 +1,10 @@
 open Character
 open Collideable
+open Constants
 open Direction
 open Program
 open Sprite
 open Util
-
-let x_min = 0
-let y_min = 60
-let dist_delta = 5
-let (font, font_size, font_color) = PressStart, 9, Hex "595959"
 
 type model = 
   { playing: bool
@@ -19,31 +15,38 @@ type model =
   ; tick: int
   }
 
+let lower_bound = { x = x_min; y = y_min }
+let get_upper_bound (width: int) (height: int) : point = { x = width; y = height }
+
 let init_player (width: int) (height: int) (asset_dir: string) : character =
-  let lower_bound = { x = x_min; y = y_min } in
-  let upper_bound = { x = width; y = height } in
+  let upper_bound = get_upper_bound width height in
   let size = { width = 48; height = 84 } in
   let init_pos = { x = width / 2 - size.width; y = height / 2 - size.height} in
   init_character init_pos size lower_bound upper_bound asset_dir "wizzard_m"
 
-let init_npcs (width: int) (height: int) (asset_dir: string) : (character * string) list =
+let init_knight (width: int) (height: int) (asset_dir: string) (spanish: bool): character * string =
   let lower_bound = { x = x_min; y = y_min } in
-  let upper_bound = { x = width; y = height } in
-  let k_size = { width = 64; height = 84 } in
-  let init_knight_pos = { x = width / 2 - k_size.width; y = y_min } in
+  let upper_bound = get_upper_bound width height in
+  let knight_size = { width = 64; height = 84 } in
+  let init_knight_pos = { x = width / 2 - knight_size.width; y = y_min } in
   let knight =
-    init_character init_knight_pos k_size lower_bound upper_bound asset_dir "knight_f"
+    init_character init_knight_pos knight_size lower_bound upper_bound asset_dir "knight_f"
   in
-  [ knight, "Good morrow, traveler! Have thou heard of Emmanuel Suarez? Legend tells he hails from the far land of Puerto Rico" ]
+  let knight_text = if spanish then knight_text_es else knight_text_en in
+  knight, knight_text
 
-let init ~width ~height ~asset_dir : model =
+let init_npcs (width: int) (height: int) (asset_dir: string) (spanish: bool) : (character * string) list =
+  [init_knight width height asset_dir spanish]
+
+let init (spanish: bool) = (fun ~width ~height ~asset_dir ->
   { playing = true
   ; player = init_player width height asset_dir
-  ; npcs = init_npcs width height asset_dir
+  ; npcs = init_npcs width height asset_dir spanish
   ; interacting = None
   ; size = { width = width; height = height }
   ; tick = 0
   }
+)
 
 let dir_of_key (key: key) : direction option =
   match key with
@@ -177,9 +180,9 @@ let repaint (canvas: canvas) (model: model) : unit =
   ) model.npcs;
   draw_character model.player canvas model.tick
 
-let main (id: string) (asset_dir: string) (assets_filenames: string array) : unit =
+let main (id: string) (asset_dir: string) (assets_filenames: string array) (spanish: bool) : unit =
   let program =
-    { init = init
+    { init = init spanish
     ; update = update
     ; repaint = repaint
     }

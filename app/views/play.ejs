@@ -17,10 +17,11 @@
         <canvas id="game-div" class="game-div" width="768px" height="512px"></canvas>
       </div>
       <script>
-        var filenames = '<%- JSON.stringify(assetsFilenames) %>';
+          var filenames = '<%- JSON.stringify(assetsFilenames) %>';
+          var isSpanish = JSON.parse('<%- JSON.stringify(assetsFilenames) %>');
 
         window.onload = function () {
-            App.main("game-div", "../assets", JSON.parse(filenames));
+            App.main("game-div", "../assets", JSON.parse(filenames), isSpanish);
         };
       </script>
       <% } else { %>

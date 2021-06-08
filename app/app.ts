@@ -19,7 +19,8 @@ app.use(express.static(publicPath));
 // routes
 app.get("/", homeController.index(false));
 app.get("/es", homeController.index(true));
-app.get("/play", playController.index(publicPath));
+app.get("/play", playController.index(publicPath, false));
+app.get("/juega", playController.index(publicPath, true));
 app.get("*", errorController.index);
 
 // listen

@@ -6,6 +6,6 @@ import { Request, Response } from "express";
  */
 export let index = (_: Request, res: Response) => {
   res.render("error", {
-    title: "Emmanuel Suarez"
+    title: "Emmanuel Suárez Acevedo"
   });
 };

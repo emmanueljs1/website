@@ -13,7 +13,7 @@ export function index(publicPath: string) {
     const assetsFilenames = fs.readdirSync(path.join(publicPath, "assets"));
 
      res.render("play", {
-       title: "Emmanuel Suarez",
+       title: "Emmanuel Suárez Acevedo",
        isMobile: md.mobile() !== null,
        assetsFilenames: assetsFilenames
      });

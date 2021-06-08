@@ -1,15 +1,21 @@
 import { Request, Response } from "express";
+import * as fs from "fs";
+import path from "path";
 
 /**
  * GET /
  * Error page.
  */
-export let index = (req: Request, res: Response) => {
-  const MobileDetect = require("mobile-detect");
-  const md = new MobileDetect(req.headers["user-agent"]);
+export function index(publicPath: string) {
+  return (req: Request, res: Response) => {
+    const MobileDetect = require("mobile-detect");
+    const md = new MobileDetect(req.headers["user-agent"]);
+    const assetsFilenames = fs.readdirSync(path.join(publicPath, "assets"));
 
-  res.render("play", {
-    title: "Emmanuel Suarez",
-    isMobile: md.mobile() !== null
-  });
-};
+     res.render("play", {
+       title: "Emmanuel Suarez",
+       isMobile: md.mobile() !== null,
+       assetsFilenames: assetsFilenames
+     });
+  };
+}

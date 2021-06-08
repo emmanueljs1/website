@@ -135,7 +135,6 @@ let image_sources_of_assets (assets: asset list) : string list =
     match l with
     | [] -> acc
     | Image source :: tl -> loop (source :: acc) tl
-    | _ :: tl -> loop acc tl
   in
   loop [] assets
 
@@ -153,24 +152,22 @@ let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
 
     let loaded_image_sources = ref ImgMap.empty in
 
-    let load_image (callback: (HTMLImage.imageElement -> unit) option)
-      (imgsrc: string): unit =
+    let load_image (imgsrc: string) (callback: (HTMLImage.imageElement -> unit) option) : unit =
       let img = HTMLImage.newImage () in
-      HTMLImage.setSource img imgsrc;
       HTMLImage.setOnload img (fun () ->
         loaded_image_sources := ImgMap.add imgsrc img !loaded_image_sources;
 
         match callback with
         | None -> ()
         | Some f -> f img
-      )
+      );
+      HTMLImage.setSource img imgsrc
     in
 
-    List.iter (load_image None) (image_sources_of_assets assets);
+    image_sources_of_assets assets |> List.iter (fun imgsrc -> load_image imgsrc None);
 
     { draw_image = (fun imgsrc x y size_opt ->
-        if ImgMap.mem imgsrc !loaded_image_sources then
-          let img = ImgMap.find imgsrc !loaded_image_sources in
+        let draw (x: int) (y: int) (size_opt: (int * int) option) (img: HTMLImage.imageElement) : unit =
           let img_w = HTMLImage.getWidth img in
           let img_h = HTMLImage.getHeight img in
           let (w, h) =
@@ -180,18 +177,13 @@ let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
           in
           HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h;
           HTMLCanvas.closePath ctx
+        in
+
+        if ImgMap.mem imgsrc !loaded_image_sources then
+          let img = ImgMap.find imgsrc !loaded_image_sources in
+          draw x y size_opt img
         else
-          load_image (Some (fun img ->
-            let img_w = HTMLImage.getWidth img in
-            let img_h = HTMLImage.getHeight img in
-            let (w, h) =
-              match size_opt with
-              | None -> img_w, img_h
-              | Some size -> size
-            in
-            HTMLCanvas.drawImage ctx img 0 0 img_w img_h x y w h;
-            HTMLCanvas.closePath ctx
-          )) imgsrc
+          Some (draw x y size_opt) |> load_image imgsrc
       )
     ; draw_text = (fun text font font_size x y ->
         Printf.sprintf "%ipx %s" font_size font |> HTMLCanvas.setFont ctx;

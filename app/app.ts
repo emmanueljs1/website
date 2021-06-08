@@ -6,6 +6,7 @@ import * as homeController from "./controllers/homeController";
 import * as playController from "./controllers/playController";
 
 const app = express();
+const publicPath = path.join(__dirname, "../public");
 
 // express setup
 app.set("port", process.env.PORT || 3000);
@@ -13,12 +14,12 @@ app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(publicPath));
 
 // routes
 app.get("/", homeController.index(false));
 app.get("/es", homeController.index(true));
-app.get("/play", playController.index);
+app.get("/play", playController.index(publicPath));
 app.get("*", errorController.index);
 
 // listen

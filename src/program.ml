@@ -94,11 +94,26 @@ type 'model program =
   ; repaint: canvas -> 'model -> unit
   }
 
-let run_program (id: string) (asset_dir: string) (program: 'model program) : unit =
+let asset_of_filename (asset_dir: string) (filename: string) : Gui.asset option =
+  match String.split_on_char '.' filename with
+  | [_; ext] when ext = "png" || ext = "jpg" || ext = "jpeg" ->
+    Some (Gui.Image (asset_dir ^ "/" ^ filename))
+  | _ -> None
+
+
+let run_program (id: string) (asset_dir: string) (assets_filenames: string list) (program: 'model program) : unit =
   let msgs = ref [] in
-  (* TODO: determine assets to preload from asset dir *)
-  let preloads = [] in
-  let (canvas, ec) = Gui.mk_canvas id preloads in
+
+  let assets = assets_filenames
+    |> List.map (asset_of_filename asset_dir)
+    |> List.fold_left (fun acc asset_opt ->
+      match asset_opt with
+      | None -> acc
+      | Some asset -> asset :: acc
+    ) []
+  in
+
+  let (canvas, ec) = Gui.mk_canvas id assets in
   let (w, h) = canvas.get_size () in
   let model = ref (program.init ~width:w ~height:h ~asset_dir:asset_dir) in
   let canvas' =

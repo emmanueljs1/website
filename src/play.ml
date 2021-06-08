@@ -177,11 +177,11 @@ let repaint (canvas: canvas) (model: model) : unit =
   ) model.npcs;
   draw_character model.player canvas model.tick
 
-let main (id: string) (asset_dir: string) : unit =
+let main (id: string) (asset_dir: string) (assets_filenames: string array) : unit =
   let program =
     { init = init
     ; update = update
     ; repaint = repaint
     }
   in
-  run_program id asset_dir program
+  run_program id asset_dir (Array.to_list assets_filenames) program

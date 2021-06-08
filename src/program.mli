@@ -73,5 +73,5 @@ type 'model program =
   ; repaint: canvas -> 'model -> unit
   }
 
-(* Run program from HTML canvas div id and asset directory path *)
-val run_program: string -> string -> 'model program -> unit
+(* Run program from HTML canvas div id, asset directory and, optionally, filenames for assets to preload *)
+val run_program: string -> string -> string list -> 'model program -> unit

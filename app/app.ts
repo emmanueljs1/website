@@ -1,4 +1,5 @@
 import express from "express";
+import * as fs from "fs";
 import path from "path";
 
 import * as errorController from "./controllers/errorController";
@@ -7,6 +8,7 @@ import * as playController from "./controllers/playController";
 
 const app = express();
 const publicPath = path.join(__dirname, "../public");
+const assetsFilenames = fs.readdirSync(path.join(publicPath, "assets"));
 
 // express setup
 app.set("port", process.env.PORT || 3000);
@@ -19,8 +21,8 @@ app.use(express.static(publicPath));
 // routes
 app.get("/", homeController.index(false));
 app.get("/es", homeController.index(true));
-app.get("/play", playController.index(publicPath, false));
-app.get("/juega", playController.index(publicPath, true));
+app.get("/play", playController.index(assetsFilenames, false));
+app.get("/juega", playController.index(assetsFilenames, true));
 app.get("*", errorController.index);
 
 // listen

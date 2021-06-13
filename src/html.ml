@@ -9,6 +9,7 @@ module HTMLWindow = struct
   external height: window -> int = "innerHeight" [@@bs.get]
   external width: window -> int = "innerWidth" [@@bs.get]
   external requestAnimationFrame: window -> (int -> unit) -> unit = "requestAnimationFrame" [@@bs.send]
+  external setOnresize: window -> (unit -> unit) -> unit = "onresize" [@@bs.set]
 end
 
 module HTMLRect = struct
@@ -63,6 +64,7 @@ module HTMLCanvas = struct
   type canvasElement
   external fromElement : HTMLElement.element -> canvasElement = "%identity"
   external getContext: canvasElement -> string -> canvasRenderingContext2D = "getContext" [@@bs.send]
+  external getContextCanvas: canvasRenderingContext2D -> canvasElement = "canvas" [@@bs.get]
   external strokeStyle: canvasRenderingContext2D -> string = "strokeStyle" [@@bs.get]
   external setStrokeStyle: canvasRenderingContext2D -> string -> unit = "strokeStyle" [@@bs.set]
   external lineWidth: canvasRenderingContext2D -> int = "lineWidth" [@@bs.get]
@@ -91,4 +93,7 @@ module HTMLCanvas = struct
   external restore: canvasRenderingContext2D -> unit = "restore" [@@bs.send]
   external imageSmoothingEnabled: canvasRenderingContext2D -> bool = "imageSmoothingEnabled" [@@bs.get]
   external setImageSmoothingEnabled: canvasRenderingContext2D -> bool -> unit = "imageSmoothingEnabled" [@@bs.set]
+  external scale: canvasRenderingContext2D -> float -> float -> unit = "scale" [@@bs.send]
+  external setWidth: canvasElement -> int -> unit = "width" [@@bs.set]
+  external setHeight: canvasElement -> int -> unit = "height" [@@bs.set]
 end

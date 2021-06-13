@@ -36,8 +36,17 @@ let move_collideable (c: collideable) (cs: collideable list) : collideable =
   let x' = min (max c.lower_bound.x (c.pos.x + c.vx)) (c.upper_bound.x - c.size.width) in
   let y' = min (max c.lower_bound.y (c.pos.y + c.vy)) (c.upper_bound.y - c.size.height) in
   let c' = { c with pos = { x = x'; y = y' } } in
+  let new_collideable_colliding =
+    List.fold_right (fun elt acc -> are_colliding elt c' || acc) cs false
+  in
+  let old_collideable_colliding =
+    List.fold_right (fun elt acc -> are_colliding elt c || acc) cs false
+  in
 
-  if List.fold_right (fun elt acc -> are_colliding elt c' || acc) cs false then
+  (* If collideables already overlap somehow, allow movement to fix overlap *)
+  if old_collideable_colliding then
+    c'
+  else if new_collideable_colliding then
     c
   else
     c'

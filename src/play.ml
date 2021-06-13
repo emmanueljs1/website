@@ -144,14 +144,41 @@ let update (model: model) (msg: msg) : model =
         { model with player = { player with collideable = p_collideable' } }
       | None -> model
       end
-    | Resize (w, h) ->
-      let p_collideable = player.collideable in
-      let x' = max (min p_collideable.pos.x w) x_min in
-      let y' = max (min p_collideable.pos.y h) y_min in
-      let pos' = { x = x'; y = y' } in
-      let upper_bound' = { x = w; y = h} in
-      let p_collideable' = { p_collideable with pos = pos'; upper_bound = upper_bound' } in
-      { model with player = { player with collideable = p_collideable' } }
+    | Resize (w', h') ->
+      let w, h = model.size.width, model.size.height in
+      let scale_factor_x = float_of_int w' /. float_of_int w in
+      let scale_factor_y = float_of_int h' /. float_of_int h in
+
+      let scale (factor: float) (i: int) : int =
+        int_of_float ((float_of_int i) *. factor)
+      in
+
+      let x_min' = scale scale_factor_x x_min in
+      let y_min' = scale scale_factor_y y_min in
+
+      let scale_collideable (collideable: collideable) : collideable =
+        let x' = scale scale_factor_x collideable.pos.x in
+        let y' = scale scale_factor_y collideable.pos.y in
+        let pos' = { x = min (max x' x_min') w'; y = min (max y' y_min) h' } in
+        let upper_bound' = { x = w'; y = h'} in
+        { collideable with pos = pos'
+        ; upper_bound = upper_bound'
+        ; lower_bound = { x = x_min'; y = y_min' }
+        }
+      in
+
+      let npcs' =
+        List.map (fun (npc, s) ->
+          { npc with collideable = scale_collideable npc.collideable }, s
+        ) model.npcs
+      in
+
+      let player_collideable' = scale_collideable player.collideable in
+      let player' = { player with collideable = player_collideable' } in
+      { model with player = player'
+      ; npcs = npcs'
+      ; size = { width = w'; height = h' }
+      }
     | AnimationFrame _ -> timer_update model
     | _ -> model
   in

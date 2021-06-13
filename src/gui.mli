@@ -22,7 +22,6 @@ type event =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
-  | Resize of int * int
   [@@bs.deriving {accessors}]
 
 
@@ -65,6 +64,8 @@ type canvas =
   ; get_line_width: unit -> int
   (* Get width and height of canvas *)
   ; get_size: unit -> (int * int)
+  (* Resize canvas *)
+  ; resize: int -> int -> unit
   (* Clear canvas *)
   ; clear: unit -> unit
   }
@@ -79,6 +80,12 @@ val mk_canvas : string -> asset list -> canvas * event_controller
 (* Repeatedly executes a callback with a specified interval (in milliseconds) 
  * between calls *)
 val set_interval : (unit -> unit) -> int -> unit
+
+(* Return size of GUI application window *)
+val window_size : unit -> int * int
+
+(* Attach a listener for when the GUI application window is resized *)
+val set_on_resize : (unit -> unit) -> unit
 
 (* Tells the browser that you wish to perform an animation and requests that 
  * the browser call a specified function to update an animation before the next 

@@ -149,12 +149,7 @@ let run_program (id: string) (asset_dir: string) (assets_filenames: string list)
     | MouseMove (x, y) -> msgs := (MouseMove (x, y)) :: !msgs
     | KeyDown key -> msgs := (KeyDown (key_of_gui_key key)) :: !msgs
     | KeyUp key -> msgs := (KeyUp (key_of_gui_key key)) :: !msgs
-  );
-
-  Gui.set_on_resize (fun () ->
-    let (w, h) = Gui.window_size () in
-    canvas.resize w h;
-     msgs := (Resize (w, h)) :: !msgs
+    | Resize (w, h) -> msgs := (Resize (w, h)) :: !msgs
   );
 
   let last_timestamp = ref None in

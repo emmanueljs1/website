@@ -47,6 +47,7 @@ type event =
   | MouseMove of int * int
   | KeyDown of key
   | KeyUp of key
+  | Resize of int * int
   [@@bs.deriving {accessors}]
 
 type event_controller =
@@ -56,6 +57,7 @@ type event_controller =
 
 let mk_event_controller (id: string) : event_controller =
   let el = HTMLElement.getElementById document id in
+  let resize_listeners = ref [] in
   { get_focus = (fun () -> HTMLElement.focus el)
   ; add_event_listener = (fun listener ->
       let listener' (e: Dom.event) : unit =
@@ -92,7 +94,13 @@ let mk_event_controller (id: string) : event_controller =
       HTMLEvent.addEventListener el "mousedown" listener' false;
       HTMLEvent.addEventListener el "mouseup" listener' false;
       HTMLEvent.addEventListener el "mousemove" listener' false;
-      (* TODO: add resize callback to listener instead of binding in program *)
+      resize_listeners := !resize_listeners @ [listener];
+      let window = HTMLWindow.window in
+      HTMLWindow.setOnresize window (fun () ->
+        let window = HTMLWindow.window in
+        let w, h = HTMLWindow.width window, HTMLWindow.height window in
+        List.iter (fun f -> Resize (w, h) |> f) !resize_listeners
+      )
     )
   }
 
@@ -110,7 +118,6 @@ type canvas =
   ; set_line_width: int -> unit
   ; get_line_width: unit -> int
   ; get_size: unit -> (int * int)
-  ; resize: int -> int -> unit
   ; clear: unit -> unit
   }
 
@@ -134,9 +141,12 @@ let image_sources_of_assets (assets: asset list) : string list =
   in
   loop [] assets
 
-let window_size () : int * int =
-  let window = HTMLWindow.window in
-  HTMLWindow.width window, HTMLWindow.height window
+let resize_for_ctx (ctx: HTMLCanvas.canvasRenderingContext2D) = function
+  | Resize (w, h) ->
+    HTMLCanvas.setWidth (HTMLCanvas.getContextCanvas ctx) w;
+    HTMLCanvas.setHeight (HTMLCanvas.getContextCanvas ctx) h;
+    HTMLCanvas.setImageSmoothingEnabled ctx false
+  | _ -> ()
 
 let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
   let el = HTMLElement.getElementById document id in
@@ -146,6 +156,18 @@ let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
     HTMLElement.setTabIndex el 0;
     let canvas = HTMLCanvas.fromElement el in
     let ctx = context canvas in
+
+    let event_controller = mk_event_controller id in
+    (* Set image smoothing enabled and resize canvas on window resizes *)
+    let resize = resize_for_ctx ctx in
+    resize |> event_controller.add_event_listener;
+
+    let window = HTMLWindow.window in
+    (* TODO (maybe) : canvas not same size as application window *)
+    let w, h = HTMLWindow.width window, HTMLWindow.height window in
+    (* "resize" canvas initial time to application window size *)
+    Resize (w, h) |> resize;
+
     HTMLCanvas.setTextBaseline ctx "top";
     HTMLCanvas.setTextAlign ctx "left";
 
@@ -163,16 +185,6 @@ let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
       HTMLImage.setSource img imgsrc
     in
 
-    let (window_w, window_h) = window_size () in
-
-    let resize (w: int) (h: int) : unit =
-      HTMLCanvas.setWidth (HTMLCanvas.getContextCanvas ctx) w;
-      HTMLCanvas.setHeight (HTMLCanvas.getContextCanvas ctx) h;
-      HTMLCanvas.setImageSmoothingEnabled ctx false
-    in
-
-    (* TODO: dont assume canvas size = window size *)
-    resize window_w window_h;
     image_sources_of_assets assets |> List.iter (fun imgsrc -> load_image imgsrc None);
 
     { draw_image = (fun imgsrc x y size_opt ->
@@ -242,21 +254,16 @@ let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
     ; set_line_width = (fun w -> HTMLCanvas.setLineWidth ctx w)
     ; get_line_width = (fun () -> HTMLCanvas.lineWidth ctx)
     ; get_size = (fun () -> HTMLElement.width el, HTMLElement.height el)
-    ; resize = resize
     ; clear = (fun () ->
         let width = HTMLElement.width el in
         let height = HTMLElement.height el in
         HTMLCanvas.clearRect ctx 0 0 width height
       )
     },
-    mk_event_controller id
+    event_controller
 
 let set_interval (tick: unit -> unit) (delta: int) : unit =
   ignore (Js.Global.setInterval tick delta)
-
-let set_on_resize (callback: unit -> unit) : unit =
-  let window = HTMLWindow.window in
-  HTMLWindow.setOnresize window callback
 
 let request_animation_frame (callback: int -> unit) : unit =
   let window = HTMLWindow.window in

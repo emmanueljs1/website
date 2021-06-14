@@ -31,6 +31,7 @@ let react_character (c: character) (collideables: collideable list) : character 
       | _ -> c.sprite.action
       end
   in
-  { collideable = move_collideable c.collideable collideables
+
+  { collideable = move_collideable_safe c.collideable collideables
   ; sprite = { c.sprite with action = action' }
   }

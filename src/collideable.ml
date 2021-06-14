@@ -32,24 +32,38 @@ let are_adjacent (c1: collideable) (c2: collideable) (radius: int) : bool =
   let pos2' = { x = c2.pos.x - radius; y = c2.pos.y - radius } in
   are_colliding { c1 with size = size1'; pos = pos1' } { c2 with size = size2'; pos = pos2' }
 
-let move_collideable (c: collideable) (cs: collideable list) : collideable =
+let move_collideable (c: collideable) : collideable =
   let x' = min (max c.lower_bound.x (c.pos.x + c.vx)) (c.upper_bound.x - c.size.width) in
   let y' = min (max c.lower_bound.y (c.pos.y + c.vy)) (c.upper_bound.y - c.size.height) in
-  let c' = { c with pos = { x = x'; y = y' } } in
-  let new_collideable_colliding =
-    List.fold_right (fun elt acc -> are_colliding elt c' || acc) cs false
-  in
-  let old_collideable_colliding =
-    List.fold_right (fun elt acc -> are_colliding elt c || acc) cs false
+  { c with pos = { x = x'; y = y' } }
+
+
+
+let move_collideable_safe (c: collideable) (cs: collideable list) : collideable =
+  let colliding (collideable: collideable) : bool =
+    List.fold_left (fun acc c2 ->
+      are_colliding c2 collideable || acc
+    ) false cs
   in
 
-  (* If collideables already overlap somehow, allow movement to fix overlap *)
-  if old_collideable_colliding then
-    c'
-  else if new_collideable_colliding then
-    c
+  if colliding c then
+    (* Attempt to move 10 steps to safe position, 1 at a time *)
+    let candidates =
+      let rec candidates_gen (c': collideable) : collideable stream =
+        Cons (c', fun () -> move_collideable c' |> candidates_gen)
+      in
+      stream_take (candidates_gen c) 20
+    in
+
+    (* Pick first safe step, otherwise perform unsafe move to try to
+     * get collideable out of impossible position *)
+    begin match List.find_opt (fun c' -> colliding c' |> not) candidates with
+    | None -> move_collideable c
+    | Some c' ->  c'
+    end
   else
-    c'
+    let c' = move_collideable c in
+    if colliding c' then c else c'
 
 let speed_collideable (c: collideable) (vx: int) (vy: int) : collideable =
   { c with vx = vx; vy = vy }

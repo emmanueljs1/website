@@ -47,7 +47,7 @@ let move_collideable_safe (c: collideable) (cs: collideable list) : collideable 
   in
 
   if colliding c then
-    (* Attempt to move 10 steps to safe position, 1 at a time *)
+    (* Attempt to move 20 steps to safe position, 1 at a time *)
     let candidates =
       let rec candidates_gen (c': collideable) : collideable stream =
         Cons (c', fun () -> move_collideable c' |> candidates_gen)

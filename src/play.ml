@@ -38,7 +38,7 @@ let init_knight (width: int) (height: int) (asset_dir: string) (spanish: bool): 
 let init_npcs (width: int) (height: int) (asset_dir: string) (spanish: bool) : (character * string) list =
   [init_knight width height asset_dir spanish]
 
-let init (spanish: bool) = (fun ~width ~height ~asset_dir ->
+let init (spanish: bool) (asset_dir: string) = (fun ~width ~height ->
   { playing = true
   ; player = init_player width height asset_dir
   ; npcs = init_npcs width height asset_dir spanish
@@ -207,11 +207,11 @@ let repaint (canvas: canvas) (model: model) : unit =
   ) model.npcs;
   draw_character model.player canvas model.tick
 
-let main (id: string) (asset_dir: string) (assets_filenames: string array) (spanish: bool) : unit =
+let main (id: string) (spanish: bool) (asset_dir: string) (assets_filenames: string array) : unit =
   let program =
-    { init = init spanish
+    { init = init spanish asset_dir
     ; update = update
     ; repaint = repaint
     }
   in
-  run_program id asset_dir (Array.to_list assets_filenames) program
+  run_program id (Some asset_dir) (Array.to_list assets_filenames) program

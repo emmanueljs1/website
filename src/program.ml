@@ -89,19 +89,24 @@ type canvas =
 }
 
 type 'model program =
-  { init: width:int -> height:int -> asset_dir:string -> 'model
+  { init: width:int -> height:int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
   }
 
-let asset_of_filename (asset_dir: string) (filename: string) : Gui.asset option =
+let asset_of_filename (asset_dir: string option) (filename: string) : Gui.asset option =
   match String.split_on_char '.' filename with
   | [_; ext] when ext = "png" || ext = "jpg" || ext = "jpeg" ->
-    Some (Gui.Image (asset_dir ^ "/" ^ filename))
+    let prefix =
+      match asset_dir with
+      | None -> ""
+      | Some dir -> dir ^ "/"
+    in
+    Some (Gui.Image (prefix ^ filename))
   | _ -> None
 
 
-let run_program (id: string) (asset_dir: string) (assets_filenames: string list) (program: 'model program) : unit =
+let run_program (id: string) (asset_dir: string option) (assets_filenames: string list) (program: 'model program) : unit =
   let msgs = ref [] in
 
   let assets = assets_filenames
@@ -113,9 +118,9 @@ let run_program (id: string) (asset_dir: string) (assets_filenames: string list)
     ) []
   in
 
-  let (canvas, ec) = Gui.mk_canvas id assets in
+  let (canvas, ec) = Gui.mk_canvas id true assets in
   let (w, h) = canvas.get_size () in
-  let model = ref (program.init ~width:w ~height:h ~asset_dir:asset_dir) in
+  let model = ref (program.init ~width:w ~height:h) in
   let canvas' =
     { draw_image = canvas.draw_image
     ; draw_text = (fun text font font_size x y ->

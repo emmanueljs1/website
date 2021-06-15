@@ -13,13 +13,13 @@
           Emmanuel Su&aacute;rez Acevedo
         </h1>
       </div>
-      <canvas id="game-div" class="game-div"></canvas>
+      <canvas id="game-div"></canvas>
       <script>
           var filenames = '<%- JSON.stringify(assetsFilenames) %>';
           var isSpanish = JSON.parse('<%- JSON.stringify(isSpanish) %>');
 
         window.onload = function () {
-            App.main("game-div", "../assets", JSON.parse(filenames), isSpanish);
+            App.main("game-div", isSpanish, "../assets", JSON.parse(filenames));
         };
       </script>
       <% } else { %>

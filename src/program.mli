@@ -68,10 +68,17 @@ type canvas =
   }
 
 type 'model program =
-  { init: width:int -> height:int -> asset_dir:string -> 'model
+  { init: width:int -> height:int -> 'model
   ; update: 'model -> msg -> 'model
   ; repaint: canvas -> 'model -> unit
   }
 
-(* Run program from HTML canvas div id, asset directory and, optionally, filenames for assets to preload *)
-val run_program: string -> string -> string list -> 'model program -> unit
+(* Run program from HTML canvas div id, and, optionally, and asset directory
+ * filenames for assets to preload. Note:
+ * - this program will resize the canvas element to take up the whole HTML
+ *   window
+ * - if asset filenames are provided but no asset directory is provided,
+ *   the assets will be assumed to be in the same directory as the
+ *   source code
+ *)
+val run_program: string -> string option -> string list -> 'model program -> unit

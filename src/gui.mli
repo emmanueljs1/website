@@ -31,8 +31,9 @@ type event_controller =
   ; add_event_listener: (event -> unit) -> unit
   }
 
-(* Create an event controller linked to a element with the given id *)
-val mk_event_controller : string -> event_controller
+(* Create an event controller linked to a element with the given id and
+ * whether or not the element takes up the full application window *)
+val mk_event_controller : string -> bool -> event_controller
 
 type canvas =
   (* Draw an image with filename at (x, y) with an optional width and height *)
@@ -73,8 +74,9 @@ type asset =
   | Image of string
 
 (* Create a canvas linked to a HTML canvas element with the given id,
+ * whether or not the element takes up the full application window
  * and optionally preload a given list of assets *)
-val mk_canvas : string -> asset list -> canvas * event_controller
+val mk_canvas : string -> bool -> asset list -> canvas * event_controller
 
 (* Repeatedly executes a callback with a specified interval (in milliseconds) 
  * between calls *)

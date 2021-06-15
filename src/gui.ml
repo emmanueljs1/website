@@ -55,7 +55,7 @@ type event_controller =
   ; add_event_listener: (event -> unit) -> unit
   }
 
-let mk_event_controller (id: string) : event_controller =
+let mk_event_controller (id: string) (full_window: bool) : event_controller =
   let el = HTMLElement.getElementById document id in
   let resize_listeners = ref [] in
   { get_focus = (fun () -> HTMLElement.focus el)
@@ -97,8 +97,13 @@ let mk_event_controller (id: string) : event_controller =
       resize_listeners := !resize_listeners @ [listener];
       let window = HTMLWindow.window in
       HTMLWindow.setOnresize window (fun () ->
-        let window = HTMLWindow.window in
-        let w, h = HTMLWindow.width window, HTMLWindow.height window in
+        let w, h =
+          if full_window then
+            let window = HTMLWindow.window in
+            HTMLWindow.width window, HTMLWindow.height window
+          else
+            HTMLElement.width el, HTMLElement.height el
+        in
         List.iter (fun f -> Resize (w, h) |> f) !resize_listeners
       )
     )
@@ -148,7 +153,7 @@ let resize_for_ctx (ctx: HTMLCanvas.canvasRenderingContext2D) = function
     HTMLCanvas.setImageSmoothingEnabled ctx false
   | _ -> ()
 
-let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
+let mk_canvas (id: string) (full_window: bool) (assets: asset list) : canvas * event_controller =
   let el = HTMLElement.getElementById document id in
   if HTMLElement.tagName el <> "CANVAS" then
     invalid_arg "not a canvas element"
@@ -157,15 +162,19 @@ let mk_canvas (id: string) (assets: asset list) : canvas * event_controller =
     let canvas = HTMLCanvas.fromElement el in
     let ctx = context canvas in
 
-    let event_controller = mk_event_controller id in
+    let event_controller = mk_event_controller id full_window in
     (* Set image smoothing enabled and resize canvas on window resizes *)
     let resize = resize_for_ctx ctx in
     resize |> event_controller.add_event_listener;
 
-    let window = HTMLWindow.window in
-    (* TODO (maybe) : canvas not same size as application window *)
-    let w, h = HTMLWindow.width window, HTMLWindow.height window in
-    (* "resize" canvas initial time to application window size *)
+    let w , h =
+      if full_window then
+        let window = HTMLWindow.window in
+        HTMLWindow.width window, HTMLWindow.height window
+      else
+        HTMLElement.width el, HTMLElement.height el
+      in
+    (* "resize" canvas initial time to disable image smoothing *)
     Resize (w, h) |> resize;
 
     HTMLCanvas.setTextBaseline ctx "top";

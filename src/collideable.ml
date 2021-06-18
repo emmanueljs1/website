@@ -37,8 +37,6 @@ let move_collideable (c: collideable) : collideable =
   let y' = min (max c.lower_bound.y (c.pos.y + c.vy)) (c.upper_bound.y - c.size.height) in
   { c with pos = { x = x'; y = y' } }
 
-
-
 let move_collideable_safe (c: collideable) (cs: collideable list) : collideable =
   let colliding (collideable: collideable) : bool =
     List.fold_left (fun acc c2 ->

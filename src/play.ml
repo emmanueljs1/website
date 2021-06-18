@@ -79,7 +79,7 @@ let timer_update (model: model) : model =
     let (npcs', interacting'') =
       List.fold_right (fun (npc, s) (acc, interacting) ->
         match interacting with
-        | Some c when c = npc->
+        | Some c when c = npc ->
             let npc' =
               if player'.collideable.pos.x < npc.collideable.pos.x then
                 { npc with sprite = { npc.sprite with action = Idle false } }

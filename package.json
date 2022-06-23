@@ -20,7 +20,7 @@
     "watch": "run-p watch:bsb watch:js"
   },
   "dependencies": {
-    "ejs": "^2.7.4",
+    "ejs": "^3.1.7",
     "express": "~4.16.0",
     "mobile-detect": "^1.4.5"
   },

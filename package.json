@@ -6,7 +6,7 @@
   "scripts": {
     "build-ts": "tsc -p app/tsconfig.json",
     "clean": "npm run res:clean && rm -rf app/dist && rm -rf app/public/javascripts",
-    "build": "npm run build-ts && npm run res:build",
+    "build": "npm run build-ts && npm run res:build && npm run build:js",
     "start": "npm run serve",
     "serve": "node app/dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",

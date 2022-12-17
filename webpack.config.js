@@ -1,6 +1,10 @@
 const path = require('path');
 
 module.exports = {
+    experiments: {
+        futureDefaults: true
+    },
+
     entry: {
         play: './src/play.bs.js',
         home: './src/home.bs.js'
@@ -9,7 +13,8 @@ module.exports = {
         filename: '[name].js',
         path: path.resolve(__dirname, 'app/public/javascripts'),
         libraryTarget: 'var',
-        library: 'App'
+        library: 'App',
+        hashFunction: 'xxhash64'
     },
 
     mode: "development",
@@ -20,5 +25,4 @@ module.exports = {
         },
         port: 9000
     }
-
 };

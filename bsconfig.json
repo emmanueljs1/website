@@ -1,6 +1,6 @@
 {
-  "name": "buckle",
-  "version": "0.1.0",
+  "name": "website",
+  "version": "1.0.0",
   "sources": {
     "dir": "src",
     "subdirs": true

@@ -216,11 +216,11 @@ let mk_canvas (id: string) (full_window: bool) (assets: asset list) : canvas * e
           Some (draw x y size_opt) |> load_image imgsrc
       )
     ; draw_text = (fun text font font_size x y ->
-        Printf.sprintf "%ipx %s" font_size font |> HTMLCanvas.setFont ctx;
+        {j|$(font_size) $font|j} |> HTMLCanvas.setFont ctx;
         HTMLCanvas.fillText ctx text x y
       )
     ; text_width = (fun text font font_size ->
-        Printf.sprintf "%ipx %s" font_size font |> HTMLCanvas.setFont ctx;
+        {j|$(font_size) $font|j} |> HTMLCanvas.setFont ctx;
         let text_metrics = HTMLCanvas.measureText ctx text in
         TextMetrics.width text_metrics
       )

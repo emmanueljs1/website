@@ -18,4 +18,4 @@ let sprite_img (s: sprite) (tick: int) : string =
   let asset_dir = s.asset_dir in
   let sprite_base = s.sprite_base in
   let pos = min (tick / 5) 3 in
-  Printf.sprintf "%s/%s_%s_anim_f%d.png" asset_dir sprite_base sprite_action pos
+  {j|$(asset_dir)/$(sprite_base)_$(sprite_action)_anim_f$pos|j}

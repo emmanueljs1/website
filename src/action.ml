@@ -7,5 +7,9 @@ let str_of_is_right (is_right: bool) : string =
 
 let str_of_action (action: action) : string =
   match action with
-  | Run is_right -> Printf.sprintf "run_%s" (str_of_is_right is_right)
-  | Idle is_right -> Printf.sprintf "idle_%s" (str_of_is_right is_right)
+  | Run is_right ->
+      let is_right_str = str_of_is_right is_right in
+      {j|run_$(is_right_str)|j}
+  | Idle is_right ->
+      let is_right_str = str_of_is_right is_right in
+      {j|idle_$(is_right_str)|j}

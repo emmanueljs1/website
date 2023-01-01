@@ -1,0 +1,283 @@
+% resume.tex
+% vim:set ft=tex spell:
+
+\documentclass[letterpaper]{article}
+\usepackage[letterpaper,margin=0.6in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{mdwlist}
+\usepackage{textcomp}
+\usepackage{tgpagella}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+\pagestyle{empty}
+\setlength{\tabcolsep}{0em}
+
+\newcommand*{\tabulardef}[3]{\begin{tabular}[t]{@{}lp{\dimexpr\linewidth-#1}@{}}
+    #2&#3
+\end{tabular}}
+
+% indentsection style, used for sections that aren't already in lists
+% that need indentation to the level of all text in the document
+\newenvironment{indentsection}[1]%
+{\begin{list}{}%
+	{\setlength{\leftmargin}{#1}}%
+	\item[]%
+}
+{\end{list}}
+
+% opposite of above; bump a section back toward the left margin
+\newenvironment{unindentsection}[1]%
+{\begin{list}{}%
+	{\setlength{\leftmargin}{-0.5#1}}%
+	\item[]%
+}
+{\end{list}}
+
+% format two pieces of text, one left aligned and one right aligned
+\newcommand{\headerrow}[2]
+{\begin{tabular*}{\linewidth}{l@{\extracolsep{\fill}}r}
+	#1 &
+	#2 \\
+\end{tabular*}}
+
+% make "C++" look pretty when used in text by touching up the plus signs
+% not really relevant yet/
+\newcommand{\CPP}
+{C\nolinebreak[4]\hspace{-.05em}\raisebox{.22ex}{\footnotesize\bf ++}}
+
+% and the actual content starts here
+\begin{document}
+
+\begin{center}
+{\LARGE \textbf{Emmanuel Suárez Acevedo}}
+
+emmanueljs1@gmail.com \ \textbullet
+\ \ emmanuelsuarez.com \\
+
+\ \ linkedin.com/in/emsuac \ \ \textbullet
+\ \ github.com/emmanueljs1\\
+\end{center}
+
+\hrule
+\vspace{-0.6em}
+\subsection*{Research Interests}
+\begin{enumerate}[label=]
+	\parskip=-0.25em
+
+    \item Programming languages and their design, type systems, functional programming, strongly typed programming languages, computer science education
+\end{enumerate}
+
+\hrule
+\vspace{-0.6em}
+\subsection*{Education}
+
+\begin{enumerate}[label=]
+	\parskip=-0.05em
+	\item 
+	\headerrow
+		{\textbf{University of Pennsylvania School of Engineering and Applied Science}}
+		{\textbf{Philadelphia, PA}}
+	\\
+	\headerrow
+		{\emph{Candidate for an MSE in Computer and Information Science}}
+		{\emph{May 2024}}
+
+	\parskip=-0.05em
+	\item 
+	\headerrow
+		{\textbf{University of Pennsylvania School of Engineering and Applied Science}}
+		{\textbf{Philadelphia, PA}}
+	\\
+	\headerrow
+		{\emph{BSE with Honors in Computer and Information Science}}
+		{\emph{May 2019}}
+	{\textbf{Courses}:  Compilers and Interpreters, Operating Systems, Computer Graphics, Software Foundations, Analysis of Algorithms, Software Design / Engineering, Computer Organization and Design, Computer Architecture}
+
+\end{enumerate}
+
+\hrule
+\vspace{-0.6em}
+\subsection*{Experience}
+
+\begin{enumerate}[label=]
+	\parskip=-0.25em
+
+	\item
+		\headerrow
+			{\textbf{Graduate Researcher}}
+			{\textbf{Philadelphia, PA}}
+	\headerrow
+		{University of Pennsylvania}
+		{\emph{August 2022 -- Present}}
+    \item
+
+	\item
+		\headerrow
+			{\textbf{Senior Software Engineer}}
+			{\textbf{San Francisco, CA}}
+	\headerrow
+		{Strava}
+		{\emph{August 2019 -- July 2022}}
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+        \item Designed a new core system to model different types of activities
+        \item Mentored junior engineers in microservice architecture and Scala programming
+		\item Used Apache Spark to build a geospatial data export tool for Strava Metro customers
+		\item Built tools to verify and ensure correctness of internal route data
+		\item Developed a Scala microservice to serve all static maps in product
+	\end{enumerate}
+	
+	\item	
+
+	\item
+		\headerrow
+			{\textbf{Software Engineering Intern, iOS}}
+			{\textbf{San Francisco, CA}}
+	\headerrow
+		{Strava}
+		{\emph{June 2018 -- August 2018}}
+
+    \item 
+
+	\item
+		\headerrow
+			{\textbf{Undergraduate Researcher}}
+			{\textbf{Philadelphia, PA}}
+	\headerrow
+		{University of Pennsylvania}
+		{\emph{January 2017 -- May 2017}}
+  	\begin{itemize}[label= *]
+	\parskip=-0.1em
+		\item\tabulardef{5cm}{}{Worked on a proposal for an extension to the Glasgow Haskell Compiler which would allow binding existential type variables to data constructors in patterns, advised by Prof. Stephanie Weirich}
+	\end{itemize}
+\end{enumerate}
+
+\hrule
+\vspace{-0.6em}
+\subsection*{Teaching}
+\begin{enumerate}[label=]
+	\parskip=-0.25em
+
+	\item
+		\headerrow
+			{\textbf{Teaching Assistant}}
+			{\textbf{University of Pennsylvania}}
+	\headerrow
+		{CIS 5520: Advanced Programming}
+		{\emph{August 2022 -- Present}}
+	\begin{enumerate}[label= *]
+		\parskip=-0.1em
+        \item\tabulardef{5cm}{}{Assist with in-class discussion and cooperative exercises centered around functional programming patterns in the Haskell programming language}        
+	\end{enumerate}
+
+     \item
+
+	\item
+		\headerrow
+			{\textbf{Head Teaching Assistant}}
+			{\textbf{University of Pennsylvania}}
+	\headerrow
+		{CIS 120: Programming Languages \& Techniques I}
+		{\emph{August 2016 -- May 2019}}
+	\begin{enumerate}[label= *]
+		\parskip=-0.1em
+        \item\tabulardef{5cm}{}{Co-lead and prepare a weekly recitation to review course material on core programming languages and techniques, taught in OCaml and then Java}
+		\item Hire and train new teaching assistants
+	\end{enumerate}
+\end{enumerate}
+
+\hrule
+\vspace{-0.6em}
+\subsection*{Skills}
+\begin{enumerate}[label=]
+	\parskip=-0.25em
+
+	\item
+	\textbf{Languages: } Scala, Haskell, OCaml, Java, Ruby, C/C++, Rust, Swift
+
+	\item
+	\textbf{General: } Git, Rails, Apache Spark, Cassandra, MySQL, iOS, \LaTeX, React, Fluent in Spanish
+
+\end{enumerate}
+
+\hrule
+
+\newpage
+
+\subsection*{Diversity, Equity, and Inclusion}
+\begin{enumerate}[label=]
+	\parskip=-0.25em
+	\item
+		\headerrow
+			{\textbf{Anti-racism Lead}}
+			{\textbf{San Francisco, CA}}
+	\headerrow
+		{Tech Brand and Diversity Group, Strava}
+		{\emph{September 2020 -- June 2022}}
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+		\item\tabulardef{5cm}{}{Meet biweekly with a small group in the technology organization to discuss initiatives that could be taken both at large and within the technology organization itself to support diversity, equity, and inclusion, with a focus on anti-racism}
+	\end{enumerate}
+
+    \item
+ 
+	\item
+		\headerrow
+			{\textbf{Director of Finance}}
+			{\textbf{San Francisco, CA}}
+	\headerrow
+		{The Percentage Project, Inc.}
+		{\emph{November 2019 -- June 2020}}
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+		\item\tabulardef{5cm}{}{Kickstarted financial and accounting systems for nonprofit organization dedicated to helping every person of every background embrace their diversity and feel a sense of belonging in the field that they pursue}
+	\end{enumerate}
+
+    \item
+
+	\item
+		\headerrow
+			{\textbf{CIS Diversity Summit Organizer}}
+			{\textbf{Philadelphia, PA}}
+	\headerrow
+		{University of Pennsylvania}
+		{\emph{Aug 2018 -- May 2019}}
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+		\item\tabulardef{5cm}{}{Collaborate in organizing a summit bringing together all members of the computer and information science community to determine how to work together to create a more diverse, inclusive, and supportive environment}
+	\end{enumerate}
+
+    \item
+
+	\item
+		\headerrow
+			{\textbf{VP of Finance}}
+			{\textbf{Philadelphia, PA}}
+	\headerrow
+		{Society of Hispanic Professional Engineers, University of Pennsylvania Chapter}
+		{\emph{May 2016 -- May 2019}}
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+		\item\tabulardef{5cm}{}{Fundraise and organize bringing student members to the SHPE National conference}
+	\end{enumerate}
+
+    \item
+
+	\item
+		\headerrow
+			{\textbf{Chapter Founder and Vice President}}
+			{\textbf{Dorado, Puerto Rico}}
+	\headerrow
+		{Society of Hispanic Professional Engineers Jr., Dorado Academy Chapter}
+		{\emph{May 2013 -- May 2015}}
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+		\item\tabulardef{5cm}{}{Founded and organized a SHPE Jr. chapter, promoting Puerto Rican representation and excellence in STEM}
+	\end{enumerate}
+\end{enumerate}
+
+\hrule
+
+\end{document}
+

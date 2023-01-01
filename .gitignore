@@ -15,3 +15,17 @@ tmp
 *.swp
 *.out
 app/public/javascripts/**/*
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.fdb_latexmk
+*.xdv

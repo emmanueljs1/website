@@ -30,7 +30,7 @@ deploy:
 	make clean
 	make
 	git checkout site
-	cp -r _site
+	cp -r _site/ .
 	git commit -am "update site"
 	git push
 	git checkout main

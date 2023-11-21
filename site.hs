@@ -24,16 +24,12 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match "bib/*" $ compile biblioCompiler
-    match "csl/*" $ compile cslCompiler
-
-    match "drafts.md" $ do
-        compile $ pandocBiblioCompiler "csl/citations.csl" "bib/drafts.bib"
+    match "drafts.html" $ compile getResourceBody
 
     match "research.html" $ do
       route idRoute
       compile $ do
-        drafts <- loadBody "drafts.md"
+        drafts <- loadBody "drafts.html"
         let researchCtx =
               constField "drafts" drafts `mappend`
               defaultContext

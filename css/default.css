@@ -25,6 +25,11 @@ nav a {
   text-transform: uppercase;
 }
 
+.above-footer {
+    float: right;
+    font-size: 1.2rem
+}
+
 footer {
   margin-top: 3rem;
   padding: 1.2rem 0;

@@ -26,6 +26,15 @@ drafts.html: bib/drafts.bib
 files/resume.pdf: tex/resume.tex
 	latexmk -bibtex -xelatex -outdir=files/ tex/resume.tex
 
+deploy:
+	make clean
+	make
+	git checkout site
+	cp -r _site
+	git commit -am "update site"
+	git push
+	git checkout main
+
 clean:
 	rm -rf dist_newstyle/ _site/ _cache/
 

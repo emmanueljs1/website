@@ -1,8 +1,20 @@
 .PHONY: all
 
+LAGDAS=$(wildcard lagda/*.lagda.md)
+POSTS=$(patsubst lagda/%.lagda.md, posts/%.md, $(lagda))
+
 all: site
 
-site: drafts.html site.hs files/resume.pdf
+posts/%.md: lagda/%.lagda.md
+	agda --html --html-highlight=code $^
+	mv html/lagda.$*.md posts/$*.md
+
+posts: $(LAGDAS)
+	for post in $(POSTS) ; do \
+		make $$post ; \
+	done
+
+site: drafts.html site.hs files/resume.pdf $(POSTS)
 	cabal new-run site build
 
 watch:

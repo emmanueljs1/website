@@ -15,4 +15,7 @@ files/resume.pdf: tex/resume.tex
 	latexmk -bibtex -xelatex -outdir=files/ tex/resume.tex
 
 clean:
-	rm -rf dist_newstyle/ _site/ _cache/ files/resume.pdf
+	rm -rf dist_newstyle/ _site/ _cache/
+
+realclean: clean
+	rm files/resume.pdf

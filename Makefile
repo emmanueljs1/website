@@ -31,7 +31,8 @@ deploy:
 	make
 	git checkout site
 	cp -r _site/ .
-	git commit -am "update site"
+	git add .
+	git commit -m "update site"
 	git push
 	git checkout main
 

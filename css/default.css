@@ -88,6 +88,14 @@ article .header {
 }
 
 @media (max-width: 319px) {
+  .mypic {
+    float: top;
+    margin: 10px;
+    width:200px;
+    height:236px;
+    border-radius:25px;
+  }
+
   .blurb {
       float: top;
   }

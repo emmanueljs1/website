@@ -35,6 +35,19 @@ nav a {
     font-size: 2.75rem;
 }
 
+.blurb {
+    float: right;
+    text-align:right
+}
+
+.mypic {
+  float: top;
+  margin: 10px;
+  width:200px;
+  height:236px;
+  border-radius:25px;
+}
+
 pre, code {
     color: #e83e8c;
     font-size: 2.4rem;
@@ -75,6 +88,10 @@ article .header {
 }
 
 @media (max-width: 319px) {
+  .blurb {
+      float: top;
+  }
+
   body {
     width: 90%;
     margin: 0;

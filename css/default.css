@@ -5,7 +5,7 @@ html {
 }
 
 body {
-  font-size: 1.6rem;
+  font-size: 2.75rem;
   color: #595959;
 }
 
@@ -18,7 +18,6 @@ nav {
 }
 
 nav a {
-  font-size: 1.8rem;
   font-weight: bold;
   color: #595959;
   text-decoration: none;
@@ -27,7 +26,7 @@ nav a {
 
 .above-footer {
     float: right;
-    font-size: 1.2rem
+    font-size: 2rem
 }
 
 .post {
@@ -51,24 +50,30 @@ nav a {
 pre, code {
     color: #e83e8c;
     font-size: 2.4rem;
-    font-family: Consolas,monospace /*SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace*/
+    font-family: Consolas,monospace;
 }
 
 footer {
   margin-top: 3rem;
   padding: 1.2rem 0;
   border-top: 0.2rem solid #000;
-  font-size: 1.2rem;
+  font-size: 2rem;
   color: #555;
 }
 
 h1 {
-  font-size: 2.4rem;
+  font-size: 3rem;
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 2.9rem;
 }
+
+h3 {
+    font-size: 2.8rem;
+}
+
+
 
 article .header {
   font-size: 1.4rem;
@@ -184,6 +189,6 @@ article .header {
   }
   .logo a {
     float: left;
-    font-size: 1.8rem;
+    font-size: 2.4rem;
   }
 }

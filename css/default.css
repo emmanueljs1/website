@@ -2,35 +2,70 @@ html {
   font-size: 40%;
   color: #595959;
   line-height: 200%;
+  background-color: black;
 }
 
 body {
-  font-size: 2.75rem;
-  color: #595959;
-}
-
-header {
-  border-bottom: 0.2rem solid #000;
+  font-size: 1.8rem;
+  color: yellow;
+  letter-spacing: 2px;
+  line-height: 2;
 }
 
 nav {
   text-align: right;
 }
 
+ul {
+   list-style: none;
+}
+
+ul li:before {
+   content: "•";
+   font-size: 125%;
+   padding-right: 5px;
+}
+
 nav a {
   font-weight: bold;
-  color: #595959;
   text-decoration: none;
   text-transform: uppercase;
+  font-size: 1.8rem;
 }
 
 .above-footer {
-    font-size: 2rem
+    font-size: 1.5rem
 }
 
 .post {
     font-family: "Helvetica Neue";
     font-size: 2.75rem;
+    letter-spacing: none;
+    line-height: 1;
+    background-color: white;
+    color: #595959;
+    padding: 20px;
+    border-radius: 25px;
+}
+
+.post a:hover {
+    color: blue;
+}
+
+.post a {
+    color: blue;
+}
+
+.post h1 {
+  font-size: 3rem;
+}
+
+.post h2 {
+  font-size: 2.9rem;
+}
+
+.post h3 {
+    font-size: 2.8rem;
 }
 
 .mypic {
@@ -45,32 +80,25 @@ pre, code {
     color: #e83e8c;
     font-size: 2.4rem;
     font-family: Consolas,monospace;
+    letter-spacing: none;
+    line-height: 1;
 }
 
 footer {
   margin-top: 3rem;
   padding: 1.2rem 0;
-  border-top: 0.2rem solid #000;
-  font-size: 2rem;
-  color: #555;
+  border-top: 0.2rem solid white;
+  font-size: 1.5rem;
 }
 
 h1 {
-  font-size: 3rem;
-}
-
-h2 {
-  font-size: 2.9rem;
-}
-
-h3 {
-    font-size: 2.8rem;
+  font-size: 2rem;
 }
 
 article .header {
   font-size: 1.4rem;
   font-style: italic;
-  color: #555;
+  color: yellow;
 }
 
 .references {
@@ -80,11 +108,16 @@ article .header {
 
 .logo a {
   font-weight: bold;
-  color: #595959;
   text-decoration: none;
+  font-size: 1.8rem;
+}
+
+a:hover{
+    color: lightgrey;
 }
 
 a {
+  color: white;
   text-decoration: none;
 }
 
@@ -103,10 +136,9 @@ a {
     padding: 0 5%;
   }
   header {
-    margin: 4.2rem 0;
+    margin: 1.5rem 0;
   }
   nav {
-    margin: 0 auto 3rem;
     text-align: center;
   }
   footer {
@@ -132,10 +164,9 @@ a {
     padding: 0 5%;
   }
   header {
-    margin: 4.2rem 0;
+    margin: 1.5rem 0;
   }
   nav {
-    margin: 0 auto 3rem;
     text-align: center;
   }
   footer {
@@ -150,7 +181,6 @@ a {
   }
   nav a {
     display: inline;
-    margin: 0 0.6rem;
   }
 }
 
@@ -170,15 +200,13 @@ a {
     padding: 0;
   }
   header {
-    margin: 0 0 3rem;
+    margin: 0 0 1.5rem;
     padding: 1.2rem 0;
   }
   nav {
-    margin: 0;
     text-align: right;
   }
   nav a {
-    margin: 0 0 0 1.2rem;
     display: inline;
   }
   footer {

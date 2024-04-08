@@ -32,7 +32,7 @@ files/resume.pdf: tex/resume.tex
 
 deploy:
 	make clean
-	make
+	make site
 	git checkout site
 	git pull
 	cp -r _site/ .

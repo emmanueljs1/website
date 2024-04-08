@@ -1,7 +1,11 @@
-.PHONY: all
+.PHONY: all check
 
 LAGDAS=$(wildcard lagda/*.lagda.md)
-POSTS=$(patsubst lagda/%.lagda.md, posts/%.md, $(lagda))
+POSTS=$(patsubst lagda/%.lagda.md, posts/%.md, $(LAGDAS))
+
+check:
+	echo $(LAGDAS)
+	echo $(POSTS)
 
 all: site
 

@@ -33,3 +33,4 @@ app/public/javascripts/**/*
 .*.lb
 *.fdb_latexmk
 *.xdv
+lagda/*.agdai

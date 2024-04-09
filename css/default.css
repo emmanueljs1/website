@@ -77,11 +77,15 @@ nav a {
 }
 
 pre, code {
+    padding: 10px;
     color: #e83e8c;
     font-size: 2.4rem;
     font-family: Consolas,monospace;
     letter-spacing: none;
     line-height: 1;
+    width: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 footer {

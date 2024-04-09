@@ -1,4 +1,4 @@
-.PHONY: all check
+.PHONY: all
 
 LAGDAS=$(wildcard lagda/*.lagda.md)
 POSTS=$(patsubst lagda/%.lagda.md, posts/%.md, $(LAGDAS))

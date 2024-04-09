@@ -3,10 +3,6 @@
 LAGDAS=$(wildcard lagda/*.lagda.md)
 POSTS=$(patsubst lagda/%.lagda.md, posts/%.md, $(LAGDAS))
 
-check:
-	echo $(LAGDAS)
-	echo $(POSTS)
-
 all: site
 
 posts/%.md: lagda/%.lagda.md

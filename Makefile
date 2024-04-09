@@ -12,6 +12,7 @@ all: site
 posts/%.md: lagda/%.lagda.md
 	agda --html --html-highlight=code $^
 	mv html/lagda.$*.md posts/$*.md
+	rm -rf html/
 
 posts: $(LAGDAS)
 	for post in $(POSTS) ; do \

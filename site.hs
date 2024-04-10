@@ -38,6 +38,19 @@ main = hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" researchCtx
             >>= relativizeUrls
 
+    create["news.html"] $ do
+        route idRoute
+        compile $ do
+            news <- recentFirst =<< loadAll "news/*"
+            let newsContext =
+                      listField "news" newsCtx (return news) `mappend`
+                      defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/news.html" newsContext
+                >>= loadAndApplyTemplate "templates/default.html" newsContext
+                >>= relativizeUrls
+
     create ["posts.html"] $ do
         route idRoute
         compile $ do
@@ -51,6 +64,12 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/posts.html" postsCtx
                 >>= loadAndApplyTemplate "templates/default.html" postsCtx
                 >>= relativizeUrls
+
+    match "news/*" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/default.html" newsCtx
+            >>= relativizeUrls
 
     match "posts/*" $ do
         route $ setExtension "html"
@@ -71,9 +90,12 @@ main = hakyll $ do
         route idRoute
         compile $ do
             allPosts <- recentFirst =<< loadAll "posts/*"
+            allNews <- recentFirst =<< loadAll "news/*"
             let posts = take 3 allPosts
+            let news = take 3 allNews
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
+                    listField "news" newsCtx (return news) `mappend`
                     defaultContext
 
             getResourceBody
@@ -84,6 +106,11 @@ main = hakyll $ do
     match "templates/*" $ compile templateBodyCompiler
 
 --------------------------------------------------------------------------------
+newsCtx :: Context String
+newsCtx =
+    dateField "date" "%B %Y" `mappend`
+    defaultContext
+
 postCtx :: Context String
 postCtx =
     dateField "date" "%F" `mappend`

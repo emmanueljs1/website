@@ -26,6 +26,16 @@ ul li:before {
    padding-right: 5px;
 }
 
+.references ul {
+    list-style: disc outside none;
+}
+
+.references ul li:before {
+    content: "";
+    font-size: 100%;
+    padding-right: 0px;
+}
+
 nav a {
   font-weight: bold;
   text-decoration: none;

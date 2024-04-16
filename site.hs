@@ -66,11 +66,7 @@ main = hakyll $ do
                 >>= relativizeUrls
 
     match "news/*" $ do
-        route $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/news-article.html" newsCtx
-            >>= loadAndApplyTemplate "templates/default.html" newsCtx
-            >>= relativizeUrls
+      compile pandocCompiler
 
     match "posts/*" $ do
         route $ setExtension "html"

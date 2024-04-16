@@ -24,26 +24,32 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match "drafts.html" $ compile getResourceBody
+    create["research.html"] $ do
+        route idRoute
+        compile $ do
+            pubs <- recentFirst =<< loadAll "pubs/*"
+            drafts <- recentFirst =<< loadAll "drafts/*"
+            let baseContext = 
+                      listField "drafts" shortDateCtx (return drafts) `mappend`
+                      defaultContext
+            let context =
+                  if null pubs then
+                      baseContext
+                  else
+                      listField "pubs" shortDateCtx (return pubs) `mappend`
+                      baseContext
 
-    match "research.html" $ do
-      route idRoute
-      compile $ do
-        drafts <- loadBody "drafts.html"
-        let researchCtx =
-              constField "drafts" drafts `mappend`
-              defaultContext
-        getResourceBody
-            >>= applyAsTemplate researchCtx
-            >>= loadAndApplyTemplate "templates/default.html" researchCtx
-            >>= relativizeUrls
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/research.html" context
+                >>= loadAndApplyTemplate "templates/default.html" context
+                >>= relativizeUrls
 
     create["news.html"] $ do
         route idRoute
         compile $ do
             news <- recentFirst =<< loadAll "news/*"
             let newsContext =
-                      listField "news" newsCtx (return news) `mappend`
+                      listField "news" shortDateCtx (return news) `mappend`
                       defaultContext
 
             makeItem ""
@@ -64,6 +70,12 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/posts.html" postsCtx
                 >>= loadAndApplyTemplate "templates/default.html" postsCtx
                 >>= relativizeUrls
+
+    match "drafts/*" $ do
+      compile pandocCompiler
+
+    match "pubs/*" $ do
+      compile pandocCompiler
 
     match "news/*" $ do
       compile pandocCompiler
@@ -92,7 +104,7 @@ main = hakyll $ do
             let news = take 3 allNews
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
-                    listField "news" newsCtx (return news) `mappend`
+                    listField "news" shortDateCtx (return news) `mappend`
                     defaultContext
 
             getResourceBody
@@ -103,8 +115,8 @@ main = hakyll $ do
     match "templates/*" $ compile templateBodyCompiler
 
 --------------------------------------------------------------------------------
-newsCtx :: Context String
-newsCtx =
+shortDateCtx :: Context String
+shortDateCtx =
     dateField "date" "%B %Y" `mappend`
     defaultContext
 

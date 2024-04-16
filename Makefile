@@ -15,14 +15,11 @@ posts: $(LAGDAS)
 		make $$post ; \
 	done
 
-site: drafts.html site.hs files/resume.pdf $(POSTS)
+site: site.hs files/resume.pdf $(POSTS)
 	cabal new-run site build
 
 watch:
 	cabal new-run site watch
-
-drafts.html: bib/drafts.bib
-	bibtex2html -nodoc -nobibsource -d -r -noheader -nofooter bib/drafts.bib
 
 files/resume.pdf: tex/resume.tex
 	latexmk -bibtex -xelatex -outdir=files/ tex/resume.tex

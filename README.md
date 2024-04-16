@@ -4,7 +4,6 @@
 
 - built with ghc 9.4.7
 - `cabal` (for hakyll)
-- `bibtex2html` (for drafts/publications)
 - `latexmk` (for resume)
 - `agda` (for literate agda posts)
 

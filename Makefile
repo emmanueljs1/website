@@ -32,6 +32,9 @@ deploy:
 	make site
 	git checkout site
 	git pull
+	git rm -r .
+	git reset -- CNAME .gitignore
+	git checkout -- CNAME .gitignore
 	cp -r _site/ .
 	git add .
 	git commit -m "update site"

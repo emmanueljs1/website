@@ -45,4 +45,5 @@ clean:
 	rm -rf dist_newstyle/ _site/ _cache/
 
 realclean: clean
+	cabal clean
 	rm files/resume.pdf

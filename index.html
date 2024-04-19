@@ -77,6 +77,10 @@ participation in research and academia.</p>
 <ul>
     
         <li>
+            <a href="./posts/2024-04-19-lr.html">Logical relations? More like... logi-cool relations!</a> (2024-04-19)
+        </li>
+    
+        <li>
             <a href="./posts/2023-11-21-nbe.html">Normalization by Evaluation</a> (2023-11-21)
         </li>
     
@@ -90,5 +94,22 @@ participation in research and academia.</p>
         <footer>
             Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+
+        <script>
+            var coll = document.getElementsByClassName("collapsible");
+            var i;
+
+            for (i = 0; i < coll.length; i++) {
+              coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                  content.style.display = "none";
+                } else {
+                  content.style.display = "block";
+                }
+              });
+            }
+        </script>
     </body>
 </html>

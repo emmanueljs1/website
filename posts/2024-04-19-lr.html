@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+    <script src="https://kit.fontawesome.com/d33b132db9.js" crossorigin="anonymous"></script>
+    <head>
+        <style>
+          @font-face { font-family: PressStart2P; src: url('/fonts/PressStart2P.ttf'); }
+          html { font-family: PressStart2P }
+        </style>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Emmanuel J. Suárez Acevedo</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/agda.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="../files/favicon.ico" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+              <a href="../">Emmanuel J. Suárez Acevedo</a>
+            </div>
+            <nav>
+                <a href="../posts.html">Posts</a>
+                <a href="../research.html">Research</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <article>
+    <section class="header">
+        <h2>Logical relations? More like... logi-cool relations!</h2>
+        <h4>last updated 2024-04-19</h4>
+    </section>
+    <section class="post">
+        <button type="button" class="collapsible">
+Background
+</button>
+<div class="content">
+<p>
+<p>There’s a <em>lot</em> of depth to logical relations, but if you’ve seen them before
+then chances are you’ve seen them used as a technique to prove some theorem.
+A person might be interested in proving that if a term is well typed, then it
+has some desirable property. One reasonable attempt at proving this is by
+induction on the typing derivation, though people will typically come across a
+stumbling block in the application case of their proof. To solve this problem,
+you use a handy-dandy logical relation.</p>
+<p>It turns out that this strategy can be applied to a fairly wide array of
+properties, such as compiler correctness. This is a large part of why logical
+relations have become so pervasive in PL research, and there are is a growing
+amount of tutorials on the subject aimed at early graduate students (e.g.
+<a href="https://www.cs.cmu.edu/~rwh/courses/chtt/pdfs/tait.pdf">these</a> lecture notes by
+Robert Harper). As logical relations become more of a staple, many of these
+tutorials could (and maybe <em>should</em>) be taught as one of the first
+“foundational” proofs in a PL course.</p>
+<p>While logical relations have proven to be really useful, mechanizing them in
+general-purpose proof assistants such as Agda is notoriously burdensome. This
+is because a proof by logical relations typically involves several substitution
+lemmas. Substitution lemmas can reasonably be left as informal assumptions on
+pen-and-paper proofs, but reasoning about substitutions in general-purpose proof
+assistants usually incurs a lot of tedious work.</p>
+<p>One consequence of this is that reading a proof by logical relations in a proof
+assistant like Agda requires a fair amount of proficiency in the proof
+assistant to be able to follow all of the substitution lemmas. At the same
+time, the use of proof assistants to teach programming language foundations has
+become increasingly common, as is the case with Software Foundations and
+Programming Language Foundations in Agda. Herein lies the problem: <strong>we want to
+teach logical relations early on in a PL course, but we would have a hard time
+doing so if the course was taught with a general-purpose proof assistant like
+Coq or Agda, as is becoming the norm.</strong></p>
+<p>Admittedly, we could always teach the material and say something along the
+lines of “and here we use a substitution lemma for which the details have been
+omitted.” After all, this is essentially what is done when the content is taught
+on paper. PLFA takes this approach, which is understandable given the situation.
+This can be a bit unsatisfying in a proof assistant, however, where part of the
+help that is given to a student is that they can see all of the details of a
+proof for themselves.</p>
+<p>With this, we have set the stage. Our goal is then to produce a proof by
+logical relations that can be shown in a general-purpose proof assistant to
+someone who has only learned “the basics.” This is the proof that we showcased
+in our paper, and I will be going over it in this blog post. While I will focus
+on Agda, all of this should apply to other general-purpose proof assistants such
+as Coq or Lean — and I will not make use of any Agda-specific features.</p>
+Note that there <em>has</em> been significant progress in improving the state of
+mechanization for proofs by logical relations. I’ll share more on this later,
+but these solutions are either 1) not self-contained enough to teach logical
+relations with a general-purpose proof assistant, or 2) tailored to specific
+proof assistants (as is the case with Beluga).
+</p>
+</div>
+<p>Logical relations are cool (hence the incredibly witty title). I studied
+them last year while writing <a href="https://arxiv.org/abs/2309.15724">this</a> paper.
+One of the goals of the paper was to introduce logical relations to people with
+some familiarity with proof assistants (e.g. graduate students studying
+programming languages). The paper was rejected, but the feedback we got was
+really helpful! I’m not really sure when or if I’ll next get the chance to
+refine the paper and resubmit it somewhere, but I still do want to try to write
+some stuff down before I forget everything. So here is a blog post!</p>
+<p>I’ll be writing this blog post as if it were geared at someone who has started
+to study programming language foundations. If you’re pretty familiar with syntax
+and semantics but want to learn more about logical relations, feel free to skip
+some sections. Some basic familiarity with Agda (e.g. you’ve read a fair amount
+of Part 1 of PLFA) would be helpful, though I’ve tried to make most of this
+digestible to someone who is familiar with Haskell and/or logical foundations.</p>
+<!---
+<pre class="Agda"><a id="4751" class="Keyword">import</a> <a id="4758" href="Relation.Binary.PropositionalEquality.html" class="Module">Relation.Binary.PropositionalEquality</a> <a id="4796" class="Symbol">as</a> <a id="4799" class="Module">Eq</a>
+<a id="4802" class="Keyword">open</a> <a id="4807" class="Keyword">import</a> <a id="4814" href="Data.Empty.html" class="Module">Data.Empty</a> <a id="4825" class="Keyword">using</a> <a id="4831" class="Symbol">(</a><a id="4832" href="Data.Empty.html#526" class="Datatype">⊥</a><a id="4833" class="Symbol">)</a>
+<a id="4835" class="Keyword">open</a> <a id="4840" class="Keyword">import</a> <a id="4847" href="Data.Product.html" class="Module">Data.Product</a> <a id="4860" class="Keyword">using</a> <a id="4866" class="Symbol">(</a><a id="4867" href="Data.Product.html#1806" class="Function">∃-syntax</a><a id="4875" class="Symbol">;</a> <a id="4877" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">_,_</a><a id="4880" class="Symbol">;</a> <a id="4882" href="Data.Product.html#1167" class="Function Operator">_×_</a><a id="4885" class="Symbol">)</a>
+<a id="4887" class="Keyword">open</a> <a id="4892" class="Keyword">import</a> <a id="4899" href="Data.String.html" class="Module">Data.String</a> <a id="4911" class="Keyword">using</a> <a id="4917" class="Symbol">(</a><a id="4918" href="Agda.Builtin.String.html#336" class="Postulate">String</a><a id="4924" class="Symbol">)</a>
+<a id="4926" class="Keyword">open</a> <a id="4931" class="Keyword">import</a> <a id="4938" href="Data.Sum.html" class="Module">Data.Sum</a> <a id="4947" class="Keyword">using</a> <a id="4953" class="Symbol">(</a><a id="4954" href="Data.Sum.Base.html#734" class="Datatype Operator">_⊎_</a><a id="4957" class="Symbol">;</a> <a id="4959" href="Data.Sum.Base.html#784" class="InductiveConstructor">inj₁</a><a id="4963" class="Symbol">;</a> <a id="4965" href="Data.Sum.Base.html#809" class="InductiveConstructor">inj₂</a><a id="4969" class="Symbol">)</a>
+<a id="4971" class="Keyword">open</a> <a id="4976" class="Keyword">import</a> <a id="4983" href="Data.Unit.html" class="Module">Data.Unit</a> <a id="4993" class="Keyword">using</a> <a id="4999" class="Symbol">(</a><a id="5000" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a><a id="5001" class="Symbol">;</a> <a id="5003" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a><a id="5005" class="Symbol">)</a>
+<a id="5007" class="Keyword">open</a> <a id="5012" class="Keyword">import</a> <a id="5019" href="Relation.Nullary.html" class="Module">Relation.Nullary</a> <a id="5036" class="Keyword">using</a> <a id="5042" class="Symbol">(</a><a id="5043" href="Relation.Nullary.html#656" class="Function Operator">¬_</a><a id="5045" class="Symbol">)</a>
+<a id="5047" class="Keyword">open</a> <a id="5052" class="Keyword">import</a> <a id="5059" href="Relation.Unary.html" class="Module">Relation.Unary</a> <a id="5074" class="Keyword">using</a> <a id="5080" class="Symbol">(</a><a id="5081" href="Relation.Unary.html#1523" class="Function Operator">_∈_</a><a id="5084" class="Symbol">)</a>
+<a id="5086" class="Keyword">open</a> <a id="5091" href="Relation.Binary.PropositionalEquality.html" class="Module">Eq</a> <a id="5094" class="Keyword">using</a> <a id="5100" class="Symbol">(</a><a id="5101" href="Agda.Builtin.Equality.html#151" class="Datatype Operator">_≡_</a><a id="5104" class="Symbol">;</a> <a id="5106" href="Agda.Builtin.Equality.html#208" class="InductiveConstructor">refl</a><a id="5110" class="Symbol">)</a>
+
+<a id="5113" class="Keyword">module</a> <a id="5120" href="lagda.2024-04-19-lr.html" class="Module">lagda.2024-04-19-lr</a> <a id="5140" class="Keyword">where</a>
+
+<a id="5147" class="Keyword">infixr</a> <a id="5154" class="Number">7</a> <a id="5156" href="lagda.2024-04-19-lr.html#7325" class="InductiveConstructor Operator">_⇒_</a>
+<a id="5160" class="Keyword">infixl</a> <a id="5167" class="Number">5</a> <a id="5169" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">_,_↦_</a>
+<a id="5175" class="Keyword">infixl</a> <a id="5182" class="Number">5</a> <a id="5184" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">_,_∷_</a>
+<a id="5190" class="Keyword">infix</a> <a id="5196" class="Number">4</a> <a id="5198" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">_↦_∈_</a>
+<a id="5204" class="Keyword">infix</a> <a id="5210" class="Number">4</a> <a id="5212" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">_∷_∈_</a>
+<a id="5218" class="Keyword">infix</a> <a id="5224" class="Number">4</a> <a id="5226" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">_⊢_∷_</a>
+<a id="5232" class="Keyword">infix</a> <a id="5238" class="Number">4</a> <a id="5240" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">_⊢_⇓_</a>
+<a id="5246" class="Keyword">infix</a> <a id="5252" class="Number">4</a> <a id="5254" href="lagda.2024-04-19-lr.html#21165" class="Function Operator">_⊨_</a>
+<a id="5258" class="Keyword">infix</a> <a id="5264" class="Number">4</a> <a id="5266" href="lagda.2024-04-19-lr.html#21715" class="Function Operator">_⊨_∷_</a>
+<a id="5272" class="Keyword">infixl</a> <a id="5279" class="Number">7</a> <a id="5281" href="lagda.2024-04-19-lr.html#6053" class="InductiveConstructor Operator">_·_</a>
+<a id="5285" class="Keyword">infix</a> <a id="5291" class="Number">5</a> <a id="5293" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">λ[_⇒_]</a>
+<a id="5300" class="Keyword">infix</a> <a id="5306" class="Number">6</a> <a id="5308" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ_⇒_]_</a>
+<a id="5316" class="Keyword">infixr</a> <a id="5323" class="Number">6</a> <a id="5325" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">if_then_else_</a>
+</pre>--->
+<button type="button" class="collapsible">
+Syntax and types
+</button>
+<div class="content">
+<h5 id="syntax">Syntax</h5>
+<p>The object language I’ll use to introduce logical relations is the simply-typed
+lambda calculus (STLC). There’s variables, abstractions (<code>λx. t</code>), application
+(<code>r s</code>), booleans (<code>true</code>, <code>false</code>), and conditional branching
+(<code>if t1 then t2 else t3</code>). The metavariables <code>r</code>, <code>s</code>, and <code>t</code> will range over
+terms, and the metavariables <code>x</code> and <code>y</code> will range over variable names.</p>
+<pre class="Agda"><a id="5835" class="Keyword">variable</a> <a id="5844" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="5846" href="lagda.2024-04-19-lr.html#5846" class="Generalizable">y</a> <a id="5848" class="Symbol">:</a> <a id="5850" href="Agda.Builtin.String.html#336" class="Postulate">String</a>
+
+<a id="5858" class="Keyword">data</a> <a id="Term"></a><a id="5863" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="5868" class="Symbol">:</a> <a id="5870" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="5874" class="Keyword">where</a>
+  <a id="Term.true"></a><a id="5882" href="lagda.2024-04-19-lr.html#5882" class="InductiveConstructor">true</a> <a id="Term.false"></a><a id="5887" href="lagda.2024-04-19-lr.html#5887" class="InductiveConstructor">false</a> <a id="5893" class="Symbol">:</a> <a id="5895" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+
+  <a id="5903" class="Comment">-- variables, e.g. var &quot;x&quot;</a>
+  <a id="Term.var"></a><a id="5932" href="lagda.2024-04-19-lr.html#5932" class="InductiveConstructor">var</a> <a id="5936" class="Symbol">:</a> <a id="5938" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="5945" class="Symbol">→</a> <a id="5947" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+
+  <a id="5955" class="Comment">-- abstraction, e.g. λ[ &quot;x&quot; ⇒ t ]</a>
+  <a id="Term.λ[_⇒_]"></a><a id="5991" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">λ[_⇒_]</a> <a id="5998" class="Symbol">:</a> <a id="6000" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="6007" class="Symbol">→</a> <a id="6009" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="6014" class="Symbol">→</a> <a id="6016" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+
+  <a id="6024" class="Comment">-- application, e.g. r · s</a>
+  <a id="Term._·_"></a><a id="6053" href="lagda.2024-04-19-lr.html#6053" class="InductiveConstructor Operator">_·_</a> <a id="6057" class="Symbol">:</a> <a id="6059" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="6064" class="Symbol">→</a> <a id="6066" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="6071" class="Symbol">→</a> <a id="6073" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+
+  <a id="6081" class="Comment">-- conditional branching, e.g. if s then t₁ else t₂</a>
+  <a id="Term.if_then_else_"></a><a id="6135" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">if_then_else_</a> <a id="6149" class="Symbol">:</a> <a id="6151" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="6156" class="Symbol">→</a> <a id="6158" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="6163" class="Symbol">→</a> <a id="6165" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="6170" class="Symbol">→</a> <a id="6172" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+
+<a id="6178" class="Keyword">variable</a> <a id="6187" href="lagda.2024-04-19-lr.html#6187" class="Generalizable">r</a> <a id="6189" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="6191" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="6193" href="lagda.2024-04-19-lr.html#6193" class="Generalizable">t₁</a> <a id="6196" href="lagda.2024-04-19-lr.html#6196" class="Generalizable">t₂</a> <a id="6199" class="Symbol">:</a> <a id="6201" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+</pre>
+<p><small><small>Here, I am using Agda’s string type (<code>String</code>) to represent
+variable identifiers by their name. This isn’t something you actually want to do
+in general, but it’s the intuitive choice, and it doesn’t affect the content of
+this blog post. I’m also using Agda’s mixfix syntax to make the Agda
+representation of these terms look a lot like the notation we’d use on paper.
+</small></small></p>
+<p>(I’ll be including “footnotes” like the one above for Agda-specific tidbits, so
+that hopefully this blog post can be readable to someone not used to reading
+Agda.)</p>
+<p>With the syntax defined, we can represent a term like <code>(λx. x) true</code> in Agda.</p>
+<pre class="Agda"><a id="6863" href="lagda.2024-04-19-lr.html#6863" class="Function">_</a> <a id="6865" class="Symbol">:</a> <a id="6867" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a>
+<a id="6872" class="Symbol">_</a> <a id="6874" class="Symbol">=</a> <a id="6876" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">λ[</a> <a id="6879" class="String">&quot;x&quot;</a> <a id="6883" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">⇒</a> <a id="6885" href="lagda.2024-04-19-lr.html#5932" class="InductiveConstructor">var</a> <a id="6889" class="String">&quot;x&quot;</a> <a id="6893" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">]</a> <a id="6895" href="lagda.2024-04-19-lr.html#6053" class="InductiveConstructor Operator">·</a> <a id="6897" href="lagda.2024-04-19-lr.html#5882" class="InductiveConstructor">true</a>
+</pre>
+<p>Going forward, I won’t use the actual Agda representation in the text of the
+blog post for readability (i.e. I will refer to <code>λ[ "x" ⇒ var "x" ] · true</code> as
+<code>(λx. x) true</code>).</p>
+<p>There will be only two types: bool for booleans and the arrow type for
+functions. The metavariables <code>S</code> and <code>T</code> will range over types.</p>
+<h5 id="types">Types</h5>
+<pre class="Agda"><a id="7238" class="Keyword">data</a> <a id="Type"></a><a id="7243" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="7248" class="Symbol">:</a> <a id="7250" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="7254" class="Keyword">where</a>
+  <a id="7262" class="Comment">-- boolean type</a>
+  <a id="Type.bool"></a><a id="7280" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a> <a id="7285" class="Symbol">:</a> <a id="7287" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a>
+
+  <a id="7295" class="Comment">-- function type e.g. S ⇒ T</a>
+  <a id="Type._⇒_"></a><a id="7325" href="lagda.2024-04-19-lr.html#7325" class="InductiveConstructor Operator">_⇒_</a> <a id="7329" class="Symbol">:</a> <a id="7331" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="7336" class="Symbol">→</a> <a id="7338" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="7343" class="Symbol">→</a> <a id="7345" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a>
+
+<a id="7351" class="Keyword">variable</a> <a id="7360" href="lagda.2024-04-19-lr.html#7360" class="Generalizable">S</a> <a id="7362" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="7364" class="Symbol">:</a> <a id="7366" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a>
+</pre>
+<p>Terms will be typed in a <em>context</em>, which will map variables to types (e.g.
+<code>x:bool ⇒ bool, y:bool</code>). The metavariable <code>Γ</code> will range over contexts.
+Contexts will be an instance of a more general <code>Map</code> that we’ll be reusing later.</p>
+<pre class="Agda"><a id="7616" class="Keyword">data</a> <a id="Map"></a><a id="7621" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="7625" class="Symbol">(</a><a id="7626" href="lagda.2024-04-19-lr.html#7626" class="Bound">K</a> <a id="7628" class="Symbol">:</a> <a id="7630" href="Agda.Primitive.html#326" class="Primitive">Set</a><a id="7633" class="Symbol">)</a> <a id="7635" class="Symbol">(</a><a id="7636" href="lagda.2024-04-19-lr.html#7636" class="Bound">V</a> <a id="7638" class="Symbol">:</a> <a id="7640" href="Agda.Primitive.html#326" class="Primitive">Set</a><a id="7643" class="Symbol">)</a> <a id="7645" class="Symbol">:</a> <a id="7647" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="7651" class="Keyword">where</a>
+  <a id="7659" class="Comment">-- empty map</a>
+  <a id="Map.•"></a><a id="7674" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="7676" class="Symbol">:</a> <a id="7678" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="7682" href="lagda.2024-04-19-lr.html#7626" class="Bound">K</a> <a id="7684" href="lagda.2024-04-19-lr.html#7636" class="Bound">V</a>
+
+  <a id="7689" class="Comment">-- extending a map, e.g. m , k ↦ v</a>
+  <a id="Map._,_↦_"></a><a id="7726" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">_,_↦_</a> <a id="7732" class="Symbol">:</a> <a id="7734" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="7738" href="lagda.2024-04-19-lr.html#7626" class="Bound">K</a> <a id="7740" href="lagda.2024-04-19-lr.html#7636" class="Bound">V</a> <a id="7742" class="Symbol">→</a> <a id="7744" href="lagda.2024-04-19-lr.html#7626" class="Bound">K</a> <a id="7746" class="Symbol">→</a> <a id="7748" href="lagda.2024-04-19-lr.html#7636" class="Bound">V</a> <a id="7750" class="Symbol">→</a> <a id="7752" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="7756" href="lagda.2024-04-19-lr.html#7626" class="Bound">K</a> <a id="7758" href="lagda.2024-04-19-lr.html#7636" class="Bound">V</a>
+
+<a id="Ctx"></a><a id="7761" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a> <a id="7765" class="Symbol">=</a> <a id="7767" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="7771" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="7778" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a>
+
+<a id="7784" class="Keyword">variable</a> <a id="7793" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="7795" class="Symbol">:</a> <a id="7797" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a>
+</pre>
+<p>It will be useful to define a judgement for membership of a map as well. For
+convenience, this judgement will double as a sort of “lookup” that looks up a
+key in a map. The judgement has two cases: either the key/value pair is at the
+head of the map, or the key/value pair is somewhere else in the map, and the key
+is not “shadowed” by the preceding keys in the map.</p>
+<pre class="Agda"><a id="8178" class="Comment">-- lookup, e.g. k ↦ v ∈ m</a>
+<a id="8204" class="Keyword">data</a> <a id="_↦_∈_"></a><a id="8209" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">_↦_∈_</a> <a id="8215" class="Symbol">{</a><a id="8216" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a> <a id="8218" class="Symbol">:</a> <a id="8220" href="Agda.Primitive.html#326" class="Primitive">Set</a><a id="8223" class="Symbol">}</a> <a id="8225" class="Symbol">{</a><a id="8226" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a> <a id="8228" class="Symbol">:</a> <a id="8230" href="Agda.Primitive.html#326" class="Primitive">Set</a><a id="8233" class="Symbol">}</a> <a id="8235" class="Symbol">:</a> <a id="8237" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a> <a id="8239" class="Symbol">→</a> <a id="8241" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a> <a id="8243" class="Symbol">→</a> <a id="8245" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="8249" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a> <a id="8251" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a> <a id="8253" class="Symbol">→</a> <a id="8255" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="8259" class="Keyword">where</a>
+  <a id="8267" class="Comment">-- the key/value pair is at the head of the context</a>
+  <a id="_↦_∈_.here"></a><a id="8321" href="lagda.2024-04-19-lr.html#8321" class="InductiveConstructor">here</a> <a id="8326" class="Symbol">:</a> <a id="8328" class="Symbol">∀</a> <a id="8330" class="Symbol">{</a><a id="8331" href="lagda.2024-04-19-lr.html#8331" class="Bound">k</a> <a id="8333" class="Symbol">:</a> <a id="8335" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a><a id="8336" class="Symbol">}</a> <a id="8338" class="Symbol">{</a><a id="8339" href="lagda.2024-04-19-lr.html#8339" class="Bound">v</a> <a id="8341" class="Symbol">:</a> <a id="8343" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a><a id="8344" class="Symbol">}</a> <a id="8346" class="Symbol">{</a><a id="8347" href="lagda.2024-04-19-lr.html#8347" class="Bound">m</a> <a id="8349" class="Symbol">:</a> <a id="8351" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="8355" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a> <a id="8357" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a><a id="8358" class="Symbol">}</a>
+         <a id="8369" class="Comment">------------------</a>
+       <a id="8395" class="Symbol">→</a> <a id="8397" href="lagda.2024-04-19-lr.html#8331" class="Bound">k</a> <a id="8399" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">↦</a> <a id="8401" href="lagda.2024-04-19-lr.html#8339" class="Bound">v</a> <a id="8403" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">∈</a> <a id="8405" href="lagda.2024-04-19-lr.html#8347" class="Bound">m</a> <a id="8407" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">,</a> <a id="8409" href="lagda.2024-04-19-lr.html#8331" class="Bound">k</a> <a id="8411" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">↦</a> <a id="8413" href="lagda.2024-04-19-lr.html#8339" class="Bound">v</a>
+
+  <a id="8418" class="Comment">-- the key/value pair is not at the head of the context</a>
+  <a id="_↦_∈_.there"></a><a id="8476" href="lagda.2024-04-19-lr.html#8476" class="InductiveConstructor">there</a> <a id="8482" class="Symbol">:</a> <a id="8484" class="Symbol">∀</a> <a id="8486" class="Symbol">{</a><a id="8487" href="lagda.2024-04-19-lr.html#8487" class="Bound">k</a> <a id="8489" href="lagda.2024-04-19-lr.html#8489" class="Bound">k′</a> <a id="8492" class="Symbol">:</a> <a id="8494" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a><a id="8495" class="Symbol">}</a> <a id="8497" class="Symbol">{</a><a id="8498" href="lagda.2024-04-19-lr.html#8498" class="Bound">v</a> <a id="8500" href="lagda.2024-04-19-lr.html#8500" class="Bound">v′</a> <a id="8503" class="Symbol">:</a> <a id="8505" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a><a id="8506" class="Symbol">}</a> <a id="8508" class="Symbol">{</a><a id="8509" href="lagda.2024-04-19-lr.html#8509" class="Bound">m</a> <a id="8511" class="Symbol">:</a> <a id="8513" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="8517" href="lagda.2024-04-19-lr.html#8216" class="Bound">K</a> <a id="8519" href="lagda.2024-04-19-lr.html#8226" class="Bound">V</a><a id="8520" class="Symbol">}</a>
+        <a id="8530" class="Symbol">→</a> <a id="8532" href="lagda.2024-04-19-lr.html#8487" class="Bound">k</a> <a id="8534" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">↦</a> <a id="8536" href="lagda.2024-04-19-lr.html#8498" class="Bound">v</a> <a id="8538" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">∈</a> <a id="8540" href="lagda.2024-04-19-lr.html#8509" class="Bound">m</a>
+        <a id="8550" class="Symbol">→</a> <a id="8552" href="Relation.Nullary.html#656" class="Function Operator">¬</a> <a id="8554" class="Symbol">(</a><a id="8555" href="lagda.2024-04-19-lr.html#8487" class="Bound">k</a> <a id="8557" href="Agda.Builtin.Equality.html#151" class="Datatype Operator">≡</a> <a id="8559" href="lagda.2024-04-19-lr.html#8489" class="Bound">k′</a><a id="8561" class="Symbol">)</a>
+          <a id="8573" class="Comment">--------------------</a>
+        <a id="8602" class="Symbol">→</a> <a id="8604" href="lagda.2024-04-19-lr.html#8487" class="Bound">k</a> <a id="8606" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">↦</a> <a id="8608" href="lagda.2024-04-19-lr.html#8498" class="Bound">v</a> <a id="8610" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">∈</a> <a id="8612" href="lagda.2024-04-19-lr.html#8509" class="Bound">m</a> <a id="8614" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">,</a> <a id="8616" href="lagda.2024-04-19-lr.html#8489" class="Bound">k′</a> <a id="8619" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">↦</a> <a id="8621" href="lagda.2024-04-19-lr.html#8500" class="Bound">v′</a>
+</pre>
+<p>For readability, we’ll add syntactic sugar for these specific to contexts.</p>
+<pre class="Agda"><a id="8713" class="Comment">-- extending a context, e.g. Γ , x ∷ T</a>
+<a id="_,_∷_"></a><a id="8752" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">_,_∷_</a> <a id="8758" class="Symbol">:</a> <a id="8760" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a> <a id="8764" class="Symbol">→</a> <a id="8766" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="8773" class="Symbol">→</a> <a id="8775" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="8780" class="Symbol">→</a> <a id="8782" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a>
+<a id="8786" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">_,_∷_</a> <a id="8792" class="Symbol">=</a> <a id="8794" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">_,_↦_</a>
+
+<a id="8801" class="Comment">-- variable lookup in a context, e.g. x ∷ T ∈ Γ</a>
+<a id="_∷_∈_"></a><a id="8849" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">_∷_∈_</a> <a id="8855" class="Symbol">:</a> <a id="8857" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="8864" class="Symbol">→</a> <a id="8866" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="8871" class="Symbol">→</a> <a id="8873" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a> <a id="8877" class="Symbol">→</a> <a id="8879" href="Agda.Primitive.html#326" class="Primitive">Set</a>
+<a id="8883" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">_∷_∈_</a> <a id="8889" class="Symbol">=</a> <a id="8891" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">_↦_∈_</a>
+</pre>
+</div>
+<p>Here are the (standard) typing rules for terms in the lambda calculus that are
+well typed (i.e. the terms that make up our STLC).</p>
+<pre class="Agda"><a id="9048" class="Comment">-- typing judgement, e.g. Γ ⊢ t ∷ T</a>
+<a id="9084" class="Keyword">data</a> <a id="_⊢_∷_"></a><a id="9089" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">_⊢_∷_</a> <a id="9095" class="Symbol">:</a> <a id="9097" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a> <a id="9101" class="Symbol">→</a> <a id="9103" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="9108" class="Symbol">→</a> <a id="9110" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="9115" class="Symbol">→</a> <a id="9117" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="9121" class="Keyword">where</a>
+
+  <a id="_⊢_∷_.⊢true"></a><a id="9130" href="lagda.2024-04-19-lr.html#9130" class="InductiveConstructor">⊢true</a> <a id="9136" class="Symbol">:</a> <a id="9138" class="Comment">---------------</a>
+          <a id="9164" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9166" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9168" href="lagda.2024-04-19-lr.html#5882" class="InductiveConstructor">true</a> <a id="9173" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9175" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a>
+
+  <a id="_⊢_∷_.⊢false"></a><a id="9183" href="lagda.2024-04-19-lr.html#9183" class="InductiveConstructor">⊢false</a> <a id="9190" class="Symbol">:</a> <a id="9192" class="Comment">----------------</a>
+           <a id="9220" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9222" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9224" href="lagda.2024-04-19-lr.html#5887" class="InductiveConstructor">false</a> <a id="9230" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9232" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a>
+
+  <a id="_⊢_∷_.⊢var"></a><a id="9240" href="lagda.2024-04-19-lr.html#9240" class="InductiveConstructor">⊢var</a> <a id="9245" class="Symbol">:</a> <a id="9247" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="9249" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">∷</a> <a id="9251" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="9253" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">∈</a> <a id="9255" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a>
+         <a id="9266" class="Comment">-------------</a>
+       <a id="9287" class="Symbol">→</a> <a id="9289" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9291" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9293" href="lagda.2024-04-19-lr.html#5932" class="InductiveConstructor">var</a> <a id="9297" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="9299" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9301" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+
+  <a id="_⊢_∷_.⊢abs"></a><a id="9306" href="lagda.2024-04-19-lr.html#9306" class="InductiveConstructor">⊢abs</a> <a id="9311" class="Symbol">:</a> <a id="9313" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9315" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">,</a> <a id="9317" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="9319" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">∷</a> <a id="9321" href="lagda.2024-04-19-lr.html#7360" class="Generalizable">S</a> <a id="9323" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9325" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="9327" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9329" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+         <a id="9340" class="Comment">----------------------</a>
+       <a id="9370" class="Symbol">→</a> <a id="9372" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9374" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9376" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">λ[</a> <a id="9379" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="9381" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">⇒</a> <a id="9383" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="9385" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">]</a> <a id="9387" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9389" href="lagda.2024-04-19-lr.html#7360" class="Generalizable">S</a> <a id="9391" href="lagda.2024-04-19-lr.html#7325" class="InductiveConstructor Operator">⇒</a> <a id="9393" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+
+  <a id="_⊢_∷_.⊢app"></a><a id="9398" href="lagda.2024-04-19-lr.html#9398" class="InductiveConstructor">⊢app</a> <a id="9403" class="Symbol">:</a> <a id="9405" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9407" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9409" href="lagda.2024-04-19-lr.html#6187" class="Generalizable">r</a> <a id="9411" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9413" href="lagda.2024-04-19-lr.html#7360" class="Generalizable">S</a> <a id="9415" href="lagda.2024-04-19-lr.html#7325" class="InductiveConstructor Operator">⇒</a> <a id="9417" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+       <a id="9426" class="Symbol">→</a> <a id="9428" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9430" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9432" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="9434" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9436" href="lagda.2024-04-19-lr.html#7360" class="Generalizable">S</a>
+         <a id="9447" class="Comment">-------------</a>
+       <a id="9468" class="Symbol">→</a> <a id="9470" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9472" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9474" href="lagda.2024-04-19-lr.html#6187" class="Generalizable">r</a> <a id="9476" href="lagda.2024-04-19-lr.html#6053" class="InductiveConstructor Operator">·</a> <a id="9478" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="9480" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9482" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+
+  <a id="_⊢_∷_.⊢if"></a><a id="9487" href="lagda.2024-04-19-lr.html#9487" class="InductiveConstructor">⊢if</a> <a id="9491" class="Symbol">:</a>          <a id="9502" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9504" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9506" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="9508" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9510" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a>
+      <a id="9521" class="Symbol">→</a> <a id="9523" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9525" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9527" href="lagda.2024-04-19-lr.html#6193" class="Generalizable">t₁</a> <a id="9530" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9532" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>   <a id="9536" class="Symbol">→</a>   <a id="9540" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9542" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9544" href="lagda.2024-04-19-lr.html#6196" class="Generalizable">t₂</a> <a id="9547" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9549" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+        <a id="9559" class="Comment">----------------------------</a>
+      <a id="9594" class="Symbol">→</a> <a id="9596" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="9598" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="9600" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">if</a> <a id="9603" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="9605" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">then</a> <a id="9610" href="lagda.2024-04-19-lr.html#6193" class="Generalizable">t₁</a> <a id="9613" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">else</a> <a id="9618" href="lagda.2024-04-19-lr.html#6196" class="Generalizable">t₂</a> <a id="9621" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="9623" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+</pre>
+<h5 id="what-is-a-logical-relation">What is a logical relation?</h5>
+<p>Logical relations are a powerful technique for proving program properties. Let’s
+say we want to prove that a program <code>t</code> and its compiled program <code>⟦ t ⟧</code> have the
+same behavior (e.g. <code>t ≈ ⟦ t ⟧</code>), as long as <code>t</code> is well typed. It’s often the
+case that we can’t prove this directly by induction on the typing derivation for
+<code>t</code> (e.g. <code>Γ ⊢ t : T</code>). Instead, we may need to strengthen our inductive
+hypothesis. Logical relations are, among many things, an instance of this.</p>
+<p>Their name can be a little arcane, but essentially they represent the <em>logical</em>
+interpretation that we would ascribe a program that satisfies the property we
+want to prove. Instead of showing that if <code>t</code> is well typed then <code>t ≈ ⟦ t ⟧</code>, we
+may instead craft a <em>relation</em> between <code>t</code> and <code>⟦ t ⟧</code> that is more descriptive
+of the behavior we would logically expect to be true if it were the case that
+<code>t ≈ ⟦ t ⟧</code>.</p>
+<p>And that’s really the main idea behind logical relations! There’s more details
+I’m skipping over, but I’ll touch on them as we go through the example of type
+soundness.</p>
+<h5 id="type-soundness">Type soundness</h5>
+<p>A classic property that we prove about the simply-typed lambda calculus is that
+the evaluation of any term is well defined (sometimes called <em>type soundness</em> or
+<em>type safety</em>). This is relevant in the sense that in the untyped lambda
+calculus, we can have a term like <code>true true</code> (i.e. try to apply <code>true</code> to
+<code>true</code>). There is no well-defined evaluation for <code>true true</code>, in other words if
+we try to “run” this program it would “fail.”</p>
+<p>With that said, <code>true true</code> is an ill-typed term – so it is ruled out in the
+simply-typed lambda calculus. In other words, proving type soundness gives
+<em>meaning</em> to our type system: we have shown that with it we are now only
+considering terms that will not “fail” when they are “run.” This has a practical
+benefit: if we’re designing a programming language and prove type soundness,
+then we can give programmers a guarantee that if their code type checks, it will
+not “fail.”</p>
+<p>We can prove type soundness through the use of a logical relation. Specifically,
+we can use a <em>logical predicate</em>: a unary logical relation (that is, a relation
+over a single term).</p>
+<h5 id="semantics">Semantics</h5>
+<p>Before we can even formulate what type soundness is, we need to describe
+computation of STLC (i.e., the semantics). We will be using a call-by-value
+semantics. A term <code>t</code> is evaluated in an environment <code>γ</code> to a value <code>a</code>
+(i.e. <code>γ ⊢ t ⇓ a</code>). An environment <code>γ</code> maps variables to values. The values that
+STLC terms evaluate to are either <code>true</code>, <code>false</code>, or a closure <code>[λx. t] γ</code>.</p>
+<p>A closure “closes” a term <code>t</code> in an abstraction <code>λx. t</code> with an environment <code>γ</code>
+mapping every variable in <code>t</code> except for <code>x</code> to a value. Intuitively,
+<code>[λx. t] γ</code> is “waiting” for a value for <code>x</code> to continue evaluating <code>t</code> with the
+environment <code>γ</code> extended with the value for <code>x</code>. The metavariables <code>γ</code>, <code>δ</code> will
+range over environments; <code>a</code>, <code>b</code>, and <code>f</code> will range over values.</p>
+<pre class="Agda"><a id="12622" class="Keyword">mutual</a>
+  <a id="12631" class="Comment">-- values that terms evaluate to</a>
+  <a id="12666" class="Keyword">data</a> <a id="Value"></a><a id="12671" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a> <a id="12677" class="Symbol">:</a> <a id="12679" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="12683" class="Keyword">where</a>
+    <a id="Value.true"></a><a id="12693" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a> <a id="Value.false"></a><a id="12698" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a> <a id="12704" class="Symbol">:</a> <a id="12706" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a>
+
+    <a id="12717" class="Comment">-- closure, e.g. [λ x ⇒ t ] γ</a>
+    <a id="Value.[λ_⇒_]_"></a><a id="12751" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ_⇒_]_</a> <a id="12759" class="Symbol">:</a> <a id="12761" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="12768" class="Symbol">→</a> <a id="12770" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="12775" class="Symbol">→</a> <a id="12777" href="lagda.2024-04-19-lr.html#12837" class="Function">Env</a> <a id="12781" class="Symbol">→</a> <a id="12783" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a>
+
+  <a id="12792" class="Comment">-- environment that terms are evaluated in</a>
+  <a id="Env"></a><a id="12837" href="lagda.2024-04-19-lr.html#12837" class="Function">Env</a> <a id="12841" class="Symbol">=</a> <a id="12843" href="lagda.2024-04-19-lr.html#7621" class="Datatype">Map</a> <a id="12847" href="Agda.Builtin.String.html#336" class="Postulate">String</a> <a id="12854" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a>
+
+<a id="12861" class="Keyword">variable</a> <a id="12870" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="12872" href="lagda.2024-04-19-lr.html#12872" class="Generalizable">δ</a> <a id="12874" class="Symbol">:</a> <a id="12876" href="lagda.2024-04-19-lr.html#12837" class="Function">Env</a>
+
+<a id="12881" class="Keyword">variable</a> <a id="12890" href="lagda.2024-04-19-lr.html#12890" class="Generalizable">f</a> <a id="12892" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a> <a id="12894" href="lagda.2024-04-19-lr.html#12894" class="Generalizable">b</a> <a id="12896" class="Symbol">:</a> <a id="12898" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a>
+
+<a id="12905" class="Comment">-- semantics, e.g. γ ⊢ t ⇓ a</a>
+<a id="12934" class="Keyword">data</a> <a id="_⊢_⇓_"></a><a id="12939" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">_⊢_⇓_</a> <a id="12945" class="Symbol">:</a> <a id="12947" href="lagda.2024-04-19-lr.html#12837" class="Function">Env</a> <a id="12951" class="Symbol">→</a> <a id="12953" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="12958" class="Symbol">→</a> <a id="12960" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a> <a id="12966" class="Symbol">→</a> <a id="12968" href="Agda.Primitive.html#326" class="Primitive">Set</a> <a id="12972" class="Keyword">where</a>
+
+  <a id="_⊢_⇓_.evalTrue"></a><a id="12981" href="lagda.2024-04-19-lr.html#12981" class="InductiveConstructor">evalTrue</a> <a id="12990" class="Symbol">:</a> <a id="12992" class="Comment">---------------</a>
+             <a id="13021" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13023" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13025" href="lagda.2024-04-19-lr.html#5882" class="InductiveConstructor">true</a> <a id="13030" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13032" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a>
+
+  <a id="_⊢_⇓_.evalFalse"></a><a id="13040" href="lagda.2024-04-19-lr.html#13040" class="InductiveConstructor">evalFalse</a> <a id="13050" class="Symbol">:</a> <a id="13052" class="Comment">----------------</a>
+              <a id="13083" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13085" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13087" href="lagda.2024-04-19-lr.html#5887" class="InductiveConstructor">false</a> <a id="13093" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13095" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a>
+
+  <a id="_⊢_⇓_.evalVar"></a><a id="13104" href="lagda.2024-04-19-lr.html#13104" class="InductiveConstructor">evalVar</a> <a id="13112" class="Symbol">:</a> <a id="13114" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="13116" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">↦</a> <a id="13118" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a> <a id="13120" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">∈</a> <a id="13122" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a>
+            <a id="13136" class="Comment">---------------</a>
+          <a id="13162" class="Symbol">→</a> <a id="13164" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13166" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13168" href="lagda.2024-04-19-lr.html#5932" class="InductiveConstructor">var</a> <a id="13172" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="13174" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13176" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a>
+
+  <a id="_⊢_⇓_.evalAbs"></a><a id="13181" href="lagda.2024-04-19-lr.html#13181" class="InductiveConstructor">evalAbs</a> <a id="13189" class="Symbol">:</a> <a id="13191" class="Comment">-----------------------------</a>
+            <a id="13233" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13235" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13237" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">λ[</a> <a id="13240" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="13242" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">⇒</a> <a id="13244" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="13246" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">]</a> <a id="13248" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13250" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ</a> <a id="13253" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="13255" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">⇒</a> <a id="13257" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="13259" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">]</a> <a id="13261" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a>
+
+  <a id="_⊢_⇓_.evalApp"></a><a id="13266" href="lagda.2024-04-19-lr.html#13266" class="InductiveConstructor">evalApp</a> <a id="13274" class="Symbol">:</a> <a id="13276" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13278" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13280" href="lagda.2024-04-19-lr.html#6187" class="Generalizable">r</a> <a id="13282" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13284" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ</a> <a id="13287" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="13289" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">⇒</a> <a id="13291" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="13293" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">]</a> <a id="13295" href="lagda.2024-04-19-lr.html#12872" class="Generalizable">δ</a>     <a id="13301" class="Symbol">→</a>       <a id="13309" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13311" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13313" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="13315" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13317" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a>
+          <a id="13329" class="Symbol">→</a>              <a id="13344" href="lagda.2024-04-19-lr.html#12872" class="Generalizable">δ</a> <a id="13346" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">,</a> <a id="13348" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="13350" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">↦</a> <a id="13352" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a> <a id="13354" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13356" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="13358" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13360" href="lagda.2024-04-19-lr.html#12894" class="Generalizable">b</a>
+            <a id="13374" class="Comment">------------------------------------------</a>
+          <a id="13427" class="Symbol">→</a> <a id="13429" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13431" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13433" href="lagda.2024-04-19-lr.html#6187" class="Generalizable">r</a> <a id="13435" href="lagda.2024-04-19-lr.html#6053" class="InductiveConstructor Operator">·</a> <a id="13437" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="13439" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13441" href="lagda.2024-04-19-lr.html#12894" class="Generalizable">b</a>
+
+  <a id="_⊢_⇓_.evalIfTrue"></a><a id="13446" href="lagda.2024-04-19-lr.html#13446" class="InductiveConstructor">evalIfTrue</a> <a id="13457" class="Symbol">:</a> <a id="13459" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13461" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13463" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="13465" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13467" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a>  <a id="13473" class="Symbol">→</a>   <a id="13477" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13479" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13481" href="lagda.2024-04-19-lr.html#6193" class="Generalizable">t₁</a> <a id="13484" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13486" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a>
+               <a id="13503" class="Comment">----------------------------</a>
+             <a id="13545" class="Symbol">→</a> <a id="13547" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13549" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13551" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">if</a> <a id="13554" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="13556" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">then</a> <a id="13561" href="lagda.2024-04-19-lr.html#6193" class="Generalizable">t₁</a> <a id="13564" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">else</a> <a id="13569" href="lagda.2024-04-19-lr.html#6196" class="Generalizable">t₂</a> <a id="13572" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13574" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a>
+
+  <a id="_⊢_⇓_.evalIfFalse"></a><a id="13579" href="lagda.2024-04-19-lr.html#13579" class="InductiveConstructor">evalIfFalse</a> <a id="13591" class="Symbol">:</a> <a id="13593" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13595" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13597" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="13599" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13601" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a>  <a id="13608" class="Symbol">→</a>  <a id="13611" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13613" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13615" href="lagda.2024-04-19-lr.html#6196" class="Generalizable">t₂</a> <a id="13618" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13620" href="lagda.2024-04-19-lr.html#12894" class="Generalizable">b</a>
+                <a id="13638" class="Comment">----------------------------</a>
+              <a id="13681" class="Symbol">→</a> <a id="13683" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="13685" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="13687" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">if</a> <a id="13690" href="lagda.2024-04-19-lr.html#6189" class="Generalizable">s</a> <a id="13692" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">then</a> <a id="13697" href="lagda.2024-04-19-lr.html#6193" class="Generalizable">t₁</a> <a id="13700" href="lagda.2024-04-19-lr.html#6135" class="InductiveConstructor Operator">else</a> <a id="13705" href="lagda.2024-04-19-lr.html#6196" class="Generalizable">t₂</a> <a id="13708" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="13710" href="lagda.2024-04-19-lr.html#12894" class="Generalizable">b</a>
+</pre>
+<p>This is what is known as a natural semantics. This semantics is nice because it
+looks a lot like an interpreter that you might write in a functional programming
+language. I haven’t actually written the semantics out as a function because
+we’re in Agda, where every program has to be terminating.</p>
+<p>Agda wouldn’t be able to tell that such a function would terminate; and in fact,
+it wouldn’t, as the semantics is over <em>untyped</em> terms. Untyped lambda calculus
+terms can evaluate forever (e.g. <code>(λx.x x) (λx.x x)</code>). This is another practical
+reason why we want to prove type soundness of STLC: it tells us that the
+evaluation of a well-typed term will in fact terminate.</p>
+<p>Either way, we can now state type soundness! We say that our type system is
+sound if any term that can be assigned a type can be evaluated to a value. For
+clarity and simplicity, it is common to restrict this property to a closed term
+of a base type such as <code>bool</code>. The restricted version is: a closed term that can
+be assigned the type <code>bool</code> evaluates to either <code>true</code> or <code>false</code>.</p>
+<pre class="Agda"><a id="14777" class="Keyword">postulate</a>
+  <a id="14789" class="Comment">-- type soundness</a>
+  <a id="14809" href="lagda.2024-04-19-lr.html#14809" class="Postulate">_</a> <a id="14811" class="Symbol">:</a> <a id="14813" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="14815" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="14817" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="14819" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="14821" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a>
+      <a id="14832" class="Comment">----------------------------</a>
+    <a id="14865" class="Symbol">→</a> <a id="14867" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="14869" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="14871" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="14873" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="14875" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a> <a id="14880" href="Data.Sum.Base.html#734" class="Datatype Operator">⊎</a> <a id="14882" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="14884" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="14886" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="14888" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="14890" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a>
+</pre>
+<p><small><small>Here, I’m using Agda’s sum type (<code>_⊎_ : Set → Set → Set</code>).
+</small></small></p>
+<h5 id="why-a-logical-relation">Why a logical relation?</h5>
+<p>So, what’s the problem? This seems like a pretty standard property to prove.
+Sure, it’s restricted to the empty context and base types, so proving it by
+induction on the typing derivation doesn’t make sense, but we can probably
+generalize it a little:</p>
+<pre class="Agda"><a id="15283" class="Keyword">postulate</a>
+  <a id="15295" class="Comment">-- generalized type soundness</a>
+  <a id="15327" href="lagda.2024-04-19-lr.html#15327" class="Postulate">_</a> <a id="15329" class="Symbol">:</a> <a id="15331" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="15333" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="15335" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="15337" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="15339" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+      <a id="15347" class="Comment">-----------------------</a>
+    <a id="15375" class="Symbol">→</a> <a id="15377" href="Data.Product.html#1806" class="Function">∃[</a> <a id="15380" href="lagda.2024-04-19-lr.html#15380" class="Bound">γ</a> <a id="15382" href="Data.Product.html#1806" class="Function">]</a> <a id="15384" href="Data.Product.html#1806" class="Function">∃[</a> <a id="15387" href="lagda.2024-04-19-lr.html#15387" class="Bound">a</a> <a id="15389" href="Data.Product.html#1806" class="Function">]</a> <a id="15391" href="lagda.2024-04-19-lr.html#15380" class="Bound">γ</a> <a id="15393" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="15395" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="15397" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="15399" href="lagda.2024-04-19-lr.html#15387" class="Bound">a</a>
+</pre>
+<p><small><small>Here, I’m using Agda’s “exists” syntax, e.g. <code>∃[ x ] P x</code>, where
+<code>P</code> is some property dependent on <code>x</code>.</small></small></p>
+<p>Nice! This seems to be more of a general enough property to prove by induction
+on the typing derivation <code>Γ ⊢ t : T</code>, right? Well, sadly, no. Not nice. We can’t
+prove this property directly by induction on the typing derivation, either. This
+is the case even if we play around with the definition a little – as you might
+be tempted to do, but don’t! There is a better way. A… <em>logical</em> way.</p>
+<p>If we were to try to prove this property directly by induction on the typing
+derivation the problem would be in the application case (<code>r s</code>). The induction
+hypothesis tells me that the evaluation of <code>r</code> is well defined, as well as that
+the evaluation of <code>s</code> is well defined. We can even take some extra steps to
+determine that <code>r</code> evaluates to some closure <code>[λx. t] δ</code>.</p>
+<p>Unfortunately, it’s at this point that you usually get stuck. Let’s say that <code>s</code>
+evaluates to some value <code>a</code>. To prove that the evaluation of <code>r s</code> is well
+defined, we’d also want to know that the evaluation of the body of the closure
+<code>[λx. t] δ</code> is well defined when its environment <code>δ</code> is extended with <code>x ↦ a</code>.
+But, we’re all out of induction hypotheses!</p>
+<p>So, how does a logical relation help here? Well, we talked about a logical
+relation being the <em>logical</em> interpretation we would give a term <code>t</code> if it is
+the case that it satisfies this property. Logically, we would expect it to be the
+case that if <code>r</code> is a well-typed term that evaluates to a closure, then the
+evaluation of the body of the closure should also be well defined when extended
+with some value.</p>
+<p>I can encode this logical interpretation as a logical relation (or in this case,
+a logical predicate), such that satisfying the logical relation implies the
+desired property. Then, instead of proving that the evaluation of a well-typed
+term is well defined, we can prove that a well-typed term satisfies the logical
+predicate. This strengthens our induction hypothesis, because we have now
+(hopefully) described all of the properties we would logically expect to hold of
+a term whose evaluation is well defined.</p>
+<h5 id="defining-a-logical-relation">Defining a logical relation</h5>
+<p>There is one missing piece to the structure of a logical relation that is
+unfortunately not present in the name: a logical relation is usually defined
+inductively on types. The properties we wish to prove are in relation to our
+type system, so types should be our guiding force. If we have a well-typed term
+<code>r</code>, its type is what feeds our expectations. For example, if its type were
+<code>bool ⇒ bool</code>, we’d expect <code>r</code> to evaluate to a closure.</p>
+<p>The logical predicate we’ll be using will be defined mutually in two parts,
+though this is mostly for clarity. Both of these definitions can be thought of
+as making up one predicate (and we could combine them into one if we wanted to,
+though this would be a little annoying with the way I’ve set everything up so
+far).</p>
+<p>The first part of the predicate is <code>⟦ T ⟧</code>, which is the logical interpretation
+we would have for a value of type <code>T</code>. For <code>bool</code>, we expect a value to be
+either <code>true</code> or <code>false</code>. For <code>S ⇒ T</code>, our expectation is that the value is a
+closure <code>[λx. t] δ</code> <em>and</em> that when the closure is given a value <code>a</code> such that
+<code>a ∈ ⟦ S ⟧</code>, the body of the closure itself evaluates to a value <code>b</code> such that
+<code>b ∈ ⟦ T ⟧</code>. Which brings us to the second part of the predicate, <code>ℰ⟦ T ⟧</code>,
+which is mostly syntactic sugar for “this term evaluates to some value <code>a</code> such
+that <code>a ∈ ⟦ T ⟧</code>”.</p>
+<p>In set notation, we could write this out as:</p>
+<pre><code>⟦ bool ⟧ = { true , false }
+⟦ S ⇒ T ⟧ = { [λx. t] δ | ∀ a ∈ ⟦ S ⟧, ((δ , x ↦ a) , t) ∈ ℰ⟦ T ⟧
+
+ℰ⟦ T ⟧ = { (γ , t) | ∃ a ∈ ⟦ T ⟧, γ ⊢ t ⇓ a }</code></pre>
+<p>In Agda, the definition does not change much:</p>
+<pre class="Agda"><a id="19206" class="Keyword">mutual</a>
+  <a id="19215" class="Comment">-- logical predicate for values, e.g. a ∈ ⟦ T ⟧</a>
+  <a id="⟦_⟧"></a><a id="19265" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦_⟧</a> <a id="19269" class="Symbol">:</a> <a id="19271" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="19276" class="Symbol">→</a> <a id="19278" href="lagda.2024-04-19-lr.html#12671" class="Datatype">Value</a> <a id="19284" class="Symbol">→</a> <a id="19286" href="Agda.Primitive.html#326" class="Primitive">Set</a>
+  <a id="19292" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="19294" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a> <a id="19299" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a> <a id="19301" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a> <a id="19306" class="Symbol">=</a> <a id="19308" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a>
+  <a id="19312" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="19314" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a> <a id="19319" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a> <a id="19321" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a> <a id="19327" class="Symbol">=</a> <a id="19329" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a>
+  <a id="19333" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="19335" href="lagda.2024-04-19-lr.html#19335" class="Bound">S</a> <a id="19337" href="lagda.2024-04-19-lr.html#7325" class="InductiveConstructor Operator">⇒</a> <a id="19339" href="lagda.2024-04-19-lr.html#19339" class="Bound">T</a> <a id="19341" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a> <a id="19343" class="Symbol">(</a><a id="19344" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ</a> <a id="19347" href="lagda.2024-04-19-lr.html#19347" class="Bound">x</a> <a id="19349" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">⇒</a> <a id="19351" href="lagda.2024-04-19-lr.html#19351" class="Bound">t</a> <a id="19353" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">]</a> <a id="19355" href="lagda.2024-04-19-lr.html#19355" class="Bound">δ</a><a id="19356" class="Symbol">)</a> <a id="19358" class="Symbol">=</a> <a id="19360" class="Symbol">∀</a> <a id="19362" class="Symbol">{</a><a id="19363" href="lagda.2024-04-19-lr.html#19363" class="Bound">a</a><a id="19364" class="Symbol">}</a> <a id="19366" class="Symbol">→</a>
+     <a id="19373" href="lagda.2024-04-19-lr.html#19363" class="Bound">a</a> <a id="19375" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="19377" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="19379" href="lagda.2024-04-19-lr.html#19335" class="Bound">S</a> <a id="19381" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a>
+    <a id="19387" class="Symbol">→</a> <a id="19389" class="Symbol">((</a><a id="19391" href="lagda.2024-04-19-lr.html#19355" class="Bound">δ</a> <a id="19393" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">,</a> <a id="19395" href="lagda.2024-04-19-lr.html#19347" class="Bound">x</a> <a id="19397" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">↦</a> <a id="19399" href="lagda.2024-04-19-lr.html#19363" class="Bound">a</a><a id="19400" class="Symbol">)</a> <a id="19402" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="19404" href="lagda.2024-04-19-lr.html#19351" class="Bound">t</a><a id="19405" class="Symbol">)</a> <a id="19407" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="19409" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">ℰ⟦</a> <a id="19412" href="lagda.2024-04-19-lr.html#19339" class="Bound">T</a> <a id="19414" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">⟧</a>
+  <a id="19418" href="lagda.2024-04-19-lr.html#19265" class="CatchallClause Function Operator">⟦</a><a id="19419" class="CatchallClause"> </a><a id="19420" class="CatchallClause Symbol">_</a><a id="19421" class="CatchallClause"> </a><a id="19422" href="lagda.2024-04-19-lr.html#19265" class="CatchallClause Function Operator">⟧</a><a id="19423" class="CatchallClause"> </a><a id="19424" class="CatchallClause Symbol">_</a> <a id="19426" class="Symbol">=</a> <a id="19428" href="Data.Empty.html#526" class="Datatype">⊥</a>
+
+  <a id="19433" class="Comment">-- logical predicate for environment/term, e.g. (γ , t) ∈ ℰ⟦ T ⟧</a>
+  <a id="ℰ⟦_⟧"></a><a id="19500" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">ℰ⟦_⟧</a> <a id="19505" class="Symbol">:</a> <a id="19507" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="19512" class="Symbol">→</a> <a id="19514" href="lagda.2024-04-19-lr.html#12837" class="Function">Env</a> <a id="19518" href="Data.Product.html#1167" class="Function Operator">×</a> <a id="19520" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="19525" class="Symbol">→</a> <a id="19527" href="Agda.Primitive.html#326" class="Primitive">Set</a>
+  <a id="19533" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">ℰ⟦</a> <a id="19536" href="lagda.2024-04-19-lr.html#19536" class="Bound">T</a> <a id="19538" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">⟧</a> <a id="19540" class="Symbol">(</a><a id="19541" href="lagda.2024-04-19-lr.html#19541" class="Bound">γ</a> <a id="19543" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="19545" href="lagda.2024-04-19-lr.html#19545" class="Bound">t</a><a id="19546" class="Symbol">)</a> <a id="19548" class="Symbol">=</a> <a id="19550" href="Data.Product.html#1806" class="Function">∃[</a> <a id="19553" href="lagda.2024-04-19-lr.html#19553" class="Bound">a</a> <a id="19555" href="Data.Product.html#1806" class="Function">]</a> <a id="19557" href="lagda.2024-04-19-lr.html#19541" class="Bound">γ</a> <a id="19559" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="19561" href="lagda.2024-04-19-lr.html#19545" class="Bound">t</a> <a id="19563" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="19565" href="lagda.2024-04-19-lr.html#19553" class="Bound">a</a> <a id="19567" href="Data.Product.html#1167" class="Function Operator">×</a> <a id="19569" href="lagda.2024-04-19-lr.html#19553" class="Bound">a</a> <a id="19571" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="19573" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="19575" href="lagda.2024-04-19-lr.html#19536" class="Bound">T</a> <a id="19577" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a>
+</pre>
+<p><small><small>Here, I’m making use of Agda’s membership syntax
+(<code>_∈_ : A → (A → Set) → Set</code>) for readability. I’m also using Agda’s product
+type (<code>_×_ : Set → Set → Set</code>) and constructor (<code>_,_ : A → B → A × B</code>). Finally,
+I’m using Agda’s unit (<code>⊤</code>) and empty (<code>⊥</code>) types to represent a condition that
+always holds and a condition that never holds, respectively.</small></small></p>
+<p>Our goal now is to use this predicate to prove type soundness. To do so, we
+usually first show that if a term is well-typed, then it satisfies the logical
+predicate. We can try to write that out:</p>
+<pre class="Agda"><a id="20167" class="Keyword">postulate</a>
+  <a id="20179" href="lagda.2024-04-19-lr.html#20179" class="Postulate">_</a> <a id="20181" class="Symbol">:</a> <a id="20183" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="20185" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="20187" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="20189" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="20191" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="20193" class="Symbol">→</a> <a id="20195" class="Symbol">∀</a> <a id="20197" href="lagda.2024-04-19-lr.html#20197" class="Bound">γ</a> <a id="20199" class="Symbol">→</a> <a id="20201" class="Symbol">(</a><a id="20202" href="lagda.2024-04-19-lr.html#20197" class="Bound">γ</a> <a id="20204" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="20206" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a><a id="20207" class="Symbol">)</a> <a id="20209" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="20211" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">ℰ⟦</a> <a id="20214" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="20216" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">⟧</a>
+</pre>
+<p>Unfortunately, however, we are still unable to prove this property. The reason
+is that <code>γ</code> is unrestricted. To understand why this is problematic, consider the
+variable case. We want to show that a variable evaluates to a value <code>a</code> such
+that <code>a ∈ ⟦ T ⟧</code>, but the variable evaluates to whatever is supplied by the
+environment, for which we have no guarantees. Changing the forall to an exists
+doesn’t solve the problem either, because we wouldn’t know what to use as our
+environment <code>γ</code>.</p>
+<p>The problem is that the environment <code>γ</code> is unrestricted, so how about we
+restrict it? If we let ourselves be guided by the variable case, we probably
+want it to be the case that for every variable <code>x</code> such that <code>x ∷ T ∈ Γ</code>, it
+should be the case that there is some value <code>a</code> such that <code>x ↦ a ∈ γ</code> and
+<code>a ∈ ⟦ T ⟧</code>. We refer to this as <code>γ</code> being “semantically typed by the context
+<code>Γ</code>”, or <code>Γ ⊨ γ</code>.</p>
+<pre class="Agda"><a id="21117" class="Comment">-- semantic typing for environments, e.g. Γ ⊨ γ</a>
+<a id="_⊨_"></a><a id="21165" href="lagda.2024-04-19-lr.html#21165" class="Function Operator">_⊨_</a> <a id="21169" class="Symbol">:</a> <a id="21171" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a> <a id="21175" class="Symbol">→</a> <a id="21177" href="lagda.2024-04-19-lr.html#12837" class="Function">Env</a> <a id="21181" class="Symbol">→</a> <a id="21183" href="Agda.Primitive.html#326" class="Primitive">Set</a>
+<a id="21187" href="lagda.2024-04-19-lr.html#21187" class="Bound">Γ</a> <a id="21189" href="lagda.2024-04-19-lr.html#21165" class="Function Operator">⊨</a> <a id="21191" href="lagda.2024-04-19-lr.html#21191" class="Bound">γ</a> <a id="21193" class="Symbol">=</a> <a id="21195" class="Symbol">∀</a> <a id="21197" class="Symbol">{</a><a id="21198" href="lagda.2024-04-19-lr.html#21198" class="Bound">x</a><a id="21199" class="Symbol">}</a> <a id="21201" class="Symbol">{</a><a id="21202" href="lagda.2024-04-19-lr.html#21202" class="Bound">T</a><a id="21203" class="Symbol">}</a>
+        <a id="21213" class="Symbol">→</a> <a id="21215" href="lagda.2024-04-19-lr.html#21198" class="Bound">x</a> <a id="21217" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">∷</a> <a id="21219" href="lagda.2024-04-19-lr.html#21202" class="Bound">T</a> <a id="21221" href="lagda.2024-04-19-lr.html#8849" class="Function Operator">∈</a> <a id="21223" href="lagda.2024-04-19-lr.html#21187" class="Bound">Γ</a>
+        <a id="21233" class="Symbol">→</a> <a id="21235" href="Data.Product.html#1806" class="Function">∃[</a> <a id="21238" href="lagda.2024-04-19-lr.html#21238" class="Bound">a</a> <a id="21240" href="Data.Product.html#1806" class="Function">]</a> <a id="21242" href="lagda.2024-04-19-lr.html#21238" class="Bound">a</a> <a id="21244" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="21246" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="21248" href="lagda.2024-04-19-lr.html#21202" class="Bound">T</a> <a id="21250" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a> <a id="21252" href="Data.Product.html#1167" class="Function Operator">×</a> <a id="21254" href="lagda.2024-04-19-lr.html#21198" class="Bound">x</a> <a id="21256" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">↦</a> <a id="21258" href="lagda.2024-04-19-lr.html#21238" class="Bound">a</a> <a id="21260" href="lagda.2024-04-19-lr.html#8209" class="Datatype Operator">∈</a> <a id="21262" href="lagda.2024-04-19-lr.html#21191" class="Bound">γ</a>
+</pre>
+<p>Now, we can prove a different property that might finally work, known as
+semantic typing. We say that a term <code>t</code> has the semantic type <code>T</code> in the context
+<code>Γ</code> (notated <code>Γ ⊨ t ∷ T</code>) if for any environment <code>γ</code> that is semantically typed
+by the context <code>Γ</code> (e.g. <code>Γ ⊨ γ</code>), it is the case that <code>(γ , t) ∈ ℰ⟦ T ⟧</code>. It’s
+common to refer to <code>ℰ⟦ T ⟧</code> as a semantic “model” of the type <code>T</code>, hence why we
+refer to this property as semantic typing.</p>
+<pre class="Agda"><a id="_⊨_∷_"></a><a id="21715" href="lagda.2024-04-19-lr.html#21715" class="Function Operator">_⊨_∷_</a> <a id="21721" class="Symbol">:</a> <a id="21723" href="lagda.2024-04-19-lr.html#7761" class="Function">Ctx</a> <a id="21727" class="Symbol">→</a> <a id="21729" href="lagda.2024-04-19-lr.html#5863" class="Datatype">Term</a> <a id="21734" class="Symbol">→</a> <a id="21736" href="lagda.2024-04-19-lr.html#7243" class="Datatype">Type</a> <a id="21741" class="Symbol">→</a> <a id="21743" href="Agda.Primitive.html#326" class="Primitive">Set</a>
+<a id="21747" href="lagda.2024-04-19-lr.html#21747" class="Bound">Γ</a> <a id="21749" href="lagda.2024-04-19-lr.html#21715" class="Function Operator">⊨</a> <a id="21751" href="lagda.2024-04-19-lr.html#21751" class="Bound">t</a> <a id="21753" href="lagda.2024-04-19-lr.html#21715" class="Function Operator">∷</a> <a id="21755" href="lagda.2024-04-19-lr.html#21755" class="Bound">T</a> <a id="21757" class="Symbol">=</a>
+  <a id="21761" class="Symbol">∀</a> <a id="21763" class="Symbol">{</a><a id="21764" href="lagda.2024-04-19-lr.html#21764" class="Bound">γ</a><a id="21765" class="Symbol">}</a> <a id="21767" class="Symbol">→</a> <a id="21769" href="lagda.2024-04-19-lr.html#21747" class="Bound">Γ</a> <a id="21771" href="lagda.2024-04-19-lr.html#21165" class="Function Operator">⊨</a> <a id="21773" href="lagda.2024-04-19-lr.html#21764" class="Bound">γ</a> <a id="21775" class="Symbol">→</a> <a id="21777" class="Symbol">(</a><a id="21778" href="lagda.2024-04-19-lr.html#21764" class="Bound">γ</a> <a id="21780" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="21782" href="lagda.2024-04-19-lr.html#21751" class="Bound">t</a><a id="21783" class="Symbol">)</a> <a id="21785" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="21787" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">ℰ⟦</a> <a id="21790" href="lagda.2024-04-19-lr.html#21755" class="Bound">T</a> <a id="21792" href="lagda.2024-04-19-lr.html#19500" class="Function Operator">⟧</a>
+</pre>
+<h5 id="fundamental-lemma-of-logical-relations">Fundamental lemma of logical relations</h5>
+<p>Proving that if a term is syntactically typed then it is semantically typed, is
+known as the fundamental lemma of logical relations.</p>
+<pre class="Agda"><a id="fundamental-lemma"></a><a id="21987" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="22005" class="Symbol">:</a> <a id="22007" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="22009" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="22011" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="22013" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="22015" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="22017" class="Symbol">→</a> <a id="22019" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="22021" href="lagda.2024-04-19-lr.html#21715" class="Function Operator">⊨</a> <a id="22023" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="22025" href="lagda.2024-04-19-lr.html#21715" class="Function Operator">∷</a> <a id="22027" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a>
+</pre>
+<p>Before diving into the proof of the fundamental lemma, I will first start with a
+smaller lemma, <code>⊨-ext</code>. If I have an environment <code>γ</code> such that <code>Γ ⊨ γ</code> and a
+value <code>a</code> such that <code>a ∈ ⟦ T ⟧</code>, then the extended environment <code>γ , x ↦ a</code> is
+also semantically typed by the context <code>Γ , x ∷ T</code>.</p>
+<pre class="Agda"><a id="⊨-ext"></a><a id="22331" href="lagda.2024-04-19-lr.html#22331" class="Function">⊨-ext</a> <a id="22337" class="Symbol">:</a> <a id="22339" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="22341" href="lagda.2024-04-19-lr.html#21165" class="Function Operator">⊨</a> <a id="22343" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="22345" class="Symbol">→</a> <a id="22347" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a> <a id="22349" href="Relation.Unary.html#1523" class="Function Operator">∈</a> <a id="22351" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟦</a> <a id="22353" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="22355" href="lagda.2024-04-19-lr.html#19265" class="Function Operator">⟧</a> <a id="22357" class="Symbol">→</a> <a id="22359" href="lagda.2024-04-19-lr.html#7793" class="Generalizable">Γ</a> <a id="22361" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">,</a> <a id="22363" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="22365" href="lagda.2024-04-19-lr.html#8752" class="Function Operator">∷</a> <a id="22367" href="lagda.2024-04-19-lr.html#7362" class="Generalizable">T</a> <a id="22369" href="lagda.2024-04-19-lr.html#21165" class="Function Operator">⊨</a> <a id="22371" href="lagda.2024-04-19-lr.html#12870" class="Generalizable">γ</a> <a id="22373" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">,</a> <a id="22375" href="lagda.2024-04-19-lr.html#5844" class="Generalizable">x</a> <a id="22377" href="lagda.2024-04-19-lr.html#7726" class="InductiveConstructor Operator">↦</a> <a id="22379" href="lagda.2024-04-19-lr.html#12892" class="Generalizable">a</a>
+<a id="22381" href="lagda.2024-04-19-lr.html#22331" class="Function">⊨-ext</a> <a id="22387" class="Symbol">{</a><a id="22388" class="Argument">a</a> <a id="22390" class="Symbol">=</a> <a id="22392" href="lagda.2024-04-19-lr.html#22392" class="Bound">a</a><a id="22393" class="Symbol">}</a> <a id="22395" href="lagda.2024-04-19-lr.html#22395" class="Bound">⊨γ</a> <a id="22398" href="lagda.2024-04-19-lr.html#22398" class="Bound">a∈⟦T⟧</a> <a id="22404" href="lagda.2024-04-19-lr.html#22404" class="Bound">y∷S∈Γ</a>
+  <a id="22412" class="Keyword">with</a> <a id="22417" href="lagda.2024-04-19-lr.html#22404" class="Bound">y∷S∈Γ</a>
+<a id="22423" class="Symbol">...</a> <a id="22427" class="Symbol">|</a> <a id="22429" href="lagda.2024-04-19-lr.html#8321" class="InductiveConstructor">here</a>            <a id="22445" class="Symbol">=</a>
+  <a id="22449" class="Bound">a</a> <a id="22451" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="22453" class="Bound">a∈⟦T⟧</a> <a id="22459" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="22461" href="lagda.2024-04-19-lr.html#8321" class="InductiveConstructor">here</a>
+<a id="22466" class="Symbol">...</a> <a id="22470" class="Symbol">|</a> <a id="22472" href="lagda.2024-04-19-lr.html#8476" class="InductiveConstructor">there</a> <a id="22478" href="lagda.2024-04-19-lr.html#22478" class="Bound">y∷S∈Γ</a> <a id="22484" href="lagda.2024-04-19-lr.html#22484" class="Bound">y≢x</a> <a id="22488" class="Symbol">=</a>
+  <a id="22492" class="Keyword">let</a> <a id="22496" class="Symbol">(</a><a id="22497" href="lagda.2024-04-19-lr.html#22497" class="Bound">b</a> <a id="22499" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="22501" href="lagda.2024-04-19-lr.html#22501" class="Bound">b∈⟦S⟧</a> <a id="22507" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="22509" href="lagda.2024-04-19-lr.html#22509" class="Bound">y↦b∈γ</a><a id="22514" class="Symbol">)</a> <a id="22516" class="Symbol">=</a> <a id="22518" class="Bound">⊨γ</a> <a id="22521" href="lagda.2024-04-19-lr.html#22478" class="Bound">y∷S∈Γ</a> <a id="22527" class="Keyword">in</a>
+  <a id="22532" href="lagda.2024-04-19-lr.html#22497" class="Bound">b</a> <a id="22534" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="22536" href="lagda.2024-04-19-lr.html#22501" class="Bound">b∈⟦S⟧</a> <a id="22542" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="22544" href="lagda.2024-04-19-lr.html#8476" class="InductiveConstructor">there</a> <a id="22550" href="lagda.2024-04-19-lr.html#22509" class="Bound">y↦b∈γ</a> <a id="22556" href="lagda.2024-04-19-lr.html#22484" class="Bound">y≢x</a>
+</pre>
+<button type="button" class="collapsible">
+Proof explanation
+</button>
+<div class="content">
+<p>Reminder: an environment <code>γ</code> is semantically typed by a context <code>Γ</code> if for every
+variable <code>y ∷ S ∈ Γ</code>, it’s the case that there exists some <code>b</code> such that
+<code>y ↦ b ∈ γ</code> and <code>b ∈ ⟦ S ⟧</code>.</p>
+<p>Our goal is to prove that <code>Γ , x ∷ T ⊨ γ , x ↦ a</code>. We prove this by case
+analysis on the variable <code>y</code> mapped to the type <code>S</code> in the context <code>Γ</code>.</p>
+<ul>
+<li>
+If the variable is at the head of the map (<code>here</code>), then really <code>y</code> is <code>x</code>
+and <code>S</code> is <code>T</code>. In this case, we’re immediately done as <code>x ↦ a</code> is at the head
+of the environment <code>γ , x ↦ a</code> and <code>a ∈ ⟦ T ⟧</code> is given.
+</li>
+<li>
+Otherwise, the variable <code>y</code> is not at the head of the list (and <code>y ≢ x</code>). In
+this case, we already know that <code>Γ ⊨ γ</code>. This is all we need, as we have that for
+<code>y ∷ S ∈ Γ</code>, there exists some <code>b</code> such that <code>b ∈ ⟦ S ⟧</code> and <code>x ↦ b ∈ γ</code>.
+</li>
+</ul>
+</div>
+<p>With this lemma, we prove the fundamental lemma by induction on the syntactic
+typing derivation. I’ll go into more detail for all of the other cases below,
+but let’s focus on the application case for now. With our logical predicate, we
+now have the inductive hypothesis we need. The closure <code>[λx. t] δ</code> that <code>r</code>
+evaluates to satisfies the logical predicate, so we have that <code>t</code> evaluates to a
+value <code>b</code> when <code>δ</code> is extended with the value <code>a</code> that <code>s</code> evaluates to.</p>
+<pre class="Agda"><a id="23941" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="23959" href="lagda.2024-04-19-lr.html#9130" class="InductiveConstructor">⊢true</a> <a id="23965" href="lagda.2024-04-19-lr.html#23965" class="Bound">⊨γ</a> <a id="23968" class="Symbol">=</a> <a id="23970" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a> <a id="23975" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="23977" href="lagda.2024-04-19-lr.html#12981" class="InductiveConstructor">evalTrue</a> <a id="23986" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="23988" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a>
+<a id="23991" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24009" href="lagda.2024-04-19-lr.html#9183" class="InductiveConstructor">⊢false</a> <a id="24016" href="lagda.2024-04-19-lr.html#24016" class="Bound">⊨γ</a> <a id="24019" class="Symbol">=</a> <a id="24021" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a> <a id="24027" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24029" href="lagda.2024-04-19-lr.html#13040" class="InductiveConstructor">evalFalse</a> <a id="24039" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24041" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a>
+
+<a id="24045" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24063" class="Symbol">(</a><a id="24064" href="lagda.2024-04-19-lr.html#9240" class="InductiveConstructor">⊢var</a> <a id="24069" href="lagda.2024-04-19-lr.html#24069" class="Bound">x∷T∈Γ</a><a id="24074" class="Symbol">)</a> <a id="24076" href="lagda.2024-04-19-lr.html#24076" class="Bound">⊨γ</a> <a id="24079" class="Symbol">=</a>
+  <a id="24083" class="Keyword">let</a> <a id="24087" class="Symbol">(</a><a id="24088" href="lagda.2024-04-19-lr.html#24088" class="Bound">a</a> <a id="24090" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24092" href="lagda.2024-04-19-lr.html#24092" class="Bound">a∈⟦T⟧</a> <a id="24098" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24100" href="lagda.2024-04-19-lr.html#24100" class="Bound">x↦a∈γ</a><a id="24105" class="Symbol">)</a> <a id="24107" class="Symbol">=</a> <a id="24109" href="lagda.2024-04-19-lr.html#24076" class="Bound">⊨γ</a> <a id="24112" href="lagda.2024-04-19-lr.html#24069" class="Bound">x∷T∈Γ</a> <a id="24118" class="Keyword">in</a>
+  <a id="24123" href="lagda.2024-04-19-lr.html#24088" class="Bound">a</a> <a id="24125" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24127" href="lagda.2024-04-19-lr.html#13104" class="InductiveConstructor">evalVar</a> <a id="24135" href="lagda.2024-04-19-lr.html#24100" class="Bound">x↦a∈γ</a> <a id="24141" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24143" href="lagda.2024-04-19-lr.html#24092" class="Bound">a∈⟦T⟧</a>
+
+<a id="24150" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24168" class="Symbol">{</a><a id="24169" class="Argument">t</a> <a id="24171" class="Symbol">=</a> <a id="24173" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">λ[</a> <a id="24176" href="lagda.2024-04-19-lr.html#24176" class="Bound">x</a> <a id="24178" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">⇒</a> <a id="24180" href="lagda.2024-04-19-lr.html#24180" class="Bound">t</a> <a id="24182" href="lagda.2024-04-19-lr.html#5991" class="InductiveConstructor Operator">]</a><a id="24183" class="Symbol">}</a> <a id="24185" class="Symbol">(</a><a id="24186" href="lagda.2024-04-19-lr.html#9306" class="InductiveConstructor">⊢abs</a> <a id="24191" href="lagda.2024-04-19-lr.html#24191" class="Bound">⊢t</a><a id="24193" class="Symbol">)</a> <a id="24195" class="Symbol">{</a><a id="24196" href="lagda.2024-04-19-lr.html#24196" class="Bound">γ</a><a id="24197" class="Symbol">}</a> <a id="24199" href="lagda.2024-04-19-lr.html#24199" class="Bound">⊨γ</a> <a id="24202" class="Symbol">=</a>
+  <a id="24206" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ</a> <a id="24209" href="lagda.2024-04-19-lr.html#24176" class="Bound">x</a> <a id="24211" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">⇒</a> <a id="24213" href="lagda.2024-04-19-lr.html#24180" class="Bound">t</a> <a id="24215" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">]</a> <a id="24217" href="lagda.2024-04-19-lr.html#24196" class="Bound">γ</a> <a id="24219" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24221" href="lagda.2024-04-19-lr.html#13181" class="InductiveConstructor">evalAbs</a> <a id="24229" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a>
+  <a id="24233" class="Symbol">λ</a> <a id="24235" href="lagda.2024-04-19-lr.html#24235" class="Bound">a∈⟦S⟧</a> <a id="24241" class="Symbol">→</a>
+    <a id="24247" class="Keyword">let</a> <a id="24251" class="Symbol">(</a><a id="24252" href="lagda.2024-04-19-lr.html#24252" class="Bound">b</a> <a id="24254" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24256" href="lagda.2024-04-19-lr.html#24256" class="Bound">t⇓</a> <a id="24259" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24261" href="lagda.2024-04-19-lr.html#24261" class="Bound">b∈⟦T⟧</a><a id="24266" class="Symbol">)</a> <a id="24268" class="Symbol">=</a> <a id="24270" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24288" href="lagda.2024-04-19-lr.html#24191" class="Bound">⊢t</a> <a id="24291" class="Symbol">(</a><a id="24292" href="lagda.2024-04-19-lr.html#22331" class="Function">⊨-ext</a> <a id="24298" href="lagda.2024-04-19-lr.html#24199" class="Bound">⊨γ</a> <a id="24301" href="lagda.2024-04-19-lr.html#24235" class="Bound">a∈⟦S⟧</a><a id="24306" class="Symbol">)</a> <a id="24308" class="Keyword">in</a>
+    <a id="24315" href="lagda.2024-04-19-lr.html#24252" class="Bound">b</a> <a id="24317" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24319" href="lagda.2024-04-19-lr.html#24256" class="Bound">t⇓</a> <a id="24322" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24324" href="lagda.2024-04-19-lr.html#24261" class="Bound">b∈⟦T⟧</a>
+
+<a id="24331" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24349" class="Symbol">(</a><a id="24350" href="lagda.2024-04-19-lr.html#9398" class="InductiveConstructor">⊢app</a> <a id="24355" href="lagda.2024-04-19-lr.html#24355" class="Bound">⊢r</a> <a id="24358" href="lagda.2024-04-19-lr.html#24358" class="Bound">⊢s</a><a id="24360" class="Symbol">)</a> <a id="24362" href="lagda.2024-04-19-lr.html#24362" class="Bound">⊨γ</a>
+  <a id="24367" class="Keyword">with</a> <a id="24372" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24390" href="lagda.2024-04-19-lr.html#24355" class="Bound">⊢r</a> <a id="24393" href="lagda.2024-04-19-lr.html#24362" class="Bound">⊨γ</a>
+<a id="24396" class="Symbol">...</a>  <a id="24401" class="Symbol">|</a> <a id="24403" href="lagda.2024-04-19-lr.html#24403" class="Bound">f</a> <a id="24405" class="Symbol">@</a> <a id="24407" class="Symbol">(</a><a id="24408" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">[λ</a> <a id="24411" href="lagda.2024-04-19-lr.html#24411" class="Bound">x</a> <a id="24413" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">⇒</a> <a id="24415" href="lagda.2024-04-19-lr.html#24415" class="Bound">t</a> <a id="24417" href="lagda.2024-04-19-lr.html#12751" class="InductiveConstructor Operator">]</a> <a id="24419" href="lagda.2024-04-19-lr.html#24419" class="Bound">δ</a><a id="24420" class="Symbol">)</a> <a id="24422" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24424" href="lagda.2024-04-19-lr.html#24424" class="Bound">r⇓</a> <a id="24427" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24429" href="lagda.2024-04-19-lr.html#24429" class="Bound">f∈⟦S⇒T⟧</a>  <a id="24438" class="Symbol">=</a>
+  <a id="24442" class="Keyword">let</a> <a id="24446" class="Symbol">(</a><a id="24447" href="lagda.2024-04-19-lr.html#24447" class="Bound">a</a> <a id="24449" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24451" href="lagda.2024-04-19-lr.html#24451" class="Bound">s⇓</a> <a id="24454" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24456" href="lagda.2024-04-19-lr.html#24456" class="Bound">a∈⟦S⟧</a><a id="24461" class="Symbol">)</a> <a id="24463" class="Symbol">=</a> <a id="24465" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24483" class="Bound">⊢s</a> <a id="24486" class="Bound">⊨γ</a> <a id="24489" class="Keyword">in</a>
+  <a id="24494" class="Keyword">let</a> <a id="24498" class="Symbol">(</a><a id="24499" href="lagda.2024-04-19-lr.html#24499" class="Bound">b</a> <a id="24501" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24503" href="lagda.2024-04-19-lr.html#24503" class="Bound">f⇓</a> <a id="24506" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24508" href="lagda.2024-04-19-lr.html#24508" class="Bound">b∈⟦T⟧</a><a id="24513" class="Symbol">)</a> <a id="24515" class="Symbol">=</a> <a id="24517" href="lagda.2024-04-19-lr.html#24429" class="Bound">f∈⟦S⇒T⟧</a> <a id="24525" href="lagda.2024-04-19-lr.html#24456" class="Bound">a∈⟦S⟧</a> <a id="24531" class="Keyword">in</a>
+  <a id="24536" href="lagda.2024-04-19-lr.html#24499" class="Bound">b</a> <a id="24538" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24540" href="lagda.2024-04-19-lr.html#13266" class="InductiveConstructor">evalApp</a> <a id="24548" href="lagda.2024-04-19-lr.html#24424" class="Bound">r⇓</a> <a id="24551" href="lagda.2024-04-19-lr.html#24451" class="Bound">s⇓</a> <a id="24554" href="lagda.2024-04-19-lr.html#24503" class="Bound">f⇓</a> <a id="24557" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24559" href="lagda.2024-04-19-lr.html#24508" class="Bound">b∈⟦T⟧</a>
+
+<a id="24566" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24584" class="Symbol">(</a><a id="24585" href="lagda.2024-04-19-lr.html#9487" class="InductiveConstructor">⊢if</a> <a id="24589" href="lagda.2024-04-19-lr.html#24589" class="Bound">⊢s</a> <a id="24592" href="lagda.2024-04-19-lr.html#24592" class="Bound">⊢t₁</a> <a id="24596" href="lagda.2024-04-19-lr.html#24596" class="Bound">⊢t₂</a><a id="24599" class="Symbol">)</a> <a id="24601" href="lagda.2024-04-19-lr.html#24601" class="Bound">⊨γ</a>
+  <a id="24606" class="Keyword">with</a> <a id="24611" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24629" href="lagda.2024-04-19-lr.html#24589" class="Bound">⊢s</a> <a id="24632" href="lagda.2024-04-19-lr.html#24601" class="Bound">⊨γ</a>
+<a id="24635" class="Symbol">...</a> <a id="24639" class="Symbol">|</a> <a id="24641" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a> <a id="24646" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24648" href="lagda.2024-04-19-lr.html#24648" class="Bound">s⇓</a> <a id="24651" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24653" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a>  <a id="24657" class="Symbol">=</a>
+  <a id="24661" class="Keyword">let</a> <a id="24665" class="Symbol">(</a><a id="24666" href="lagda.2024-04-19-lr.html#24666" class="Bound">a</a> <a id="24668" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24670" href="lagda.2024-04-19-lr.html#24670" class="Bound">t₁⇓</a> <a id="24674" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24676" href="lagda.2024-04-19-lr.html#24676" class="Bound">a∈⟦S⟧</a><a id="24681" class="Symbol">)</a> <a id="24683" class="Symbol">=</a> <a id="24685" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24703" class="Bound">⊢t₁</a> <a id="24707" class="Bound">⊨γ</a> <a id="24710" class="Keyword">in</a>
+  <a id="24715" href="lagda.2024-04-19-lr.html#24666" class="Bound">a</a> <a id="24717" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24719" href="lagda.2024-04-19-lr.html#13446" class="InductiveConstructor">evalIfTrue</a> <a id="24730" href="lagda.2024-04-19-lr.html#24648" class="Bound">s⇓</a> <a id="24733" href="lagda.2024-04-19-lr.html#24670" class="Bound">t₁⇓</a> <a id="24737" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24739" href="lagda.2024-04-19-lr.html#24676" class="Bound">a∈⟦S⟧</a>
+
+<a id="24746" class="Symbol">...</a> <a id="24750" class="Symbol">|</a> <a id="24752" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a> <a id="24758" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24760" href="lagda.2024-04-19-lr.html#24760" class="Bound">s⇓</a> <a id="24763" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24765" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a> <a id="24768" class="Symbol">=</a>
+  <a id="24772" class="Keyword">let</a> <a id="24776" class="Symbol">(</a><a id="24777" href="lagda.2024-04-19-lr.html#24777" class="Bound">b</a> <a id="24779" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24781" href="lagda.2024-04-19-lr.html#24781" class="Bound">t₂⇓</a> <a id="24785" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24787" href="lagda.2024-04-19-lr.html#24787" class="Bound">sb</a><a id="24789" class="Symbol">)</a> <a id="24791" class="Symbol">=</a> <a id="24793" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="24811" class="Bound">⊢t₂</a> <a id="24815" class="Bound">⊨γ</a> <a id="24818" class="Keyword">in</a>
+  <a id="24823" href="lagda.2024-04-19-lr.html#24777" class="Bound">b</a> <a id="24825" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24827" href="lagda.2024-04-19-lr.html#13579" class="InductiveConstructor">evalIfFalse</a> <a id="24839" href="lagda.2024-04-19-lr.html#24760" class="Bound">s⇓</a> <a id="24842" href="lagda.2024-04-19-lr.html#24781" class="Bound">t₂⇓</a> <a id="24846" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="24848" href="lagda.2024-04-19-lr.html#24787" class="Bound">sb</a>
+</pre>
+<button type="button" class="collapsible">
+Proof explanation
+</button>
+<div class="content">
+<p>Reminder: we say that <code>Γ ⊨ t ∷ T</code> if for any environment <code>γ</code> such that <code>Γ ⊨ γ</code>,
+there exists a value <code>a</code> such that <code>γ ⊢ t ⇓ a</code> and <code>a ∈ ⟦ T ⟧</code>. We want to show
+that if <code>Γ ⊢ t ∷ T</code>, then <code>Γ ⊨ t ∷ T</code> (the fundamental lemma of logical
+relations).</p>
+<p>We prove this by induction on the syntactic typing derivation <code>Γ ⊢ t ∷ T</code>:</p>
+<ul>
+<li>
+The first cases are <code>true</code>/<code>false</code>. These can be proven immediately as
+both terms evaluate to themselves (they are already values) and <code>true</code>/<code>false</code>
+always satisfy the logical predicate (unit). In this proof, I am using <code>tt</code>
+(Agda’s unit value) as the “proof” that they satisfy the logical predicate.
+</li>
+<li>
+The next case is the variable case, which prompted us to define this whole
+semantic typing for environments thing. Luckily, we can use that given proof
+directly now! For the variable <code>x ∷ T ∈ Γ</code>, we have that since <code>Γ ⊨ γ</code>, there
+exists some <code>a ∈ ⟦ T ⟧</code> such that <code>x ↦ a ∈ γ</code>.
+</li>
+<li>
+We now prove the abstraction case. Given some abstraction <code>λx. t</code>, we want
+to show that it is semantically typed. Immediately, we have that it evaluates to
+the closure <code>[λx. t] γ</code> in any environment <code>γ</code>. We then need only show that this
+closure satisfies the logical predicate <code>⟦S ⇒ T⟧</code>. In other words, we want to
+show that for any value <code>a</code> such that <code>a ∈ ⟦ T ⟧</code>, the body of the closure <code>t</code>
+evaluates to a value <code>b</code> such that <code>b ∈ ⟦ T ⟧</code>. Assume we have such an <code>a</code>, then
+by <code>⊨-ext</code> we have that <code>Γ , x ∷ S ⊨ γ , x ↦ a</code>. We can then use our induction
+hypothesis to have exactly what we want to show, and we are done.
+</li>
+<li>
+The only case I haven’t explained is the case for if-then-else. By the
+induction hypothesis, we have that <code>s</code> evaluates to either <code>true</code> or <code>false</code>
+(because these are the only values that satisfy the logical predicate <code>⟦bool⟧</code>).
+If <code>s</code> evaluates to <code>true</code>, then we know that it evaluates to the value that
+<code>t₁</code> evaluates to (also given to us by the inductive hypothesis). The same
+applies if <code>s</code> evaluates to <code>false</code>.
+</li>
+</ul>
+</div>
+<h5 id="putting-it-all-together">Putting it all together</h5>
+<p>Now that we’ve proven the fundamental lemma of logical relations, we can prove
+type soundness of STLC. The proof follows directly from the fundamental lemma:
+if a term <code>t</code> has type <code>bool</code> then the value that it evaluates to satisfies the
+logical predicate for <code>⟦ bool ⟧</code>. There are only two such values: <code>true</code> and
+<code>false</code>.</p>
+<pre class="Agda"><a id="soundness"></a><a id="27308" href="lagda.2024-04-19-lr.html#27308" class="Function">soundness</a> <a id="27318" class="Symbol">:</a> <a id="27320" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="27322" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">⊢</a> <a id="27324" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="27326" href="lagda.2024-04-19-lr.html#9089" class="Datatype Operator">∷</a> <a id="27328" href="lagda.2024-04-19-lr.html#7280" class="InductiveConstructor">bool</a> <a id="27333" class="Symbol">→</a> <a id="27335" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="27337" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="27339" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="27341" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="27343" class="InductiveConstructor">true</a> <a id="27348" href="Data.Sum.Base.html#734" class="Datatype Operator">⊎</a> <a id="27350" href="lagda.2024-04-19-lr.html#7674" class="InductiveConstructor">•</a> <a id="27352" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⊢</a> <a id="27354" href="lagda.2024-04-19-lr.html#6191" class="Generalizable">t</a> <a id="27356" href="lagda.2024-04-19-lr.html#12939" class="Datatype Operator">⇓</a> <a id="27358" class="InductiveConstructor">false</a>
+<a id="27364" href="lagda.2024-04-19-lr.html#27308" class="Function">soundness</a> <a id="27374" href="lagda.2024-04-19-lr.html#27374" class="Bound">⊢t</a>
+  <a id="27379" class="Keyword">with</a> <a id="27384" href="lagda.2024-04-19-lr.html#21987" class="Function">fundamental-lemma</a> <a id="27402" href="lagda.2024-04-19-lr.html#27374" class="Bound">⊢t</a> <a id="27405" class="Symbol">(λ</a> <a id="27408" class="Symbol">())</a>
+<a id="27412" class="Symbol">...</a> <a id="27416" class="Symbol">|</a> <a id="27418" href="lagda.2024-04-19-lr.html#12693" class="InductiveConstructor">true</a> <a id="27423" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="27425" href="lagda.2024-04-19-lr.html#27425" class="Bound">t⇓</a> <a id="27428" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="27430" class="Symbol">_</a> <a id="27432" class="Symbol">=</a> <a id="27434" href="Data.Sum.Base.html#784" class="InductiveConstructor">inj₁</a> <a id="27439" href="lagda.2024-04-19-lr.html#27425" class="Bound">t⇓</a>
+<a id="27442" class="Symbol">...</a> <a id="27446" class="Symbol">|</a> <a id="27448" href="lagda.2024-04-19-lr.html#12698" class="InductiveConstructor">false</a> <a id="27454" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="27456" href="lagda.2024-04-19-lr.html#27456" class="Bound">t⇓</a> <a id="27459" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="27461" class="Symbol">_</a> <a id="27463" class="Symbol">=</a> <a id="27465" href="Data.Sum.Base.html#809" class="InductiveConstructor">inj₂</a> <a id="27470" href="lagda.2024-04-19-lr.html#27456" class="Bound">t⇓</a>
+</pre>
+<p>And that’s it! You’ve now been shown a logical relation and how to use it!
+Congratulations!</p>
+<p>Of course, we’ve proven a property that can be proven by other methods. (And you
+may have even done so already!) That said, there’s a ton of other properties
+that can be proven by logical relations. Many of these actually are concerned
+with two different terms, which entails defining a binary logical relation
+instead of a unary one as I’ve done here.</p>
+<h5 id="further-reading">Further reading</h5>
+<p>Now that you’ve seen this example, you can try to look at some more complicated
+ones. A nice followup is to see how strong normalization (which is closely
+related to type soundness) is proven with a logical relation. I found
+<a href="https://www.cs.cmu.edu/~rwh/courses/chtt/pdfs/kripke.pdf">these</a> lecture notes
+to be really helpful.</p>
+<p>Another nice followup is to see how you can extend logical relations to prove
+properties about languages with more complex features, like recursive types. For
+that, I would recommend <a href="https://arxiv.org/abs/1907.11133">these</a> notes based on
+Amal Ahmed’s lectures at OPLSS 2015.</p>
+<p>Neither of those resources include a mechanized component, as I have tried to do
+in this blog post. “POPLmark Reloaded” by Abel et al. goes over a logical
+relation for proving strong normalization as well, and has several accompanying
+mechanizations. More recently, Timany et al. wrote “A Logical Approach to Type
+Soundness,” which has a very nice tutorial on proving type soundness with a
+logical relation for richer languages than STLC, as well as a true relational
+property that requires a binary logical relation. They use a Coq framework known
+as Iris, which is very helpful for mechanizing more complicated logical
+relations.</p>
+<button type="button" class="collapsible">
+A final note on substitutions
+</button>
+<div class="content">
+<p>
+<p>Generally, the semantics of STLC is defined with substitutions. Assuming I am
+using a small-step semantics (though I can also do a big-step semantics) where
+a term <code>t</code> steps to another term <code>t′</code> (<code>t ⟶ t′</code>), the rule for stepping an
+application is as follows:</p>
+<pre><code>(λx. t) s ⟶ t[s/x]</code></pre>
+<p>where <code>t[s/x]</code> represents “<code>t</code> with <code>s</code> substituted for all instances of the
+variable <code>x</code>.”</p>
+<p>As mentioned in the beginning of this blog post, substitutions have been perhaps
+one of the biggest roadblocks in the mechanization of proofs by logical
+relations (and really the mechanization of proofs of properties of programs).
+Even proving type soundness by a logical relation in a proof assistant requires
+a lot of substitution lemmas to be proven first.</p>
+<p>The Agda mechanization in this blog post has no mention of substitutions, which
+is by design. This is thanks to two decisions: 1) using a big-step semantics,
+and 2) evaluating terms in environments. Evaluating terms in environments
+results in a sort of “delayed” substitution that occurs when a variable is
+actually evaluated (e.g. <code>evalVar</code>).</p>
+<p>These two decisions are not necessarily extensible to more complicated proofs
+(though I am interested in putting that to the test!), instead the goal was to
+show a logical relation in Agda without first needing to go through a bunch of
+substitution lemmas.</p>
+<p>If you continue to work with logical relations and proof assistants, you will
+likely end up needing to actually dive into substitutions one day. The
+“Substitution” chapter in the appendix of PLFA is a great resource for learning
+the substitution lemmas you need to prove. However, you are in luck because a
+lot of people have done a ton of work to make this process easier!</p>
+<p>The POPLmark Reloaded team developed tools such as the
+<a href="https://github.com/gallais/generic-syntax"><code>generic-syntax</code></a> Agda library that
+can be used to avoid having to prove substitution lemmas yourself. They have
+also developed <a href="https://github.com/uds-psl/autosubst2">Autosubst 2</a>, a tool that
+generates Coq definitions along with substitution lemmas when provided a
+“signature” file defining your object language. These tools are really great,
+and you should definitely use them! However, I find them hard to use to write a
+short and self-contained mechanized tutorial.</p>
+<p>Separately, there is also the Beluga proof assistant. Beluga is this really cool
+proof assistant that has a separate “layer” for representing syntax. The result
+is (as an oversimplification), that we are no longer burdened with proving
+substitution lemmas. The paper “First-class substitutions in contextual type
+theory” by Cave and Pientka goes over an example of type soundness of STLC that
+makes this evident.</p>
+Beluga is awesome, but its ideas are not currently implemented in a
+general-purpose proof assistant, though I dream of a day where that would be the
+case! That is why this blog post tries to show a proof by logical relations that
+can be presented in general-purpose proof assistants like they are today. On
+that note, if you, the reader, ever feel excited to translate this Agda
+development to Coq or Lean, do let me know!
+</p>
+</div>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+
+        <script>
+            var coll = document.getElementsByClassName("collapsible");
+            var i;
+
+            for (i = 0; i < coll.length; i++) {
+              coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                  content.style.display = "none";
+                } else {
+                  content.style.display = "block";
+                }
+              });
+            }
+        </script>
+    </body>
+</html>

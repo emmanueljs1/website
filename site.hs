@@ -12,6 +12,10 @@ main = hakyll $ do
         route   idRoute
         compile copyFileCompiler
 
+    match "slides/*" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
@@ -23,6 +27,18 @@ main = hakyll $ do
     match "css/*" $ do
         route   idRoute
         compile compressCssCompiler
+
+    create["talks.html"] $ do
+      route idRoute
+      compile $ do
+      talks <- recentFirst =<< loadAll "talks/*"
+      let context =
+                listField "talks" defaultContext (return talks) `mappend`
+                defaultContext
+      makeItem ""
+          >>= loadAndApplyTemplate "templates/talks.html" context
+          >>= loadAndApplyTemplate "templates/default.html" context
+          >>= relativizeUrls
 
     create["research.html"] $ do
         route idRoute
@@ -77,6 +93,9 @@ main = hakyll $ do
     match "pubs/*" $ do
       compile pandocCompiler
 
+    match "talks/*" $ do
+      compile pandocCompiler
+
     match "news/*" $ do
       compile pandocCompiler
 
@@ -100,9 +119,12 @@ main = hakyll $ do
         compile $ do
             allPosts <- recentFirst =<< loadAll "posts/*"
             allNews <- recentFirst =<< loadAll "news/*"
+            allTalks <- recentFirst =<< loadAll "talks/*"
             let posts = take 3 allPosts
             let news = take 3 allNews
+            let talks = take 3 allTalks
             let indexCtx =
+                    listField "talks" defaultContext (return talks) `mappend`
                     listField "posts" postCtx (return posts) `mappend`
                     listField "news" shortDateCtx (return news) `mappend`
                     defaultContext

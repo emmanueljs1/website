@@ -45,15 +45,10 @@ main = hakyll $ do
         compile $ do
             pubs <- recentFirst =<< loadAll "pubs/*"
             drafts <- recentFirst =<< loadAll "drafts/*"
-            let baseContext = 
+            let context = 
                       listField "drafts" shortDateCtx (return drafts) `mappend`
-                      defaultContext
-            let context =
-                  if null pubs then
-                      baseContext
-                  else
                       listField "pubs" shortDateCtx (return pubs) `mappend`
-                      baseContext
+                      defaultContext
 
             makeItem ""
                 >>= loadAndApplyTemplate "templates/research.html" context
@@ -88,6 +83,9 @@ main = hakyll $ do
                 >>= relativizeUrls
 
     match "drafts/*" $ do
+      compile pandocCompiler
+
+    match "pubs/*" $ do
       compile pandocCompiler
 
     match "pubs/*" $ do

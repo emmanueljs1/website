@@ -1,8 +1,14 @@
 <ul>
     $for(pubs)$
         <li>
-            <a href="$url$">$title$</a>. $authors$.<br>
-            $venue$
+            <a href="$doi$">$title$</a>. $authors$.<br>
+            $venue$<br>
+            $if(arxiv)$
+            [<a href="$arxiv$">arXiv</a>]
+            $endif$
+            $if(code)$
+            [<a href="$code$">code</a>]
+            $endif$
         </li>
     $endfor$
 </ul>

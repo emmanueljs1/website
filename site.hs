@@ -115,13 +115,16 @@ main = hakyll $ do
     match "index.html" $ do
         route idRoute
         compile $ do
+            allPubs <- recentFirst =<< loadAll "pubs/*"
             allPosts <- recentFirst =<< loadAll "posts/*"
             allNews <- recentFirst =<< loadAll "news/*"
             allTalks <- recentFirst =<< loadAll "talks/*"
+            let pubs = take 5 allPubs
             let posts = take 3 allPosts
             let news = take 3 allNews
             let talks = take 3 allTalks
             let indexCtx =
+                    listField "pubs" defaultContext (return pubs) `mappend`
                     listField "talks" defaultContext (return talks) `mappend`
                     listField "posts" postCtx (return posts) `mappend`
                     listField "news" shortDateCtx (return news) `mappend`

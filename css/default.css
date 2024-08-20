@@ -53,26 +53,6 @@ nav {
   text-align: right;
 }
 
-ul {
-   list-style: none;
-}
-
-ul li:before {
-   content: "•";
-   font-size: 125%;
-   padding-right: 5px;
-}
-
-.references ul {
-    list-style: disc outside none;
-}
-
-.references ul li:before {
-    content: "";
-    font-size: 100%;
-    padding-right: 0px;
-}
-
 nav a {
   font-weight: bold;
   text-decoration: none;

@@ -36,8 +36,3 @@
 ```make deploy```
 
 - Pushes to `site` (deploy branch)
-
-### Notes
-- Hosted on Github Pages
-- I usually use `stack` for Haskell projects, I don't remember why I am using `cabal` this time
-  instead.

@@ -18,7 +18,7 @@
 \setlength{\tabcolsep}{0em}
 
 \newif\iflong
-\longfalse
+\longtrue
 
 \hypersetup{
     colorlinks,
@@ -73,16 +73,6 @@ emma@cs.cornell.edu \ \textbullet
 \end{center}
 \hrule
 
-\iflong
-\subsection*{Research Interests}
-\begin{enumerate}[label=]
-       \parskip=-0.25em
-
-    \item Programming language theory, type theory, proof assistants
-\end{enumerate}
-\hrule
-\fi
-
 \subsection*{Education}
   
 \begin{enumerate}[label=]
@@ -90,7 +80,7 @@ emma@cs.cornell.edu \ \textbullet
 	\item
 	\headerrow
         {\textbf{Cornell University Ann S. Bowers College of Computing and Information Science}}
-		{\textbf{Ithaca, NY}}
+		{\textbf{New York, NY}}
 	\\
 	\headerrow
 		{\emph{PhD in Computer Science}}
@@ -134,22 +124,6 @@ emma@cs.cornell.edu \ \textbullet
 \end{enumerate}
 
 \hrule
-\subsection*{Talks}
-  
-\begin{enumerate}[label=]
-	\parskip=-0.05em
-	\item
-	\headerrow
-        {\textbf{Effects and Coeffects in Call-By-Push-Value}}
-		{\textbf{OOPSLA 2024}}
-
-	\item
-	\headerrow
-        {\textbf{Strictly Associative Sigmas}}
-		{\textbf{HoTT MURI 2024 meeting}}
-\end{enumerate}
-
-\hrule
 \subsection*{Work Experience}
 
 \begin{enumerate}[label=]
@@ -158,10 +132,19 @@ emma@cs.cornell.edu \ \textbullet
 	\item
 		\headerrow
 			{\textbf{Graduate Researcher}}
-			{\textbf{Ithaca, NY}}
+			{\textbf{New York, NY}}
 	\headerrow
         {Cornell University}
         {\emph{August 2024 -- Present}}
+    \iflong
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+        \item\tabulardef{4cm}{}{Working on program logics for reasoning about concurrent,
+            randomized programs}
+        \item\tabulardef{4cm}{}{Developed a programming language for verifying quantitative
+            network properties (e.g. latency, bandwidth)}
+	\end{enumerate}
+    \fi
 
 	\item
 		\headerrow
@@ -173,8 +156,8 @@ emma@cs.cornell.edu \ \textbullet
     \iflong
 	\begin{enumerate}[label= *]
 	\parskip=-0.1em
-        \item Study the theoretical foundations of type theory
-        \item Build proof assistants or related software components
+        \item\tabulardef{4cm}{}{Developed an extension to Martin-L\"{o}f type theory with strictly
+            associative dependent sums and presented work at HoTT MURI 2024 Meeting}
 	\end{enumerate}
     \fi
 
@@ -188,14 +171,14 @@ emma@cs.cornell.edu \ \textbullet
     \iflong
 	\begin{enumerate}[label= *]
 	\parskip=-0.1em
-        \item\tabulardef{4cm}{}{Studied the duality of effects and coeffects in call-by-push-value.
-            Formalized properties of type-and-effect system in Agda.}
-        \item\tabulardef{4cm}{}{Developed a proof by logical relations that can be used for teach
-            ing the technique of logical relations with a proof assistant.}
-        \item\tabulardef{4cm}{}{Wrote an online tutorial for normalization-by-evaluation (NbE) in
-            literate Agda. Formalized correctness of NbE for the simply-typed lambda calculus.}
-        \item\tabulardef{4cm}{}{Formalized a type system and semantics for DeFINE, a programming
-            language for the network data plane}
+        \item\tabulardef{4cm}{}{
+            Developed type system for tracking effects and coeffects in
+            call-by-push-value (with properties formalized in Rocq)
+            and presented paper at OOPSLA 2024}
+    \item\tabulardef{4cm}{}{Wrote paper in literate Agda
+            (available on the arXiv) showcasing a proof
+            that can be used for teaching the technique
+            of logical relations with a proof assistant}
 	\end{enumerate}
     \fi
 
@@ -211,9 +194,9 @@ emma@cs.cornell.edu \ \textbullet
 	\parskip=-0.1em
         \item Led the design and implementation of core system for modeling types of activities
         \item Mentored junior engineers in microservice architecture and Scala programming
-		\item Used Apache Spark to build a geospatial data export tool for city planners
+        \item \tabulardef{4cm}{}{Used Apache Spark and Apache Kafka to build a geospatial data export tool for city planners}
 		\item Built tools to verify and ensure correctness of internal route data
-		\item Developed a Scala microservice to serve all static maps in product
+		\item Developed a Scala microservice serving all static maps in product
 	\end{enumerate}
     \fi
 \end{enumerate}
@@ -223,32 +206,12 @@ emma@cs.cornell.edu \ \textbullet
 \begin{enumerate}[label=]
 	\parskip=-0.05em
     \item
-		\headerrow
-			{\textbf{Teaching Assistant}}
-			{\textbf{Heights Philadelphia}}
-	\headerrow
-		{Introduction to Computer Science}
-		{\emph{July 2023 -- August 2023}}
-    \iflong
-	\begin{enumerate}[label= *]
-		\parskip=-0.1em
-    \item\tabulardef{5cm}{}{Introduce computer science to middle school students from underrepresented backgrounds in STEM using various in-class exercises}
-	\end{enumerate}
-    \fi
-
-    \item
         \headerrow
             {\textbf{Mentor}}
             {\textbf{University of Pennsylvania}}
         \headerrow
             {CIS 5520: Advanced Programming}
             {\emph{Nov 2023 -- Dec 2023}}
-        \iflong
-        \begin{enumerate}[label= *]
-            \parskip=-0.1em
-        \item\tabulardef{5cm}{}{Advise student groups on a final project of their choosing in Haskell showcasing the material covered over the course of the semester}
-        \end{enumerate}
-        \fi
 
 	\item
 		\headerrow
@@ -257,13 +220,6 @@ emma@cs.cornell.edu \ \textbullet
 	\headerrow
 		{CIS 5520: Advanced Programming}
 		{\emph{August 2022 -- December 2022}}
-    \iflong
-	\begin{enumerate}[label= *]
-		\parskip=-0.1em
-        \item\tabulardef{5cm}{}{Assist with in-class discussion and cooperative exercises centered around functional programming patterns in the Haskell programming language}        
-        \item\tabulardef{5cm}{}{Advise student groups on a final project of their choosing in Haskell showcasing the material covered over the course of the semester}
-	\end{enumerate}
-    \fi
 
 	\item
 		\headerrow
@@ -272,13 +228,47 @@ emma@cs.cornell.edu \ \textbullet
 	\headerrow
 		{CIS 120: Programming Languages \& Techniques I}
 		{\emph{August 2016 -- May 2019}}
-    \iflong
-	\begin{enumerate}[label= *]
-		\parskip=-0.1em
-        \item\tabulardef{5cm}{}{Co-lead and prepare a weekly recitation to review course material on core programming languages and techniques, taught in OCaml and then Java}
-		\item Hire and train new teaching assistants
-	\end{enumerate}
-    \fi
+\end{enumerate}
+
+\hrule
+
+\newpage
+
+\hrule
+\subsection*{Service}
+
+\begin{enumerate}[label=]
+	\parskip=-0.05em
+	\item
+	\headerrow
+        {\textbf{POPL 2026 Artifact Evaluation Committee Member}}
+		{}
+
+	\item
+	\headerrow
+        {\textbf{Cornell Student-Applicant Support Program (Fall 2024)}}
+        {}
+
+    \item
+		\headerrow
+            {\textbf{Heights Philadelphia Summer School Teaching Assistant (2023)}}
+            {}
+\end{enumerate}
+
+\hrule
+\subsection*{Talks}
+
+\begin{enumerate}[label=]
+	\parskip=-0.05em
+	\item
+	\headerrow
+        {\textbf{Effects and Coeffects in Call-By-Push-Value}}
+		{\textbf{OOPSLA 2024}}
+
+	\item
+	\headerrow
+        {\textbf{Strictly Associative Sigmas}}
+		{\textbf{HoTT MURI 2024 meeting}}
 \end{enumerate}
 
 \hrule
@@ -301,7 +291,14 @@ emma@cs.cornell.edu \ \textbullet
        \textbf{Languages: } Agda, OCaml, Rocq, Haskell, Scala, Lean, Java, Ruby, C/C++, Javascript
 
 	\item
-	\textbf{General: } Git, \LaTeX, Rails, React, Fluent in Spanish
+	\textbf{General: }
+        Git,
+        \LaTeX,
+        Rails,
+        Apache Spark,
+        MySQL,
+        React,
+        Fluent in Spanish
 
 \end{enumerate}
 \hrule

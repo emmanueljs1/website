@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+    <script src="https://kit.fontawesome.com/d33b132db9.js" crossorigin="anonymous"></script>
+    <head>
+        <style>
+          @font-face { font-family: PressStart2P; src: url('/fonts/PressStart2P.ttf'); }
+          html { font-family: PressStart2P }
+        </style>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="PhD student in Computer Science at Cornell University. Interested in programming languages (their theory and semantics) as well as type theory.">
+        <title>Emmanuel Suárez Acevedo</title>
+        <link rel="stylesheet" href="./css/default.css" />
+        <link rel="stylesheet" href="./css/agda.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="./files/favicon.ico" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="./">Emmanuel Suárez Acevedo</a>
+            </div>
+        </header>
+
+        <main role="main">
+            <br>
+            Currently, I am extending a program logic for reasoning about
+concurrent, randomized programs. These programs are common in
+distributed systems (e.g., leader election), yet remain highly error-prone.
+In the past, I have worked on several different projects.
+Below is a summary of select past projects; a full list of publications is
+available <a href="./research.html">here</a>.
+
+<h3>wNetKAT</h3>
+A domain-specific language for verifying quantitative network behavior
+(e.g., latency, bandwidth, reliability). We compile programs to automata and
+develop decision procedures for automatically establishing upper and lower
+bounds across network topologies. Our paper is currently under submission at
+<a href="https://pldi26.sigplan.org">PLDI 2026</a>; we are also developing a
+correct-by-construction compiler and implementing our decision procedures in
+<a href="https://lean-lang.org">Lean</a>.
+
+<h3>(Co)Effects in CBPV</h3>
+A type system that bounds the effects (e.g., printing) a program may have at
+runtime, as well as the demands (e.g., resource usage) it may place on its
+environment. We use our type system can justify the correctness of
+certain compiler optimizations; everything is fully mechanized in
+<a href="https://rocq-prover.org">Rocq</a>.
+Our paper appeared at OOPSLA 2024; it is available
+<a href="https://dl.acm.org/doi/10.1145/3689750">here</a>.
+
+<h3>Logical Relations in Agda</h3>
+A tutorial paper (see draft <a href="https://arxiv.org/abs/2309.15724">here</a>)
+on the proof technique of logical relations&mdash;common in compiler correctness
+arguments&mdash;featuring mechanized proofs by logical relations written in
+<a href="https://wiki.portal.chalmers.se/agda/pmwiki.php">Agda</a>.
+
+<h3>... and more</h3>
+As a senior software engineer at <a href="https://www.strava.com">Strava</a>, I
+led both the design and development of several projects: an overhaul of a core
+data model (using
+<a href="https://thrift.apache.org">Apache Thrift</a>,
+<a href="https://www.mysql.com">MySQL</a>, and
+<a href="https://rubyonrails.org">Ruby on Rails</a>), a data-export tool for city planners
+(using
+<a href="https://spark.apache.org">Apache Spark</a> and
+<a href="https://kafka.apache.org">Apache Kafka</a>), and a
+<a href="https://www.scala-lang.org">Scala</a> microservice for
+all of Strava's static map capabilities.
+
+        </main>
+
+        <footer>
+            Site generated with <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+
+        <script>
+            var coll = document.getElementsByClassName("collapsible");
+            var i;
+
+            for (i = 0; i < coll.length; i++) {
+              coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                  content.style.display = "none";
+                } else {
+                  content.style.display = "block";
+                }
+              });
+            }
+        </script>
+    </body>
+</html>

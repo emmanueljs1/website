@@ -40,6 +40,14 @@ main = hakyll $ do
           >>= loadAndApplyTemplate "templates/default.html" context
           >>= relativizeUrls
 
+    create["projects.html"] $ do
+        route idRoute
+        compile $ do
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/projects.html" defaultContext
+                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= relativizeUrls
+
     create["research.html"] $ do
         route idRoute
         compile $ do

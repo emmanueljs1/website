@@ -19,15 +19,25 @@ A type system that bounds the effects (e.g., printing) a program may have at
 runtime, as well as the demands (e.g., resource usage) it may place on its
 environment. We use our type system to justify the correctness of
 certain compiler optimizations; everything is fully mechanized in
-<a href="https://rocq-prover.org">Rocq</a>.
-Our paper appeared at OOPSLA 2024; it is available
+<a href="https://rocq-prover.org">Rocq</a>. Our paper appeared at
+OOPSLA 2024 and it is available
 <a href="https://dl.acm.org/doi/10.1145/3689750">here</a>.
+<p style="text-align:right">
+<a href="https://github.com/plclub/cbpv-effects-coeffects" >> See code</a>
+</p>
 
 <h3>Logical Relations in Agda</h3>
-A tutorial paper (see draft <a href="https://arxiv.org/abs/2309.15724">here</a>)
-on the proof technique of logical relations&mdash;common in compiler correctness
+A <a href="https://arxiv.org/abs/2309.15724">tutorial paper</a> on the proof
+technique of logical relations&mdash;common in compiler correctness
 arguments&mdash;featuring mechanized proofs by logical relations written in
 <a href="https://wiki.portal.chalmers.se/agda/pmwiki.php">Agda</a>.
+
+<br><br>
+
+Our paper grew out of a
+<a href="https://emmanuelsuarez.com/posts/2023-11-21-nbe.html">mechanized tutorial</a>
+I wrote showing the correctness of normalization-by-evaluation (an algorithm used for
+typechecking dependently-typed programming languages).
 
 <h3>... and more</h3>
 As a senior software engineer at <a href="https://www.strava.com">Strava</a>, I

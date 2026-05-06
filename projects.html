@@ -48,9 +48,15 @@ A domain-specific language for verifying quantitative network behavior
 (e.g., latency, bandwidth, reliability). We compile programs to automata and
 develop decision procedures for automatically establishing upper and lower
 bounds across network topologies. Our paper will appear at
-<a href="https://pldi26.sigplan.org">PLDI 2026</a>; we are also developing a
-correct-by-construction compiler and implementing our decision procedures in
-<a href="https://lean-lang.org">Lean</a>.
+<a href="https://pldi26.sigplan.org">PLDI 2026</a> and it is available
+<a href="https://doi.org/10.1145/3808318">here</a>.
+We have also developed a correct-by-construction compiler
+in <a href="https://lean-lang.org">Lean</a>.
+
+<p style="text-align:right">
+<a href="https://github.com/cornell-pl/wnetkat-lean">> See code</a>
+</p>
+
 
 <h3>(Co)Effects in CBPV</h3>
 A type system that bounds the effects (e.g., printing) a program may have at
@@ -97,6 +103,42 @@ all of Strava's static map capabilities.
         </footer>
 
         <script>
+            var btns = document.getElementsByClassName("bib-button");
+            var i;
+
+            for (i = 0; i < btns.length; i++) {
+                const btn = btns[i];
+                btn.addEventListener("click", async function() {
+                  const icon = btn.querySelector("i");
+                  const content = btn.nextElementSibling;
+                  const bibtex = content.querySelector("code");
+
+                  icon.classList.toggle("fa-angle-down");
+                  icon.classList.toggle("fa-angle-up");
+
+                  if (content.style.display === "block") {
+                    content.style.display = "none";
+                  } else {
+                    content.style.display = "block";
+                  }
+
+                  if (!bibtex.textContent) {
+                    const file = btn.dataset.bib;
+                    console.log(file);
+
+                    try {
+                      const response = await fetch(file);
+                      const text = await response.text();
+                      bibtex.textContent = text;
+                    } catch (err) {
+                      bibtex.textContent = "Failed to load bibliography.";
+                    }
+                  }
+                });
+            }
+
+            i = 0;
+
             var coll = document.getElementsByClassName("collapsible");
             var i;
 

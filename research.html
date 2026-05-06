@@ -40,9 +40,17 @@
 <ul>
     
         <li>
-            <a href="./">Weighted NetKAT: A Programming Language For Quantitative Network Verification</a><br>
+            <a href="./local/wnetkat.pdf">Weighted NetKAT: A Programming Language For Quantitative Network Verification</a><br>
             <i><u>Emmanuel Suárez Acevedo</u>, Tiago Ferreira, Kevin Batz, Oliver Bøving, Nate Foster, and Alexandra Silva</i><br>
             <strong>PLDI 2026</strong><br>
+            
+            [<a href="https://doi.org/10.1145/3808318">doi</a>]
+            
+            
+            [<a href="https://arxiv.org/abs/2604.13987">arXiv</a>]
+            
+            
+            [<a href="https://github.com/cornell-pl/wnetkat-lean">code</a>]
             
             
             
@@ -50,9 +58,12 @@
         <br>
     
         <li>
-            <a href="https://dl.acm.org/doi/10.1145/3689750">Effects and Coeffects in Call-By-Push-Value</a><br>
+            <a href="./local/eff-coeff-cbpv.pdf">Effects and Coeffects in Call-By-Push-Value</a><br>
             <i>Cassia Torczon, <u>Emmanuel Suárez Acevedo</u>, Shubh Agrawal, Joey Velez-Ginorio, and Stephanie Weirich</i><br>
             <strong>OOPSLA 2024</strong><br>
+            
+            [<a href="https://dl.acm.org/doi/10.1145/3689750">doi</a>]
+            
             
             [<a href="https://arxiv.org/abs/2311.11795">arXiv</a>]
             
@@ -61,6 +72,14 @@
             
             
             [<a href="./slides/oopsla2024.pdf">slides</a>]
+            
+            
+            [<button class="bib-button" data-bib="/bib/eff-coeff-cbpv.bib">
+                bibtex <i class="fa-solid fa-angle-down fa-xl" style="vertical-align:middle"></i>
+            </button>]
+            <div class="bib-content">
+                <code style="color: white" =" bib eff-coeff-cbpv.bib"></code>
+            </div>
             
         </li>
         <br>
@@ -89,6 +108,42 @@
         </footer>
 
         <script>
+            var btns = document.getElementsByClassName("bib-button");
+            var i;
+
+            for (i = 0; i < btns.length; i++) {
+                const btn = btns[i];
+                btn.addEventListener("click", async function() {
+                  const icon = btn.querySelector("i");
+                  const content = btn.nextElementSibling;
+                  const bibtex = content.querySelector("code");
+
+                  icon.classList.toggle("fa-angle-down");
+                  icon.classList.toggle("fa-angle-up");
+
+                  if (content.style.display === "block") {
+                    content.style.display = "none";
+                  } else {
+                    content.style.display = "block";
+                  }
+
+                  if (!bibtex.textContent) {
+                    const file = btn.dataset.bib;
+                    console.log(file);
+
+                    try {
+                      const response = await fetch(file);
+                      const text = await response.text();
+                      bibtex.textContent = text;
+                    } catch (err) {
+                      bibtex.textContent = "Failed to load bibliography.";
+                    }
+                  }
+                });
+            }
+
+            i = 0;
+
             var coll = document.getElementsByClassName("collapsible");
             var i;
 

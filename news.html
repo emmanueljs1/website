@@ -32,7 +32,7 @@
             <h1>News</h1>
 <ul>
     
-        <li>April 2026: Our paper <a href="./index.html">Weighted NetKAT: A Programming Language For Quantitative Network Verification</a> was selected to appear at <a href="https://pldi26.sigplan.org">PLDI 2026</a>!</li>
+        <li>April 2026: Our paper <a href="https://doi.org/10.1145/3808318">Weighted NetKAT: A Programming Language For Quantitative Network Verification</a> was selected to appear at <a href="https://pldi26.sigplan.org">PLDI 2026</a>!</li>
     
         <li>October 2025: I will be serving on the artifact evaluation committee for <a href="https://popl26.sigplan.org">POPL 2026</a>.</li>
     
@@ -56,6 +56,42 @@
         </footer>
 
         <script>
+            var btns = document.getElementsByClassName("bib-button");
+            var i;
+
+            for (i = 0; i < btns.length; i++) {
+                const btn = btns[i];
+                btn.addEventListener("click", async function() {
+                  const icon = btn.querySelector("i");
+                  const content = btn.nextElementSibling;
+                  const bibtex = content.querySelector("code");
+
+                  icon.classList.toggle("fa-angle-down");
+                  icon.classList.toggle("fa-angle-up");
+
+                  if (content.style.display === "block") {
+                    content.style.display = "none";
+                  } else {
+                    content.style.display = "block";
+                  }
+
+                  if (!bibtex.textContent) {
+                    const file = btn.dataset.bib;
+                    console.log(file);
+
+                    try {
+                      const response = await fetch(file);
+                      const text = await response.text();
+                      bibtex.textContent = text;
+                    } catch (err) {
+                      bibtex.textContent = "Failed to load bibliography.";
+                    }
+                  }
+                });
+            }
+
+            i = 0;
+
             var coll = document.getElementsByClassName("collapsible");
             var i;
 

@@ -1,9 +1,12 @@
 <ul>
     $for(pubs)$
         <li>
-            <a href="$doi$">$title$</a><br>
+            <a href="$local$">$title$</a><br>
             <i>$authors$</i><br>
             <strong>$venue$</strong><br>
+            $if(doi)$
+            [<a href="$doi$">doi</a>]
+            $endif$
             $if(arxiv)$
             [<a href="$arxiv$">arXiv</a>]
             $endif$
@@ -12,6 +15,14 @@
             $endif$
             $if(slides)$
             [<a href="$slides$">slides</a>]
+            $endif$
+            $if(bib)$
+            [<button class="bib-button" data-bib="$bib$">
+                bibtex <i class="fa-solid fa-angle-down fa-xl" style="vertical-align:middle"></i>
+            </button>]
+            <div class="bib-content">
+                <code style="color: white"="$bib$"></code>
+            </div>
             $endif$
         </li>
         <br>

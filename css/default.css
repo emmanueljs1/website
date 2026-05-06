@@ -30,6 +30,34 @@ body {
   background-color: #ccc;
 }
 
+.bib-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: yellow;
+  cursor: pointer;
+  font: inherit;
+}
+
+.bib-button:hover {
+  color: orange;
+}
+
+.bib-button:active {
+  color: orange;
+}
+
+.bib-content {
+  display: none;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: none;
+  line-height: 1.4;
+  text-indent: 0;
+}
+
 .collapsible:after {
   content: '\02795'; /* Unicode character for "plus" sign (+) */
   font-size: 13px;

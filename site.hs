@@ -16,6 +16,14 @@ main = hakyll $ do
         route   idRoute
         compile copyFileCompiler
 
+    match "local/*" $ do
+        route   idRoute
+        compile copyFileCompiler
+
+    match "bib/*" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler

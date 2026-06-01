@@ -71,6 +71,63 @@ emma@cs.cornell.edu \ \textbullet
 \ \ linkedin.com/in/emsuac \ \ \textbullet
 \ \ github.com/emmanueljs1\\
 \end{center}
+
+\hrule
+\subsection*{Work Experience}
+
+\begin{enumerate}[label=]
+	\parskip=-0.05em
+
+	\item
+		\headerrow
+			{\textbf{Graduate Researcher}}
+			{\textbf{New York, NY}}
+	\headerrow
+        {Cornell University}
+        {\emph{August 2024 -- Present}}
+    \iflong
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+\item\tabulardef{4cm}{}{Developing formal verification techniques for randomized concurrent systems with fair scheduling guarantees, targeting correctness of distributed consensus protocols}
+        \item\tabulardef{4cm}{}{Designed programming language for automated verification of
+            quantitative network behavior (e.g., \emph{is all traffic delivered within 9ms?})
+            and presented paper at PLDI 2026}
+	\end{enumerate}
+    \fi
+
+	\item
+		\headerrow
+			{\textbf{Graduate Researcher}}
+			{\textbf{Philadelphia, PA}}
+	\headerrow
+        {University of Pennsylvania}
+        {\emph{August 2022 -- April 2024}}
+    \iflong
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+\item\tabulardef{4cm}{}{Developed type system for statically tracking computational effects and resource demands, proving dead code elimination preserves program behavior (OOPSLA 2024)}
+	\end{enumerate}
+    \fi
+
+	\item
+		\headerrow
+			{\textbf{Senior Software Engineer}}
+			{\textbf{San Francisco, CA}}
+	\headerrow
+		{Strava}
+		{\emph{August 2019 -- July 2022}}
+    \iflong
+	\begin{enumerate}[label= *]
+	\parskip=-0.1em
+        \item \tabulardef{4cm}{}{Led platform-wide migration of core activities data model (1B+ records) into a centralized microservice to unlock new sport types (trail running, MTB, etc.)}
+        \item \tabulardef{4cm}{}{Investigated malformed route data, identifying/fixing root causes and then shipping Apache Spark backfill job and request hooks to remediate affected data}
+        \item \tabulardef{4cm}{}{Used Apache Kafka and Spark to build geospatial data pipeline powering Strava Metro, a platform used by transportation agencies worldwide for urban planning}
+        \item \tabulardef{4cm}{}{Developed Scala microservice using Finatra, Apache Thrift, and Cassandra to serve millions of static map rendering requests across iOS, Android, and web}
+	\end{enumerate}
+    \fi
+\end{enumerate}
+
+
 \hrule
 
 \subsection*{Education}
@@ -103,6 +160,23 @@ emma@cs.cornell.edu \ \textbullet
 	\headerrow
 		{\emph{BSE with Honors in Computer and Information Science}}
 		{\emph{August 2015 -- May 2019}}
+
+\end{enumerate}
+
+\hrule
+
+\subsection*{Skills}
+\begin{enumerate}[label=]
+	\parskip=-0.25em
+
+	\item
+    \textbf{Programming Languages:} \ OCaml, Scala, Python, Haskell, Java, Ruby, C/C++
+    
+    \item
+    \textbf{Software Engineering:} Git, Rails, Apache Spark, Apache Kafka, Apache Thrift, Cassandra, MySQL
+
+    \item
+    \textbf{Formal Verification:} \ Agda, Rocq, Lean
 
 \end{enumerate}
 
@@ -141,185 +215,15 @@ emma@cs.cornell.edu \ \textbullet
 \end{enumerate}
 
 \hrule
-\subsection*{Work Experience}
-
-\begin{enumerate}[label=]
-	\parskip=-0.05em
-
-	\item
-		\headerrow
-			{\textbf{Graduate Researcher}}
-			{\textbf{New York, NY}}
-	\headerrow
-        {Cornell University}
-        {\emph{August 2024 -- Present}}
-    \iflong
-	\begin{enumerate}[label= *]
-	\parskip=-0.1em
-        \item\tabulardef{4cm}{}{Developing program logics for reasoning about concurrent,
-            randomized programs}
-        \item\tabulardef{4cm}{}{Designed programming language for verifying
-            quantitative network behavior (e.g., \emph{is all traffic delivered within 9ms?})
-            and presented paper at PLDI 2026}
-	\end{enumerate}
-    \fi
-
-	\item
-		\headerrow
-			{\textbf{Research Intern}}
-			{\textbf{Minneapolis, MN}}
-	\headerrow
-		{University of Minnesota, Twin Cities}
-        {\emph{May 2024 -- August 2024}}
-    \iflong
-	\begin{enumerate}[label= *]
-	\parskip=-0.1em
-        \item\tabulardef{4cm}{}{Worked on an extension of Martin-L\"{o}f type theory with strictly
-            associative dependent sums and presented work at HoTT MURI 2024 Meeting}
-	\end{enumerate}
-    \fi
-
-	\item
-		\headerrow
-			{\textbf{Graduate Researcher}}
-			{\textbf{Philadelphia, PA}}
-	\headerrow
-        {University of Pennsylvania}
-        {\emph{August 2022 -- April 2024}}
-    \iflong
-	\begin{enumerate}[label= *]
-	\parskip=-0.1em
-        \item\tabulardef{4cm}{}{
-            Developed type system for tracking effects and coeffects in
-            call-by-push-value (with properties formalized in Rocq)
-            and presented paper at OOPSLA 2024}
-    \item\tabulardef{4cm}{}{Wrote paper in literate Agda
-            (available on the arXiv) showcasing a proof
-            that can be used for teaching the technique
-            of logical relations with a proof assistant}
-	\end{enumerate}
-    \fi
-
-	\item
-		\headerrow
-			{\textbf{Senior Software Engineer}}
-			{\textbf{San Francisco, CA}}
-	\headerrow
-		{Strava}
-		{\emph{August 2019 -- July 2022}}
-    \iflong
-	\begin{enumerate}[label= *]
-	\parskip=-0.1em
-        \item Led the design and implementation of core system for modeling types of activities
-        \item Mentored junior engineers in microservice architecture and Scala programming
-        \item \tabulardef{4cm}{}{Used Apache Spark and Apache Kafka to build a geospatial data export tool for city planners}
-		\item Built tools to verify and ensure correctness of internal route data
-		\item Developed a Scala microservice serving all static maps in product
-	\end{enumerate}
-    \fi
-\end{enumerate}
-
-\hrule
-\subsection*{Teaching Experience}
-\begin{enumerate}[label=]
-	\parskip=-0.05em
-    \item
-        \headerrow
-            {\textbf{Mentor}}
-            {\textbf{University of Pennsylvania}}
-        \headerrow
-            {CIS 5520: Advanced Programming}
-            {\emph{Nov 2023 -- Dec 2023}}
-
-	\item
-		\headerrow
-			{\textbf{Teaching Assistant}}
-			{\textbf{University of Pennsylvania}}
-	\headerrow
-		{CIS 5520: Advanced Programming}
-		{\emph{August 2022 -- December 2022}}
-
-	\item
-		\headerrow
-			{\textbf{Head Teaching Assistant}}
-			{\textbf{University of Pennsylvania}}
-	\headerrow
-		{CIS 120: Programming Languages \& Techniques I}
-		{\emph{August 2016 -- May 2019}}
-\end{enumerate}
-
-\hrule
-
-\newpage
-
-\hrule
-\subsection*{Service}
-
-\begin{enumerate}[label=]
-	\parskip=-0.05em
-	\item
-	\headerrow
-        {\textbf{POPL 2026 Artifact Evaluation Committee Member}}
-		{}
-
-	\item
-	\headerrow
-        {\textbf{Cornell Student-Applicant Support Program (Fall 2024)}}
-        {}
-
-    \item
-		\headerrow
-            {\textbf{Heights Philadelphia Summer School Teaching Assistant (2023)}}
-            {}
-\end{enumerate}
-
-\hrule
-\subsection*{Talks}
-
-\begin{enumerate}[label=]
-	\parskip=-0.05em
-	\item
-	\headerrow
-        {\textbf{Effects and Coeffects in Call-By-Push-Value}}
-		{\textbf{OOPSLA 2024}}
-
-	\item
-	\headerrow
-        {\textbf{Strictly Associative Sigmas}}
-		{\textbf{HoTT MURI 2024 meeting}}
-\end{enumerate}
-
-\hrule
-
 \subsection*{Awards}
 \begin{enumerate}[label=]
-	\parskip=-0.25em
-    \item \emph{Dean's Excellence and Hopper-Dean Fellowship}, Cornell University Ann S. Bowers College of Computing and Information Science (2024)
-    \item \emph{Outstanding Research Award}, University of Pennsylvania School of Engineering and Applied Sciences (2024)
-    \item \emph{Graduate Research Fellowship}, National Science Foundation (2024)
-    \item \emph{Dean's Master's Scholarship}, University of Pennsylvania School of Engineering and Applied Sciences (2022)
+       \parskip=-0.25em
+   \item \emph{Graduate Research Fellowship}, National Science Foundation (2024)
+   \item \emph{Outstanding Research Award}, University of Pennsylvania SEAS (2024)
+    \item \emph{Dean's Excellence/Hopper-Dean Fellowship}, Cornell Bowers CIS (2024)
 \end{enumerate}
 \hrule
 
-\subsection*{Skills}
-\begin{enumerate}[label=]
-	\parskip=-0.25em
-
-	\item
-       \textbf{Languages: } Agda, OCaml, Rocq, Haskell, Scala, Lean, Java, Ruby, C/C++, Javascript
-
-	\item
-	\textbf{General: }
-        Git,
-        \LaTeX,
-        Rails,
-        Apache Spark,
-        MySQL,
-        React,
-        Fluent in Spanish
-
-\end{enumerate}
-\hrule
 
 \end{document}
 

@@ -30,7 +30,7 @@ body {
   background-color: #ccc;
 }
 
-.bib-button {
+.link-button {
   background: none;
   border: none;
   padding: 0;
@@ -39,16 +39,17 @@ body {
   font: inherit;
 }
 
-.bib-button:hover {
+.link-button:hover {
   color: orange;
 }
 
-.bib-button:active {
+.link-button:active {
   color: orange;
 }
 
 .bib-content {
   display: none;
+  flex-direction: column;
   margin-top: 6px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -56,6 +57,13 @@ body {
   background-color: none;
   line-height: 1.4;
   text-indent: 0;
+}
+
+.bib-content-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+    width: 100%;
 }
 
 .collapsible:after {

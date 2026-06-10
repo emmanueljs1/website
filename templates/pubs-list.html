@@ -17,11 +17,16 @@
             [<a href="$slides$">slides</a>]
             $endif$
             $if(bib)$
-            [<button class="bib-button" data-bib="$bib$">
+            [<button class="bib-button link-button" data-bib="$bib$">
                 bibtex <i class="fa-solid fa-angle-down fa-xl" style="vertical-align:middle"></i>
             </button>]
             <div class="bib-content">
-                <code style="color: white"="$bib$"></code>
+                <code style="color: white"></code>
+                <div class="bib-content-footer">
+                    <button class="copy-bib-btn link-button">
+                        <i class="fa-regular fa-xl fa-copy"></i>
+                    </button>
+                </div>
             </div>
             $endif$
         </li>

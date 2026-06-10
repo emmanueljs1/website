@@ -63,10 +63,10 @@
                   icon.classList.toggle("fa-angle-down");
                   icon.classList.toggle("fa-angle-up");
 
-                  if (content.style.display === "block") {
+                  if (content.style.display === "flex") {
                     content.style.display = "none";
                   } else {
-                    content.style.display = "block";
+                    content.style.display = "flex";
                   }
 
                   if (!bibtex.textContent) {
@@ -81,6 +81,24 @@
                       bibtex.textContent = "Failed to load bibliography.";
                     }
                   }
+                });
+            }
+
+            var copyBtns = document.getElementsByClassName("copy-bib-btn");
+            for (var i = 0; i < copyBtns.length; i++) {
+                const copyBtn = copyBtns[i];
+                copyBtn.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    const bibtex = copyBtn.closest(".bib-content").querySelector("code");
+                    console.log("copy clicked, text:", bibtex.textContent);
+                    navigator.clipboard.writeText(bibtex.textContent).then(() => {
+                        copyBtn.innerHTML = '<i class="fa-solid fa-xl fa-check"></i>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fa-regular fa-xl fa-copy"></i>';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error("Clipboard failed:", err);
+                    });
                 });
             }
 

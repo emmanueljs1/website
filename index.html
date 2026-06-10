@@ -113,11 +113,16 @@ projects, or take a look at my <a href="./files/resume.pdf">CV</a>.
             
             
             
-            [<button class="bib-button" data-bib="/bib/wnetkat.bib">
+            [<button class="bib-button link-button" data-bib="/bib/wnetkat.bib">
                 bibtex <i class="fa-solid fa-angle-down fa-xl" style="vertical-align:middle"></i>
             </button>]
             <div class="bib-content">
-                <code style="color: white" =" bib wnetkat.bib"></code>
+                <code style="color: white"></code>
+                <div class="bib-content-footer">
+                    <button class="copy-bib-btn link-button">
+                        <i class="fa-regular fa-xl fa-copy"></i>
+                    </button>
+                </div>
             </div>
             
         </li>
@@ -140,11 +145,16 @@ projects, or take a look at my <a href="./files/resume.pdf">CV</a>.
             [<a href="./slides/oopsla2024.pdf">slides</a>]
             
             
-            [<button class="bib-button" data-bib="/bib/eff-coeff-cbpv.bib">
+            [<button class="bib-button link-button" data-bib="/bib/eff-coeff-cbpv.bib">
                 bibtex <i class="fa-solid fa-angle-down fa-xl" style="vertical-align:middle"></i>
             </button>]
             <div class="bib-content">
-                <code style="color: white" =" bib eff-coeff-cbpv.bib"></code>
+                <code style="color: white"></code>
+                <div class="bib-content-footer">
+                    <button class="copy-bib-btn link-button">
+                        <i class="fa-regular fa-xl fa-copy"></i>
+                    </button>
+                </div>
             </div>
             
         </li>
@@ -192,10 +202,10 @@ projects, or take a look at my <a href="./files/resume.pdf">CV</a>.
                   icon.classList.toggle("fa-angle-down");
                   icon.classList.toggle("fa-angle-up");
 
-                  if (content.style.display === "block") {
+                  if (content.style.display === "flex") {
                     content.style.display = "none";
                   } else {
-                    content.style.display = "block";
+                    content.style.display = "flex";
                   }
 
                   if (!bibtex.textContent) {
@@ -210,6 +220,24 @@ projects, or take a look at my <a href="./files/resume.pdf">CV</a>.
                       bibtex.textContent = "Failed to load bibliography.";
                     }
                   }
+                });
+            }
+
+            var copyBtns = document.getElementsByClassName("copy-bib-btn");
+            for (var i = 0; i < copyBtns.length; i++) {
+                const copyBtn = copyBtns[i];
+                copyBtn.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    const bibtex = copyBtn.closest(".bib-content").querySelector("code");
+                    console.log("copy clicked, text:", bibtex.textContent);
+                    navigator.clipboard.writeText(bibtex.textContent).then(() => {
+                        copyBtn.innerHTML = '<i class="fa-solid fa-xl fa-check"></i>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '<i class="fa-regular fa-xl fa-copy"></i>';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error("Clipboard failed:", err);
+                    });
                 });
             }
 
